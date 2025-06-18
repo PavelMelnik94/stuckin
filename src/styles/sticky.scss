@@ -1,0 +1,81 @@
+/**
+ * Стили для sticky компонентов
+ * Принцип модульности и переиспользования
+ */
+
+// Переменные
+:root {
+  --sticky-transition-duration: 0.2s;
+  --sticky-transition-easing: ease-out;
+  --sticky-z-index-base: 1000;
+  --sticky-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+// Базовые стили для sticky элементов
+.sticky-normal {
+  transition:
+    transform var(--sticky-transition-duration) var(--sticky-transition-easing),
+    box-shadow var(--sticky-transition-duration) var(--sticky-transition-easing);
+}
+
+.sticky-sticky {
+  box-shadow: var(--sticky-shadow);
+
+  &.smooth-transition {
+    transition:
+      transform var(--sticky-transition-duration) var(--sticky-transition-easing),
+      box-shadow var(--sticky-transition-duration) var(--sticky-transition-easing);
+  }
+}
+
+.sticky-bottom-reached {
+  // Стили для состояния "достигнут низ"
+}
+
+// Модификатор для активного состояния
+.is-sticky {
+  // Дополнительные стили для активного sticky
+}
+
+// Контейнер для группы
+.sticky-container {
+  position: relative;
+
+  &[data-active-count="0"] {
+    // Стили когда нет активных элементов
+  }
+
+  &[data-active-count="1"] {
+    // Стили для одного активного элемента
+  }
+
+  // Можно добавить стили для разного количества активных элементов
+}
+
+// Утилитарные классы
+.sticky-debug {
+  &::before {
+    content: attr(data-sticky-state);
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #ff0000;
+    color: white;
+    padding: 2px 4px;
+    font-size: 10px;
+    z-index: 9999;
+  }
+}
+
+// Responsive breakpoints
+@media (max-width: 768px) {
+  .sticky-container {
+    // Мобильные стили
+  }
+}
+
+@media (max-width: 480px) {
+  .sticky-container {
+    // Стили для маленьких экранов
+  }
+}

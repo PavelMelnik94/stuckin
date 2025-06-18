@@ -1,0 +1,93 @@
+{
+  "name": "sticky",
+  "version": "1.0.0",
+  "author": "",
+  "license": "ISC",
+  "description": "Мощная, гибкая и оптимизированная библиотека для sticky элементов",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./hooks": {
+      "import": "./dist/hooks.es.js",
+      "require": "./dist/hooks.js",
+      "types": "./dist/hooks.d.ts"
+    },
+    "./components": {
+      "import": "./dist/components.es.js",
+      "require": "./dist/components.js",
+      "types": "./dist/components.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/utils.es.js",
+      "require": "./dist/utils.js",
+      "types": "./dist/utils.d.ts"
+    },
+    "./styles": "./dist/style.css"
+  },
+  "size-limit": [
+    {
+      "name": "Full bundle (gzipped)",
+      "path": "dist/index.js",
+      "limit": "25 KB"
+    },
+    {
+      "name": "Hooks only (gzipped)",
+      "path": "dist/hooks.js",
+      "limit": "8 KB"
+    },
+    {
+      "name": "Components only (gzipped)",
+      "path": "dist/components.js",
+      "limit": "12 KB"
+    }
+  ],
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "mobx": {
+      "optional": true
+    },
+    "mobx-react-lite": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.1.0",
+    "@testing-library/user-event": "^14.5.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "@types/jest": "^29.5.0",
+    "resize-observer-polyfill": "^1.5.1",
+    "intersection-observer": "^0.12.2",
+    "@size-limit/preset-small-lib": "^8.2.0",
+    "size-limit": "^8.2.0",
+    "rollup-plugin-visualizer": "^5.9.0",
+    "vite-bundle-analyzer": "^0.7.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:integration": "jest --testPathPattern=integration",
+    "build": "vite build",
+    "build:analyze": "vite build && npm run analyze",
+    "analyze": "npx vite-bundle-analyzer dist/bundle-analysis.html",
+    "size-limit": "size-limit",
+    "build:types": "tsc --emitDeclarationOnly",
+    "prepublishOnly": "npm run build && npm run test && npm run size-limit"
+  }
+}
