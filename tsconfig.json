@@ -1,0 +1,107 @@
+{
+  "compilerOptions": {
+    // === ОСНОВНЫЕ НАСТРОЙКИ ===
+    "target": "ES2022", // Современный JS для лучшей производительности
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2022",
+      "ES2023.Array" // Для новых методов массивов
+    ],
+    "module": "ESNext", // ESM модули для tree-shaking
+    "moduleResolution": "bundler", // Современное разрешение модулей (Vite/Webpack 5)
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true, // Для быстрой компиляции в Vite
+
+    // === СТРОГОСТЬ ТИПИЗАЦИИ ===
+    "strict": true, // Максимальная строгость
+    "noImplicitAny": true, // Запрещаем any
+    "strictNullChecks": true, // Строгие проверки null/undefined
+    "strictFunctionTypes": true, // Строгие типы функций
+    "strictBindCallApply": true, // Строгие bind/call/apply
+    "strictPropertyInitialization": true, // Инициализация свойств классов
+    "noImplicitReturns": true, // Все пути должны возвращать значение
+    "noImplicitThis": true, // Явное указание типа this
+    "exactOptionalPropertyTypes": true, // Точные опциональные свойства
+
+    // === ДОПОЛНИТЕЛЬНЫЕ ПРОВЕРКИ ===
+    "noUnusedLocals": true, // Неиспользуемые локальные переменные
+    "noUnusedParameters": true, // Неиспользуемые параметры
+    "noImplicitOverride": true, // Явное override
+    "noPropertyAccessFromIndexSignature": true, // Доступ к свойствам через точку
+    "noFallthroughCasesInSwitch": true, // Fallthrough в switch
+    "noUncheckedIndexedAccess": true, // Безопасный доступ к массивам/объектам
+
+    // === JSX НАСТРОЙКИ ===
+    "jsx": "react-jsx", // Новый JSX transform React 17+
+    "jsxImportSource": "react",
+
+    // === ДЕКОРАТОРЫ ===
+    "experimentalDecorators": true, // Для MobX декораторов
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false, // Совместимость с decorators
+
+    // === ПУТИ И АЛИАСЫ ===
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [ "src/*" ], // Алиас для src
+      "@/components/*": [ "src/components/*" ],
+      "@/hooks/*": [ "src/hooks/*" ],
+      "@/utils/*": [ "src/utils/*" ],
+      "@/types/*": [ "src/types/*" ],
+      "@/core/*": [ "src/core/*" ],
+      "@/context/*": [ "src/context/*" ],
+      "@/debug/*": [ "src/debug/*" ],
+      "@/styles/*": [ "src/styles/*" ],
+      "@/tests/*": [ "src/tests/*" ]
+    },
+
+    // === ГЕНЕРАЦИЯ ФАЙЛОВ ===
+    "declaration": true, // Генерируем .d.ts файлы
+    "declarationMap": true, // Source maps для типов
+    "sourceMap": true, // Source maps для отладки
+    "outDir": "./dist", // Папка для выходных файлов
+    "rootDir": "./src", // Корневая папка исходников
+
+    // === ПРОИЗВОДИТЕЛЬНОСТЬ ===
+    "incremental": true, // Инкрементальная компиляция
+    "tsBuildInfoFile": "./.tsbuildinfo", // Файл для кеша
+    "skipLibCheck": true, // Пропускаем проверку .d.ts библиотек
+    "forceConsistentCasingInFileNames": true, // Консистентность имен файлов
+
+    // === INTEROP ===
+    "allowJs": false, // Не разрешаем JS файлы
+    "checkJs": false, // Не проверяем JS файлы
+    "resolveJsonModule": true, // Импорт JSON модулей
+
+    // === ДОПОЛНИТЕЛЬНО ===
+    "removeComments": false, // Сохраняем комментарии для dev
+    "preserveConstEnums": true, // Сохраняем const enum
+    "verbatimModuleSyntax": false // Разрешаем import elision
+  },
+
+  "include": [
+    "src/**/*", // Все файлы в src
+    "src/**/*.tsx",
+    "src/**/*.ts",
+    "global.d.ts" // Глобальные типы
+  ],
+
+  "exclude": [
+    "node_modules", // Исключаем зависимости
+    "dist", // Исключаем сборку
+    "coverage", // Исключаем покрытие тестов
+    "**/*.test.ts", // Тесты обрабатываем отдельно
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "src/tests/**/*" // Тестовые утилиты отдельно
+  ],
+
+  // === REFERENCES ===
+  "references": [
+    { "path": "./tsconfig.build.json" }, // Конфиг для сборки
+    { "path": "./tsconfig.test.json" } // Конфиг для тестов
+  ]
+}

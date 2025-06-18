@@ -1,0 +1,38 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // === БЫСТРАЯ КОМПИЛЯЦИЯ ДЛЯ РАЗРАБОТКИ ===
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    // === PERFORMANCE ОПТИМИЗАЦИИ ===
+    "incremental": true, // Инкрементальная компиляция
+    "tsBuildInfoFile": "./.tsbuildinfo-dev", // Отдельный cache для dev
+    "assumeChangesOnlyAffectDirectDependencies": true,
+
+    // === RELAXED ПРОВЕРКИ ДЛЯ БЫСТРОТЫ ===
+    "skipLibCheck": true, // Пропускаем библиотеки
+    "skipDefaultLibCheck": true,
+
+    // === SOURCE MAPS ДЛЯ ОТЛАДКИ ===
+    "sourceMap": true,
+    "inlineSourceMap": false,
+    "inlineSources": true,
+
+    // === МЕНЕЕ СТРОГИЕ ПРОВЕРКИ ===
+    "noUnusedLocals": false, // Разрешаем в dev режиме
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false, // Упрощаем для быстрой разработки
+
+    // === НЕ ГЕНЕРИРУЕМ ТИПЫ В DEV ===
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false
+  },
+
+  "include": [
+    "src/**/*",
+    "vite.config.ts", // Включаем конфиги
+  ]
+}

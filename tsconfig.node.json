@@ -1,0 +1,38 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // === NODE.JS НАСТРОЙКИ ===
+    "target": "ES2022",
+    "module": "CommonJS", // CommonJS для Node.js
+    "moduleResolution": "node", // Node.js module resolution
+
+    // === ТИПЫ ===
+    "types": [ "node" ], // Только Node.js типы
+    "lib": [ "ES2022" ], // Без DOM типов
+
+    // === ВЫХОД ===
+    "outDir": "./dist-node",
+    "rootDir": ".",
+
+    // === ОТКЛЮЧАЕМ ЛИШНЕЕ ===
+    "jsx": "preserve", // Не обрабатываем JSX
+    "declaration": false, // Не генерируем типы
+    "sourceMap": true
+  },
+
+  "include": [
+    "scripts/**/*", // Build скрипты
+    "tools/**/*", // Утилиты
+    "*.config.js", // Конфигурационные файлы
+    "*.config.ts",
+    "jest.config.js",
+    "vite.config.ts",
+    "rollup.config.js"
+  ],
+
+  "exclude": [
+    "src/**/*", // Исключаем исходники библиотеки
+    "dist/**/*",
+    "node_modules"
+  ]
+}

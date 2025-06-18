@@ -1,0 +1,45 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // === ОПТИМИЗАЦИЯ ДЛЯ ПРОДАКШЕНА ===
+    "target": "ES2020", // Более широкая совместимость
+    "module": "ESNext", // ESM для tree-shaking
+    "moduleResolution": "bundler",
+
+    // === ГЕНЕРАЦИЯ ТИПОВ ===
+    "declaration": true, // Обязательно генерируем типы
+    "declarationMap": true, // Source maps для типов
+    "emitDeclarationOnly": false, // Генерируем и JS и типы
+    "composite": true, // Для project references
+
+    // === ОПТИМИЗАЦИЯ ===
+    "removeComments": true, // Удаляем комментарии в продакшене
+    "sourceMap": false, // Отключаем source maps для prod
+    "inlineSources": false,
+    "importHelpers": true, // Используем tslib для helpers
+
+    // === СТРОГОСТЬ (максимальная для библиотеки) ===
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+
+    // === ВЫХОД ===
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declarationDir": "./dist/types" // Отдельная папка для типов
+  },
+
+  "include": [
+    "src/**/*"
+  ],
+
+  "exclude": [
+    "**/*.test.*", // Исключаем тесты из сборки
+    "**/*.spec.*",
+    "src/tests/**/*",
+    "**/*.stories.*", // Исключаем Storybook
+    "src/**/__tests__/**/*",
+    "src/**/__mocks__/**/*"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // === НАСТРОЙКИ ДЛЯ ТЕСТОВ ===
+    "target": "ES2022", // Современный JS для Node.js
+    "module": "CommonJS", // CommonJS для Jest
+    "moduleResolution": "node", // Node.js разрешение для Jest
+
+    // === RELAXED СТРОГОСТЬ ДЛЯ ТЕСТОВ ===
+    "noUnusedLocals": false, // Разрешаем неиспользуемые в тестах
+    "noUnusedParameters": false, // Разрешаем неиспользуемые параметры
+    "strictPropertyInitialization": false, // Упрощаем инициализацию в тестах
+
+    // === ГЕНЕРАЦИЯ ===
+    "declaration": false, // Не генерируем типы для тестов
+    "sourceMap": true, // Source maps для отладки тестов
+    "inlineSourceMap": false,
+    "inlineSources": false,
+
+    // === ДОПОЛНИТЕЛЬНЫЕ ТИПЫ ДЛЯ ТЕСТОВ ===
+    "types": [
+      "jest", // Jest типы
+      "@testing-library/jest-dom", // Jest-DOM матчеры
+      "node" // Node.js типы
+    ],
+
+    // === АЛИАСЫ (те же что и в основном конфиге) ===
+    "paths": {
+      "@/*": [ "src/*" ],
+      "@/components/*": [ "src/components/*" ],
+      "@/hooks/*": [ "src/hooks/*" ],
+      "@/utils/*": [ "src/utils/*" ],
+      "@/types/*": [ "src/types/*" ],
+      "@/core/*": [ "src/core/*" ],
+      "@/context/*": [ "src/context/*" ],
+      "@/debug/*": [ "src/debug/*" ],
+      "@/tests/*": [ "src/tests/*" ]
+    }
+  },
+
+  "include": [
+    "src/**/*.test.ts", // Включаем только тесты
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "src/tests/**/*", // Тестовые утилиты
+    "src/**/__tests__/**/*",
+    "src/**/__mocks__/**/*",
+    "jest.config.js",
+    "jest.setup.ts"
+  ]
+}
