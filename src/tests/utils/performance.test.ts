@@ -5,7 +5,7 @@
 import { performanceMonitor } from '../../utils/performance';
 
 describe('Performance Utils', () => {
-  const originalNodeEnv = process.env.NODE_ENV;
+  const originalNodeEnv = process?.env?.NODE_ENV;
 
   beforeEach(() => {
     jest.useFakeTimers();
