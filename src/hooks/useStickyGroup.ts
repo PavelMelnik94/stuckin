@@ -64,9 +64,10 @@ export const useStickyGroup = (options: UseStickyGroupOptions): UseStickyGroupRe
   }, [context, groupId]);
 
   const refreshGroup = useCallback(() => {
-    elements.forEach(element => {
+    elements.forEach(_element => {
       // Принудительно обновляем состояние элементов группы
-      const rect = element.element.getBoundingClientRect();
+      // TODO: Use rect for element update logic
+      // const rect = element.element.getBoundingClientRect();
       //TODO Здесь нужно добавить логику обновления
     });
   }, [elements]);

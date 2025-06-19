@@ -1,15 +1,17 @@
 /**
- * Расширенный StickyManager с интегрированной отладкой
- * Extends базовый StickyManager дополнительной debug функциональностью
+ * Расширения для StickyManager с отладочной функциональностью
+ * Принцип: расширение через наследование
  */
 
 import { action } from 'mobx';
+import type { StickyConfig, StickyElement } from '../types/sticky.types';
 import { StickyManager } from './StickyManager';
 import { stickyDebugger } from '../debug/StickyDebugger';
 import { performanceMonitor } from '../utils/performance';
-import { debugLogger } from '../debug/debugLogger';
-import type { StickyConfig, StickyElement } from '../types/sticky.types';
 
+/**
+ * Расширенный StickyManager с отладочными возможностями
+ */
 export class EnhancedStickyManager extends StickyManager {
   /**
    * Расширенная регистрация с отладкой
@@ -22,19 +24,22 @@ export class EnhancedStickyManager extends StickyManager {
         this.registerSticky(htmlElement, config);
       });
 
-      debugLogger.registration(config.id, {
-        config,
-        elementTag: htmlElement.tagName
-      });
+      stickyDebugger.log(
+        'registration',
+        config.id,
+        'Элемент успешно зарегистрирован',
+        { config, elementTag: htmlElement.tagName }
+      );
 
       // Проверяем конфигурацию на потенциальные проблемы
       this.validateElementConfig(config);
 
-    } catch (error) {
-      debugLogger.error(
+    } catch (error: any) {
+      stickyDebugger.log(
+        'error',
         config.id,
         'Ошибка при регистрации элемента',
-        { error: (error as Error).message, config }
+        { error: error.message, config }
       );
       throw error;
     }
@@ -69,15 +74,16 @@ export class EnhancedStickyManager extends StickyManager {
 
     // Логируем предупреждения
     warnings.forEach(warning => {
-      debugLogger.warning(config.id, warning);
+      stickyDebugger.log('warning', config.id, warning);
     });
   }
 
   /**
    * Обновление состояния с отладкой
+   * TODO: Использовать этот метод для отладки обновлений состояния
    */
   @action
-  updateStickyStateWithDebug(element: StickyElement): void {
+  private _updateStickyStateWithDebug(element: StickyElement): void {
     const prevState = element.state;
 
     // Замеряем производительность обновления
@@ -90,10 +96,17 @@ export class EnhancedStickyManager extends StickyManager {
 
     // Логируем изменения состояния
     if (element.state !== prevState) {
-      debugLogger.stateChange(element.id, prevState, element.state, {
-        updateTime,
-        elementRect: element.element.getBoundingClientRect()
-      });
+      stickyDebugger.log(
+        'state-change',
+        element.id,
+        `Состояние изменилось: ${prevState} → ${element.state}`,
+        {
+          previousState: prevState,
+          currentState: element.state,
+          updateTime,
+          elementRect: element.element.getBoundingClientRect()
+        }
+      );
 
       // Автоматическое создание снимка при критических изменениях
       if (stickyDebugger.debugConfig.autoCapture && element.state === 'sticky') {
@@ -137,6 +150,3 @@ export class EnhancedStickyManager extends StickyManager {
     };
   }
 }
-
-// Экспортируем singleton instance
-export const enhancedStickyManager = new EnhancedStickyManager();

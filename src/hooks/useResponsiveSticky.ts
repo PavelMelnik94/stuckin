@@ -1,10 +1,10 @@
 import { useEffect, useState, useMemo } from 'react';
-import { observer } from 'mobx-react-lite';
+// import { observer } from 'mobx-react-lite'; // TODO: Add if needed
 import { useSticky, UseStickyOptions } from './useSticky';
 import { responsiveManager, ResponsiveConfig } from '../utils/responsive';
 import { StickyConfig } from '../types/sticky.types';
 
-export interface UseResponsiveStickyOptions extends Omit<UseStickyOptions, 'direction' | 'offset'> {
+export interface UseResponsiveStickyOptions extends UseStickyOptions {
   responsive: ResponsiveConfig;
   fallback?: Partial<StickyConfig>; // конфигурация по умолчанию
 }
@@ -35,25 +35,30 @@ export const useResponsiveSticky = (options: UseResponsiveStickyOptions) => {
   const responsiveConfig = useMemo(() => {
     if (!currentBreakpoint) return options.fallback || {};
 
-    const breakpointConfig = responsiveManager.getConfigForBreakpoint(options.responsive);
+    const breakpointConfig = responsiveManager.getConfigForBreakpoint(
+      options.responsive as unknown as Record<string, unknown>
+    );
 
     return {
       ...options.fallback,
-      ...breakpointConfig
+      ...(breakpointConfig || {})
     } as Partial<StickyConfig>;
   }, [currentBreakpoint, options.responsive, options.fallback]);
 
   /**
    * Объединяем базовые опции с responsive конфигурацией
    */
-  const stickyOptions = useMemo((): UseStickyOptions => ({
-    ...options,
-    ...responsiveConfig,
-    // Отключаем sticky на мобильных если не указано иначе
-    enabled: responsiveConfig.disabled !== undefined
+  const stickyOptions = useMemo((): UseStickyOptions => {
+    const enabled = responsiveConfig.disabled !== undefined
       ? !responsiveConfig.disabled
-      : options.enabled
-  }), [options, responsiveConfig]);
+      : options.enabled;
+
+    return {
+      ...options,
+      ...responsiveConfig,
+      enabled: enabled ?? true
+    };
+  }, [options, responsiveConfig]);
 
   const stickyResult = useSticky(stickyOptions);
 

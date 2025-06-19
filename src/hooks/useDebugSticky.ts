@@ -91,7 +91,9 @@ export const useDebugSticky = (options: UseDebugStickyOptions) => {
   const debugRender = <T,>(fn: () => T): T => {
     if (!debugConfig.trackPerformance) return fn();
 
-    return stickyDebugger.performanceMonitor?.measureRenderTime(debugLabel, fn) || fn();
+    // TODO: Add performance monitor to stickyDebugger
+    // return stickyDebugger.performanceMonitor?.measureRenderTime(debugLabel, fn) || fn();
+    return fn();
   };
 
   /**

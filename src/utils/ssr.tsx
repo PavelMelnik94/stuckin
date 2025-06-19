@@ -180,6 +180,6 @@ export function withSSR<P extends object>(
       );
     }
 
-    return <Component {...props} ref={ref} />;
+    return <Component {...(props as any)} ref={ref} />;
   });
 }

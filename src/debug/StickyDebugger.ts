@@ -548,7 +548,7 @@ class StickyDebugger {
    * Очистка всех визуальных элементов
    */
   private clearVisualElements(): void {
-    this.visualElements.forEach((visualEl, elementId) => {
+    this.visualElements.forEach((visualEl, _elementId) => {
       if (visualEl.overlay) {
         visualEl.overlay.remove();
       }

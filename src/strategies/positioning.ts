@@ -3,6 +3,8 @@
  * Принцип Strategy Pattern: различные алгоритмы позиционирования
  */
 
+import type { StickyConfig } from '../types/sticky.types';
+
 export interface PositionStrategy {
   name: string;
   calculate: (element: HTMLElement, config: StickyConfig, viewport: ViewportInfo) => PositionResult;
@@ -36,8 +38,9 @@ export const standardStrategy: PositionStrategy = {
     return ['top', 'bottom', 'left', 'right'].includes(config.direction);
   },
 
-  calculate: (element, config, viewport) => {
-    const rect = element.getBoundingClientRect();
+  calculate: (_element, config, _viewport) => {
+    // TODO: Use element rect for proper calculation
+    // const rect = element.getBoundingClientRect();
     const { direction, offset } = config;
 
     return {

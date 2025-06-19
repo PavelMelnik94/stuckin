@@ -88,15 +88,15 @@ export function isStickyConfig(value: unknown): value is StickyConfig {
   const config = value as Record<string, unknown>;
 
   // Проверяем обязательные поля
-  if (!('id' in config) || !isString(config.id)) return false;
-  if (!('direction' in config) || !isStickyDirection(config.direction)) return false;
-  if (!('offset' in config) || !isObject(config.offset)) return false;
+  if (!('id' in config) || !isString(config['id'])) return false;
+  if (!('direction' in config) || !isStickyDirection(config['direction'])) return false;
+  if (!('offset' in config) || !isObject(config['offset'])) return false;
 
   // Проверяем опциональные поля
-  if ('priority' in config && !isNumber(config.priority)) return false;
-  if ('zIndex' in config && !isNumber(config.zIndex)) return false;
-  if ('disabled' in config && !isBoolean(config.disabled)) return false;
-  if ('smooth' in config && !isBoolean(config.smooth)) return false;
+  if ('priority' in config && !isNumber(config['priority'])) return false;
+  if ('zIndex' in config && !isNumber(config['zIndex'])) return false;
+  if ('disabled' in config && !isBoolean(config['disabled'])) return false;
+  if ('smooth' in config && !isBoolean(config['smooth'])) return false;
 
   return true;
 }
@@ -127,12 +127,12 @@ export function isValidDOMRect(rect: unknown): rect is DOMRect {
   if (!isObject(rect)) return false;
 
   const r = rect as Record<string, unknown>;
-  return isNumber(r.width) &&
-         isNumber(r.height) &&
-         isNumber(r.top) &&
-         isNumber(r.left) &&
-         isNumber(r.bottom) &&
-         isNumber(r.right);
+  return isNumber(r['width']) &&
+         isNumber(r['height']) &&
+         isNumber(r['top']) &&
+         isNumber(r['left']) &&
+         isNumber(r['bottom']) &&
+         isNumber(r['right']);
 }
 
 // === BROWSER API TYPE GUARDS ===

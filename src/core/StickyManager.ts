@@ -78,9 +78,12 @@ export class StickyManager {
       element: htmlElement,
       config,
       state: 'normal',
+      previousState: null,
       originalPosition,
       currentZIndex: zIndex,
-      isActive: false
+      isActive: false,
+      lastUpdate: Date.now(),
+      transitionCount: 0
     };
 
     this.elements.set(config.id, stickyElement);
@@ -186,7 +189,8 @@ export class StickyManager {
     }
 
     const rect = element.element.getBoundingClientRect();
-    const { direction, offset, boundary } = element.config;
+    // TODO: Use these values in sticky calculation
+    // const { direction, offset, boundary } = element.config;
 
     const newState = this.calculateStickyState(element, rect);
 
@@ -330,7 +334,7 @@ export class StickyManager {
     return Array.from(this.elements.values()).find(el => el.element === node);
   }
 
-  private isOutsideBoundary(element: StickyElement, boundary: any): boolean {
+  private isOutsideBoundary(_element: StickyElement, _boundary: any): boolean {
     // Логика проверки границ
     // Реализация зависит от типа boundary
     return false;
@@ -347,7 +351,7 @@ export class StickyManager {
     style.transition = '';
   }
 
-  private applyInitialStyles(element: StickyElement): void {
+  private applyInitialStyles(_element: StickyElement): void {
     // Применяем начальные стили если нужно
   }
 
@@ -381,6 +385,24 @@ export class StickyManager {
   private notifyStateChange(element: StickyElement, newState: StickyState): void {
     // Здесь можно добавить callback'и для уведомления о смене состояния
     console.debug(`Sticky element ${element.id} changed state to ${newState}`);
+  }
+
+  /**
+   * Публичный метод для обновления состояния элемента
+   */
+  @action
+  public refreshElement(element: StickyElement): void {
+    this.updateStickyState(element);
+  }
+
+  /**
+   * Публичный метод для обновления всех элементов
+   */
+  @action
+  public refreshAllElements(): void {
+    this.elements.forEach((element) => {
+      this.updateStickyState(element);
+    });
   }
 
   /**

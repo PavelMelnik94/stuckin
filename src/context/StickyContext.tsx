@@ -70,9 +70,7 @@ export const StickyProvider: React.FC<StickyProviderProps> = observer(({
     },
     getActiveElements: () => manager.activeElements,
     refreshAll: () => {
-      manager.elements.forEach((element) => {
-        manager.updateStickyState(element);
-      });
+      manager.refreshAllElements();
     }
   };
 

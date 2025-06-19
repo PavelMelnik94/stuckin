@@ -39,7 +39,7 @@ export const Sticky = observer(forwardRef<StickyRef, StickyProps>(({
     state,
     isSticky,
     isActive,
-    updateConfig,
+    // updateConfig, // TODO: Use this method if needed
     refresh,
     disable,
     enable
@@ -77,7 +77,7 @@ export const Sticky = observer(forwardRef<StickyRef, StickyProps>(({
 
   return (
     <Tag
-      ref={elementRef}
+      ref={elementRef as any}
       className={classes}
       style={combinedStyle}
       data-sticky-id={stickyOptions.id}

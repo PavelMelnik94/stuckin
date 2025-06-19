@@ -140,10 +140,11 @@ class PerformanceMonitor {
    * Мониторинг использования памяти
    */
   private startMemoryMonitoring(): void {
-    if (!performance.memory) return;
+    const memory = (performance as any).memory;
+    if (!memory) return;
 
     setInterval(() => {
-      const memoryUsage = performance.memory.usedJSHeapSize / (1024 * 1024); // в MB
+      const memoryUsage = memory.usedJSHeapSize / (1024 * 1024); // в MB
 
       if (memoryUsage > this.thresholds.maxMemoryUsage) {
         console.warn(
