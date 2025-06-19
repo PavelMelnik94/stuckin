@@ -2,9 +2,9 @@
  * Type-safe логгер для отладки
  * Принцип Single Responsibility: только логирование
  */
+import { ENV } from '../utils/env';
 
 import { stickyDebugger } from './StickyDebugger';
-import { ENV } from '../utils/env';
 
 /**
  * Типизированные методы логирования
