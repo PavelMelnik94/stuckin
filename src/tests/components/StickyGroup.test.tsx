@@ -50,7 +50,7 @@ describe('StickyGroup', () => {
     );
 
     const stickyContainer = container.firstChild as HTMLElement;
-    expect(stickyContainer).toHaveStyle('background-color: red');
+    expect(stickyContainer).toHaveStyle('background-color: rgb(255, 0, 0)');
   });
 
   test('должен создавать группу с указанным groupId', () => {

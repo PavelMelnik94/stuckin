@@ -4,10 +4,17 @@
 
 // Настраиваем глобальный window для тестов
 const mockWindow = {};
-Object.defineProperty(global, 'window', {
-  writable: true,
-  value: mockWindow
-});
+
+// Проверяем и настраиваем window только если не существует
+if (typeof window === 'undefined') {
+  Object.defineProperty(global, 'window', {
+    writable: true,
+    value: mockWindow
+  });
+} else {
+  // Если window уже существует, обновляем его свойства
+  Object.assign(window, mockWindow);
+}
 
 // Теперь импортируем модуль
 import { ENV, envLog, browserSupport, isDev, isProd, isTest, isBrowser, isServer } from '../../utils/env';

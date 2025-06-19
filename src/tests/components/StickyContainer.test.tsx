@@ -78,7 +78,7 @@ describe('StickyContainer', () => {
       );
 
       const stickyElement = screen.getByText('Styled Content').parentElement;
-      expect(stickyElement).toHaveStyle('background-color: red');
+      expect(stickyElement).toHaveStyle('background-color: rgb(255, 0, 0)');
       expect(stickyElement).toHaveStyle('padding: 20px');
     });
 

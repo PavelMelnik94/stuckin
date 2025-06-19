@@ -40,7 +40,7 @@ describe('Sticky Component Integration Tests', () => {
 
       const stickyElement = screen.getByText('Styled Content').parentElement;
       expect(stickyElement).toHaveClass('test-class');
-      expect(stickyElement).toHaveStyle('backgroundColor: red');
+      expect(stickyElement).toHaveStyle('background-color: rgb(255, 0, 0)');
     });
 
     test('должен устанавливать data-атрибуты', () => {
@@ -114,8 +114,8 @@ describe('Sticky Component Integration Tests', () => {
       const stickyElement = screen.getByText('Active Styles Content').parentElement!;
 
       // Изначально только базовые стили
-      expect(stickyElement).toHaveStyle('color: black');
-      expect(stickyElement).not.toHaveStyle('backgroundColor: blue');
+      expect(stickyElement).toHaveStyle('color: rgb(0, 0, 0)');
+      expect(stickyElement).not.toHaveStyle('backgroundColor: rgb(0, 0, 255)');
 
       // Активируем sticky состояние, изменив позицию элемента
       jest.spyOn(stickyElement, 'getBoundingClientRect').mockReturnValue({
@@ -142,8 +142,8 @@ describe('Sticky Component Integration Tests', () => {
 
       // Если элемент стал sticky, то стили должны примениться
       if (stickyElement.getAttribute('data-sticky-state') === 'sticky') {
-        expect(stickyElement).toHaveStyle('color: white');
-        expect(stickyElement).toHaveStyle('backgroundColor: blue');
+        expect(stickyElement).toHaveStyle('color: rgb(255, 255, 255)');
+        expect(stickyElement).toHaveStyle('backgroundColor: rgb(0, 0, 255)');
       }
     });
   });
