@@ -9,7 +9,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 
 import { ENV } from '@/utils/env';
-import { stickyDebugger, type DebugEvent, type PerformanceAnalysis } from '@/debug/StickyDebugger';
+import { stickyDebugger, type DebugEvent, type PerformanceAnalysis, type DebugSnapshot } from '@/debug/StickyDebugger';
 
 interface DebugPanelProps {
   position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
@@ -392,7 +392,7 @@ const RecommendationsList: React.FC<RecommendationsListProps> = React.memo(({ re
  * Таб со снимками
  */
 interface SnapshotsTabProps {
-  snapshots: readonly any[];
+  snapshots: readonly DebugSnapshot[];
   onCreateSnapshot: () => void;
 }
 
@@ -447,7 +447,7 @@ const SnapshotsTab: React.FC<SnapshotsTabProps> = React.memo(({
  * Отдельный компонент для снимка
  */
 interface SnapshotItemProps {
-  snapshot: any;
+  snapshot: DebugSnapshot;
   index: number;
 }
 
