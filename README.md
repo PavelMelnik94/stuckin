@@ -1,9 +1,43 @@
-# 🏷️ Sticky Lib
+# 🏷️ Stuckin
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-ready-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
 
 Мощная, гибкая и оптимизированная библиотека для sticky элементов с TypeScript, React 18+, и продвинутой отладкой.
+
+## 📚 Содержание
+
+- [✨ Features](#-features)
+- [📦 Установка](#-установка)
+- [🚀 Быстрый старт](#-быстрый-старт)
+  - [Базовое использование](#базовое-использование)
+  - [Использование с хуком](#использование-с-хуком)
+- [📖 API Документация](#-api-документация)
+  - [StickyProvider](#stickyprovider)
+  - [Sticky Component](#sticky-component)
+  - [useSticky Hook](#usesticky-hook)
+  - [useStickyGroup Hook](#usestickygroup-hook)
+- [🎨 Продвинутые примеры](#-продвинутые-примеры)
+  - [Responsive Sticky](#responsive-sticky)
+  - [Группы с приоритетами](#-группы-с-приоритетами)
+  - [SSR Support](#-ssr-support)
+- [🎯 Стратегии позиционирования](#-стратегии-позиционирования)
+  - [Follow Scroll](#follow-scroll)
+  - [Magnetic](#magnetic)
+  - [Parallax](#parallax)
+  - [Adaptive](#adaptive)
+  - [Animated](#animated)
+  - [Stacking](#stacking)
+  - [TypeScript интерфейсы](#-typescript-интерфейсы)
+- [🐛 Debugging](#-debugging)
+- [⚡ Производительность](#-производительность)
+- [🎨 CSS стили](#-css-стили)
+- [🔌 Дополнительные хуки](#-дополнительные-хуки)
+- [🛠️ Разработка](#️-разработка)
+- [📊 Статистика проекта](#-статистика-проекта)
+- [📄 Лицензия](#-лицензия)
+- [🤝 Вклад в проект](#-вклад-в-проект)
+- [📋 Changelog](#-changelog)
 
 ## ✨ Features
 
@@ -22,11 +56,11 @@
 ## 📦 Установка
 
 ```bash
-npm install @pavelmelnik94/sticky-lib
+npm install stuckin
 # или
-yarn add @pavelmelnik94/sticky-lib
+yarn add stuckin
 # или
-pnpm add @pavelmelnik94/sticky-lib
+pnpm add stuckin
 ```
 
 ## 🚀 Быстрый старт
@@ -35,7 +69,7 @@ pnpm add @pavelmelnik94/sticky-lib
 
 ```tsx
 import React from 'react';
-import { StickyProvider, Sticky } from '@your-org/sticky-lib';
+import { StickyProvider, Sticky } from 'stuckin';
 
 function App() {
   return (
@@ -60,11 +94,11 @@ function App() {
 }
 ```
 
-### 2. Использование с хуком
+### Использование с хуком
 
 ```tsx
 import React from 'react';
-import { StickyProvider, useSticky } from '@your-org/sticky-lib';
+import { StickyProvider, useSticky } from 'stuckin';
 
 function StickyNavigation() {
   const { ref, isSticky, state } = useSticky({
@@ -91,6 +125,7 @@ function StickyNavigation() {
 }
 ```
 
+[↑ Вернуться к началу](#️-stuckin)
 
 ## 📖 API Документация
 
@@ -171,12 +206,14 @@ const {
 });
 ```
 
+[↑ Вернуться к началу](#️-stuckin)
+
 ## 🎨 Продвинутые примеры
 
 ### Responsive Sticky
 
 ```tsx
-import { useResponsiveSticky } from '@pavelmelnik94/sticky-lib';
+import { useResponsiveSticky } from 'stuckin';
 
 function ResponsiveHeader() {
   const { ref, currentBreakpoint } = useResponsiveSticky({
@@ -208,7 +245,7 @@ function ResponsiveHeader() {
 ```
 
 
-## Группы с приоритетами
+## 👥 Группы с приоритетами
 
 ```tsx
 function Navigation() {
@@ -237,10 +274,10 @@ function Navigation() {
 }
 ```
 
-## SSR Support
+## 🌐 SSR Support
 
 ```tsx
-import { useSSRSticky } from '@pavelmelnik94/sticky-lib';
+import { useSSRSticky } from 'stuckin';
 
 function SSRCompatibleSticky() {
   const {
@@ -404,7 +441,7 @@ function SSRCompatibleSticky() {
 Можно также использовать стратегии через хуки:
 
 ```tsx
-import { useSticky } from '@pavelmelnik94/sticky-lib';
+import { useSticky } from 'stuckin';
 
 function AdvancedStickyComponent() {
   const { ref, isSticky } = useSticky({
@@ -440,7 +477,7 @@ import type {
   AdaptiveConfig,
   AnimatedConfig,
   StackingConfig
-} from '@pavelmelnik94/sticky-lib';
+} from 'stuckin';
 
 // Пример с полной типизацией
 interface MyComponentProps {
@@ -459,12 +496,14 @@ function MyComponent({ magneticConfig, parallaxConfig }: MyComponentProps) {
 }
 ```
 
+[↑ Вернуться к началу](#️-stuckin)
+
 ## 🐛 Debugging
 
 Библиотека включает мощные инструменты отладки:
 
 ```tsx
-import { DebugPanel } from '@pavelmelnik94/sticky-lib';
+import { DebugPanel } from 'stuckin';
 
 function App() {
   return (
@@ -506,16 +545,16 @@ window.__STICKY_DEBUG__.exportData();
 
 ```tsx
 // Импорт всей библиотеки
-import { Sticky, useSticky } from '@pavelmelnik94/sticky-lib';
+import { Sticky, useSticky } from 'stuckin';
 
 // Импорт только хуков
-import { useSticky } from '@pavelmelnik94/sticky-lib/hooks';
+import { useSticky } from 'stuckin/hooks';
 
 // Импорт только компонентов
-import { Sticky } from '@pavelmelnik94/sticky-lib/components';
+import { Sticky } from 'stuckin/components';
 
 // Импорт только утилит
-import { performanceMonitor } from '@pavelmelnik94/sticky-lib/utils';
+import { performanceMonitor } from 'stuckin/utils';
 ```
 
 ## 🎨 CSS стили
@@ -523,7 +562,7 @@ import { performanceMonitor } from '@pavelmelnik94/sticky-lib/utils';
 Импортируйте стили если нужны базовые стили:
 
 ```css
-@import '@pavelmelnik94/sticky-lib/styles';
+@import 'stuckin/styles';
 
 /* Или кастомизируйте переменные */
 :root {
@@ -596,3 +635,7 @@ MIT © [Pavel Melnik](https://github.com/PavelMelnik94)
 ## 📋 Changelog
 
 См. [CHANGELOG.md](CHANGELOG.md) для получения информации о изменениях в версиях.
+
+---
+
+[↑ Вернуться к началу](#️-stuckin)

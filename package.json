@@ -1,5 +1,5 @@
 {
-  "name": "@pavelmelnik94/sticky-lib",
+  "name": "stuckin",
   "version": "1.0.0",
   "type": "module",
   "author": "Pavel Melnik <pavelmelnik94@gmail.com>",
@@ -18,12 +18,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/PavelMelnik94/sticky.git"
+    "url": "https://github.com/PavelMelnik94/stuckin.git"
   },
   "bugs": {
-    "url": "https://github.com/PavelMelnik94/sticky/issues"
+    "url": "https://github.com/PavelMelnik94/stuckin/issues"
   },
-  "homepage": "https://github.com/PavelMelnik94/sticky#readme",
+  "homepage": "https://github.com/PavelMelnik94/stuckin#readme",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
