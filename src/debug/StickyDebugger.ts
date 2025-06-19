@@ -53,7 +53,7 @@ export interface DebugEvent {
  */
 export interface DebugConfig {
   enabled: boolean;
-  logLevel: DebugLogLevel; // ← Используем строго типизированный уровень
+  logLevel: DebugLogLevel;
   maxHistorySize: number;
   visualDebug: boolean;
   performanceTracking: boolean;
