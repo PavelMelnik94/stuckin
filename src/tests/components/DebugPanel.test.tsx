@@ -3,10 +3,24 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 
 import { DebugPanel } from '../../components/DebugPanel';
 import { StickyProvider } from '../../context/StickyContext';
+import { stickyDebugger } from '../../debug/StickyDebugger';
+import { ENV } from '../../utils/env';
+
+// Мокаем ENV для тестирования production режима
+jest.mock('../../utils/env', () => ({
+  ENV: {
+    isProduction: false,
+    isDev: true,
+    isTest: true,
+    isBrowser: true,
+    enableDebug: true,
+    enablePerformanceTracking: true
+  }
+}));
 
 // Обертка с провайдером
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
