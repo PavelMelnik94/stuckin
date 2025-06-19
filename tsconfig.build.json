@@ -5,6 +5,7 @@
     "target": "ES2020", // Более широкая совместимость
     "module": "ESNext", // ESM для tree-shaking
     "moduleResolution": "bundler",
+    "lib": [ "DOM", "DOM.Iterable", "ES2020" ], // Поддержка современных API
 
     // === ГЕНЕРАЦИЯ ТИПОВ ===
     "declaration": true, // Обязательно генерируем типы

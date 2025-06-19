@@ -6,7 +6,7 @@
       "DOM",
       "DOM.Iterable",
       "ES2022",
-      "ES2023.Array" // Для новых методов массивов
+      "ESNext.Array" // Для новых методов массивов
     ],
     "module": "ESNext", // ESM модули для tree-shaking
     "moduleResolution": "bundler", // Современное разрешение модулей (Vite/Webpack 5)
