@@ -10,7 +10,7 @@
  */
 const getNodeEnv = (): 'development' | 'production' | 'test' => {
   // Поддержка разных способов доступа к process.env
-  const env = process?.env['NODE_ENV'] || process?.env?.['NODE_ENV'];
+  const env = process?.env?.['NODE_ENV'] || process?.env?.['NODE_ENV'];
 
   if (env === 'development' || env === 'production' || env === 'test') {
     return env;
@@ -52,8 +52,8 @@ export const ENV = {
   isServer: isServerEnv(),
 
   // Дополнительные build флаги
-  buildMode: (process?.env['BUILD_MODE'] || process?.env?.['BUILD_MODE'] || 'library') as 'library' | 'standalone',
-  analyzeBundle: (process?.env['ANALYZE_BUNDLE'] || process?.env?.['ANALYZE_BUNDLE']) === 'true',
+  buildMode: (process?.env?.['BUILD_MODE'] || process?.env?.['BUILD_MODE'] || 'library') as 'library' | 'standalone',
+  analyzeBundle: (process?.env?.['ANALYZE_BUNDLE'] || process?.env?.['ANALYZE_BUNDLE']) === 'true',
 
   // Debug флаги
   enableDebug: getNodeEnv() === 'development',

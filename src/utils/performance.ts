@@ -41,7 +41,7 @@ class PerformanceMonitor {
    * Включение мониторинга (только в development)
    */
   enable(): void {
-    if (process?.env['NODE_ENV'] === 'development') {
+    if (process?.env?.['NODE_ENV'] === 'development') {
       this.isEnabled = true;
       debugLogger.info('performance-monitor', 'Performance monitoring enabled');
       this.startMemoryMonitoring();
