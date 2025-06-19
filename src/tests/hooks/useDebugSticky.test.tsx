@@ -114,7 +114,7 @@ describe('useDebugSticky', () => {
 
     it('должен использовать "unknown" как fallback для debugLabel', () => {
       const { result } = renderHook(
-        () => useDebugSticky({}),
+        () => useDebugSticky({} as any),
         { wrapper: TestWrapper }
       );
 
@@ -134,7 +134,7 @@ describe('useDebugSticky', () => {
   describe('конфигурация отладки', () => {
     it('должен использовать дефолтную конфигурацию отладки', () => {
       renderHook(
-        () => useDebugSticky({ id: 'test-element' }),
+        () => useDebugSticky({ id: 'test-element' } as any),
         { wrapper: TestWrapper }
       );
 
@@ -181,7 +181,7 @@ describe('useDebugSticky', () => {
         () => useDebugSticky({
           id: 'test-element',
           debugConfig: { captureSnapshots: true }
-        }),
+        } as any),
         { wrapper: TestWrapper }
       );
 
@@ -210,7 +210,7 @@ describe('useDebugSticky', () => {
     it('должен обрабатывать отсутствие опций без ошибок', () => {
       expect(() => {
         renderHook(
-          () => useDebugSticky({}),
+          () => useDebugSticky({} as any),
           { wrapper: TestWrapper }
         );
       }).not.toThrow();
