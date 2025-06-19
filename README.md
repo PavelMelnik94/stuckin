@@ -1,10 +1,15 @@
-## В консоли браузера
-window.__STICKY_DEBUG__.enable({ visualDebug: true });
-window.__STICKY_DEBUG__.captureSnapshot('test');
-window.__STICKY_DEBUG__.exportData();
+# 🏷️ Sticky Lib
+
+[![npm version](https://badge.fury.io/js/@pavelmelnik94/sticky.svg)](https://badge.fury.io/js/@pavelmelnik94/sticky)
+[![TypeScript](https://img.shields.io/badge/TypeScript-ready-blue.svg)](https://www.typescriptlang.org/)
+[![Build Status](https://img.shields.io/github/workflow/status/PavelMelnik94/sticky/CI)](https://github.com/PavelMelnik94/sticky/actions)
+[![Coverage](https://img.shields.io/codecov/c/github/PavelMelnik94/sticky)](https://codecov.io/gh/PavelMelnik94/sticky)
 
 
-## Features
+Мощная, гибкая и оптимизированная библиотека для sticky элементов с TypeScript, React 18+, и продвинутой отладкой.
+
+## ✨ Features
+
 - 📌 **Sticky элементы** - поддержка sticky элементов с возможностью настройки
 - 🚀 **Высокая производительность** - оптимизировано с Intersection Observer API
 - 🎯 **Multi-directional sticky** - поддержка всех направлений (top/bottom/left/right)
@@ -16,8 +21,19 @@ window.__STICKY_DEBUG__.exportData();
 - 📦 **Tree-shakable** - импортируйте только то, что нужно
 - ⚡ **Zero dependencies** (кроме React)
 
+## 📦 Установка
 
-### 1. Базовое использование
+```bash
+npm install @pavelmelnik94/sticky-lib
+# или
+yarn add @pavelmelnik94/sticky-lib
+# или
+pnpm add @pavelmelnik94/sticky-lib
+```
+
+## 🚀 Быстрый старт
+
+### Базовое использование
 
 ```tsx
 import React from 'react';
@@ -78,9 +94,10 @@ function StickyNavigation() {
 ```
 
 
-# 📖 API Документация
+## 📖 API Документация
 
-## StickyProvider
+### StickyProvider
+
 Основной провайдер контекста для управления sticky элементами.
 
 ```tsx
@@ -90,8 +107,8 @@ interface StickyProviderProps {
 }
 ```
 
+### Sticky Component
 
-## Sticky Component
 Декларативный компонент для создания sticky элементов.
 
 ```tsx
@@ -119,7 +136,8 @@ interface StickyProps {
 }
 ```
 
-## useSticky Hook
+### useSticky Hook
+
 Основной хук для работы со sticky элементами.
 
 ```tsx
@@ -135,7 +153,8 @@ const {
 } = useSticky(options);
 ```
 
-## useStickyGroup Hook
+### useStickyGroup Hook
+
 Хук для управления группами элементов.
 
 ```tsx
@@ -154,12 +173,12 @@ const {
 });
 ```
 
-# 🎨 Продвинутые примеры
+## 🎨 Продвинутые примеры
 
-## Responsive Sticky
+### Responsive Sticky
 
 ```tsx
-import { useResponsiveSticky } from '@your-org/sticky-lib';
+import { useResponsiveSticky } from '@pavelmelnik94/sticky-lib';
 
 function ResponsiveHeader() {
   const { ref, currentBreakpoint } = useResponsiveSticky({
@@ -223,7 +242,7 @@ function Navigation() {
 ## SSR Support
 
 ```tsx
-import { useSSRSticky } from '@your-org/sticky-lib';
+import { useSSRSticky } from '@pavelmelnik94/sticky-lib';
 
 function SSRCompatibleSticky() {
   const {
@@ -255,10 +274,11 @@ function SSRCompatibleSticky() {
 ```
 
 ## 🐛 Debugging
+
 Библиотека включает мощные инструменты отладки:
 
 ```tsx
-import { DebugPanel } from '@your-org/sticky-lib';
+import { DebugPanel } from '@pavelmelnik94/sticky-lib';
 
 function App() {
   return (
@@ -272,8 +292,10 @@ function App() {
 }
 ```
 
-## Console API
+### Console API
+
 В development режиме доступен глобальный API:
+
 ```js
 // В консоли браузера
 window.__STICKY_DEBUG__.enable({ visualDebug: true });
@@ -282,38 +304,41 @@ window.__STICKY_DEBUG__.getPerformance();
 window.__STICKY_DEBUG__.exportData();
 ```
 
-# ⚡ Производительность
+## ⚡ Производительность
 
-## Bundle Size
+### Bundle Size
+
 - Full Library: ~25KB gzipped
 - Hooks только: ~8KB gzipped
 - Components только: ~12KB gzipped
 - Utils только: ~5KB gzipped
 
+### Tree Shaking
 
-## Tree Shaking
 Импортируйте только необходимые части:
 
 ```tsx
 // Импорт всей библиотеки
-import { Sticky, useSticky } from '@your-org/sticky-lib';
+import { Sticky, useSticky } from '@pavelmelnik94/sticky-lib';
 
 // Импорт только хуков
-import { useSticky } from '@your-org/sticky-lib/hooks';
+import { useSticky } from '@pavelmelnik94/sticky-lib/hooks';
 
 // Импорт только компонентов
-import { Sticky } from '@your-org/sticky-lib/components';
+import { Sticky } from '@pavelmelnik94/sticky-lib/components';
 
 // Импорт только утилит
-import { performanceMonitor } from '@your-org/sticky-lib/utils';
+import { performanceMonitor } from '@pavelmelnik94/sticky-lib/utils';
 ```
 
-# CSS
-Импортируйте стили если нужны базовые стили:
-```tsx
-@import '@your-org/sticky-lib/dist/sticky.css';
+## 🎨 CSS стили
 
-// Или кастомизируйте переменные
+Импортируйте стили если нужны базовые стили:
+
+```css
+@import '@pavelmelnik94/sticky-lib/styles';
+
+/* Или кастомизируйте переменные */
 :root {
   --sticky-transition-duration: 0.3s;
   --sticky-transition-easing: ease-in-out;
@@ -322,14 +347,65 @@ import { performanceMonitor } from '@your-org/sticky-lib/utils';
 }
 ```
 
-useStickyGroup
-Хук для управления группами sticky элементов.
+## 🔌 Дополнительные хуки
 
-useResponsiveSticky
+### useResponsiveSticky
+
 Хук для создания responsive sticky элементов с breakpoints.
 
-useSSRSticky
+### useSSRSticky
+
 SSR-совместимый хук для sticky элементов.
 
-useDebugSticky
+### useDebugSticky
+
 Хук с расширенными возможностями отладки.
+
+### useStickyObserver
+
+Хук для наблюдения за состоянием sticky элементов.
+
+## 🛠️ Разработка
+
+```bash
+# Установка зависимостей
+npm install
+
+# Запуск в режиме разработки
+npm run dev
+
+# Запуск тестов
+npm test
+
+# Сборка проекта
+npm run build
+
+# Линтинг
+npm run lint
+
+# Проверка типов
+npm run type-check
+
+# Анализ покрытия тестами
+npm run test:coverage
+```
+
+## 📊 Статистика проекта
+
+- **Tests**: 325+ тестов
+- **Coverage**: 82%+ statements, 83%+ lines, 80%+ functions
+- **TypeScript**: Полная поддержка типов
+- **React**: 18.0.0+
+- **Bundle Size**: Оптимизированный размер с tree-shaking
+
+## 📄 Лицензия
+
+MIT © [Pavel Melnik](https://github.com/PavelMelnik94)
+
+## 🤝 Вклад в проект
+
+Мы приветствуем вклад в проект! Пожалуйста, прочитайте [CONTRIBUTING.md](CONTRIBUTING.md) для получения информации о том, как внести свой вклад.
+
+## 📋 Changelog
+
+См. [CHANGELOG.md](CHANGELOG.md) для получения информации о изменениях в версиях.

@@ -18,12 +18,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/PavelMelnik94/sticky-lib.git"
+    "url": "https://github.com/PavelMelnik94/sticky.git"
   },
   "bugs": {
-    "url": "https://github.com/PavelMelnik94/sticky-lib/issues"
+    "url": "https://github.com/PavelMelnik94/sticky/issues"
   },
-  "homepage": "https://github.com/PavelMelnik94/sticky-lib#readme",
+  "homepage": "https://github.com/PavelMelnik94/sticky#readme",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
