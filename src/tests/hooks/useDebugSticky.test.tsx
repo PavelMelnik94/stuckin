@@ -3,11 +3,12 @@
  */
 
 import React from 'react';
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 
 import { useDebugSticky } from '../../hooks/useDebugSticky';
 import { StickyProvider } from '../../context/StickyContext';
 import { stickyDebugger } from '../../debug/StickyDebugger';
+import { debugLogger } from '../../debug/debugLogger';
 
 // Mock StickyDebugger
 jest.mock('../../debug/StickyDebugger', () => ({
@@ -272,6 +273,208 @@ describe('useDebugSticky', () => {
       expect(result.current.state).toBeDefined();
       expect(typeof result.current.enable).toBe('function');
       expect(typeof result.current.disable).toBe('function');
+    });
+  });
+
+  describe('расширенные debug методы', () => {
+    it('должен предоставлять метод captureSnapshot', () => {
+      const { result } = renderHook(
+        () => useDebugSticky({
+          id: 'test-element',
+          debugConfig: { captureSnapshots: true }
+        } as any),
+        { wrapper: TestWrapper }
+      );
+
+      expect(typeof result.current.captureSnapshot).toBe('function');
+
+      // Тестируем вызов метода
+      act(() => {
+        result.current.captureSnapshot('test-snapshot');
+      });
+
+      expect(stickyDebugger.captureSnapshot).toHaveBeenCalledWith('test-element-test-snapshot');
+    });
+
+    it('должен предоставлять метод logDebug', () => {
+      const { result } = renderHook(
+        () => useDebugSticky({
+          id: 'test-element'
+        } as any),
+        { wrapper: TestWrapper }
+      );
+
+      expect(typeof result.current.logDebug).toBe('function');
+
+      // Тестируем вызов метода
+      act(() => {
+        result.current.logDebug('Test debug message', { data: 'test' });
+      });
+
+      expect(stickyDebugger.log).toHaveBeenCalledWith(
+        'debug',
+        'test-element',
+        'Test debug message',
+        { data: 'test' }
+      );
+    });
+
+    it('должен предоставлять метод debugRender', () => {
+      const { result } = renderHook(
+        () => useDebugSticky({
+          id: 'test-element',
+          debugConfig: { trackPerformance: true }
+        } as any),
+        { wrapper: TestWrapper }
+      );
+
+      expect(typeof result.current.debugRender).toBe('function');
+
+      // Тестируем вызов метода
+      const testFunction = jest.fn(() => 'test-result');
+      let renderResult: string;
+
+      act(() => {
+        renderResult = result.current.debugRender(testFunction);
+      });
+
+      expect(testFunction).toHaveBeenCalled();
+      expect(renderResult!).toBe('test-result');
+      expect(debugLogger.debug).toHaveBeenCalledWith(
+        'test-element',
+        'Render performance',
+        expect.objectContaining({
+          renderTime: expect.stringContaining('ms'),
+          isSlowRender: expect.any(Boolean)
+        })
+      );
+    });
+
+    it('должен обнаруживать медленные рендеры', () => {
+      const { result } = renderHook(
+        () => useDebugSticky({
+          id: 'test-element',
+          debugConfig: { trackPerformance: true }
+        } as any),
+        { wrapper: TestWrapper }
+      );
+
+      // Мокаем performance.now чтобы симулировать медленный рендер
+      const originalNow = performance.now;
+      let callCount = 0;
+      performance.now = jest.fn(() => {
+        callCount++;
+        return callCount === 1 ? 0 : 20; // first call: 0, second call: 20 (20ms difference)
+      });
+
+      act(() => {
+        result.current.debugRender(() => 'slow-render');
+      });
+
+      // Восстанавливаем оригинальную функцию
+      performance.now = originalNow;
+
+      // Проверяем, что было зафиксировано медленное выполнение
+      expect(debugLogger.debug).toHaveBeenCalledWith(
+        'test-element',
+        'Render performance',
+        expect.objectContaining({
+          renderTime: '20.00ms',
+          isSlowRender: true
+        })
+      );
+
+      expect((debugLogger.warning as any)).toHaveBeenCalledWith(
+        'test-element',
+        'Slow render detected',
+        expect.objectContaining({
+          renderTime: '20.00ms',
+          recommendation: 'Consider using React.memo or optimizing component logic'
+        })
+      );
+    });
+
+    it('должен работать с debugRender без трекинга производительности', () => {
+      const { result } = renderHook(
+        () => useDebugSticky({
+          id: 'test-element',
+          debugConfig: { trackPerformance: false }
+        } as any),
+        { wrapper: TestWrapper }
+      );
+
+      const testFunction = jest.fn(() => 'fast-result');
+      let renderResult: string;
+
+      act(() => {
+        renderResult = result.current.debugRender(testFunction);
+      });
+
+      expect(testFunction).toHaveBeenCalled();
+      expect(renderResult!).toBe('fast-result');
+      // Не должно быть логирования производительности
+      expect(debugLogger.debug).not.toHaveBeenCalledWith(
+        'test-element',
+        'Render performance',
+        expect.any(Object)
+      );
+    });
+
+    it('должен предоставлять debugHistory', () => {
+      const { result } = renderHook(
+        () => useDebugSticky({
+          id: 'test-element'
+        } as any),
+        { wrapper: TestWrapper }
+      );
+
+      expect(Array.isArray(result.current.debugHistory)).toBe(true);
+    });
+
+    it('должен обновлять конфигурацию с логированием', () => {
+      const { result } = renderHook(
+        () => useDebugSticky({
+          id: 'test-element',
+          debugConfig: { logConfigUpdates: true }
+        } as any),
+        { wrapper: TestWrapper }
+      );
+
+      const newConfig = { enabled: false };
+
+      act(() => {
+        result.current.updateConfig(newConfig);
+      });
+
+      expect(stickyDebugger.log).toHaveBeenCalledWith(
+        'config-update',
+        'test-element',
+        'Конфигурация обновлена',
+        expect.objectContaining({
+          newConfig,
+          timestamp: expect.any(Number)
+        })
+      );
+    });
+
+    it('должен обновлять конфигурацию без логирования', () => {
+      const { result } = renderHook(
+        () => useDebugSticky({
+          id: 'test-element',
+          debugConfig: { logConfigUpdates: false }
+        } as any),
+        { wrapper: TestWrapper }
+      );
+
+      act(() => {
+        result.current.updateConfig({ enabled: false });
+      });
+
+      // Проверяем, что логирование config-update не произошло
+      const configUpdateCalls = (stickyDebugger.log as jest.Mock).mock.calls
+        .filter(call => call[0] === 'config-update');
+
+      expect(configUpdateCalls).toHaveLength(0);
     });
   });
 });
