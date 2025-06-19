@@ -6,17 +6,28 @@
  */
 
 /**
- * Безопасное получение NODE_ENV с fallback
+ * Безопасное получение NODE_ENV с fallback для browser/node окружений
  */
 const getNodeEnv = (): 'development' | 'production' | 'test' => {
-  // Поддержка разных способов доступа к process.env
-  const env = process?.env?.['NODE_ENV'] || process?.env?.['NODE_ENV'];
-
-  if (env === 'development' || env === 'production' || env === 'test') {
-    return env;
+  // Проверка браузерного окружения первым приоритетом
+  if (typeof window !== 'undefined') {
+    // В браузере используем production по умолчанию для безопасности
+    return 'production';
   }
 
-  // Fallback для неопределенного окружения
+  // Node.js окружение
+  try {
+    if (typeof process !== 'undefined' && process.env) {
+      const env = process.env['NODE_ENV'];
+      if (env === 'development' || env === 'production' || env === 'test') {
+        return env;
+      }
+    }
+  } catch {
+    // Если process недоступен, используем fallback
+  }
+
+  // Fallback для неопределенного NODE_ENV
   return 'development';
 };
 
@@ -32,6 +43,26 @@ const isBrowserEnv = (): boolean => {
  */
 const isServerEnv = (): boolean => {
   return !isBrowserEnv();
+};
+
+/**
+ * Безопасное получение environment переменных для browser/node окружений
+ */
+const getEnvVar = (key: string, defaultValue: string = ''): string => {
+  // В браузере не используем environment переменные
+  if (typeof window !== 'undefined') {
+    return defaultValue;
+  }
+
+  // Node.js окружение
+  try {
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env[key] || defaultValue;
+    }
+  } catch {
+    // process недоступен
+  }
+  return defaultValue;
 };
 
 /**
@@ -52,8 +83,8 @@ export const ENV = {
   isServer: isServerEnv(),
 
   // Дополнительные build флаги
-  buildMode: (process?.env?.['BUILD_MODE'] || process?.env?.['BUILD_MODE'] || 'library') as 'library' | 'standalone',
-  analyzeBundle: (process?.env?.['ANALYZE_BUNDLE'] || process?.env?.['ANALYZE_BUNDLE']) === 'true',
+  buildMode: getEnvVar('BUILD_MODE', 'library') as 'library' | 'standalone',
+  analyzeBundle: getEnvVar('ANALYZE_BUNDLE') === 'true',
 
   // Debug флаги
   enableDebug: getNodeEnv() === 'development',
