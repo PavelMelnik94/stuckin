@@ -1,10 +1,10 @@
 /**
- * Vite конфигурация как альтернатива Webpack
- * Более быстрая сборка для современных проектов
+ * Vite конфигурация с SWC для максимальной производительности
+ * SWC обеспечивает значительно более быструю сборку чем Rollup
  */
 
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import { resolve } from 'path';
 import dts from 'vite-plugin-dts';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -14,14 +14,21 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
+      // SWC React plugin для максимальной производительности
       react({
-        jsxRuntime: 'automatic'
+        // SWC конфигурация
+        jsxRuntime: 'automatic',
+        tsDecorators: true,
+        plugins: [
+          // Дополнительные SWC плагины при необходимости
+        ]
       }),
 
       // Генерация TypeScript деклараций
       dts({
         insertTypesEntry: true,
-        exclude: ['**/*.test.*', '**/*.spec.*']
+        exclude: ['**/*.test.*', '**/*.spec.*'],
+        rollupTypes: true
       }),
 
       // Анализ bundle размера
@@ -29,7 +36,8 @@ export default defineConfig(({ mode }) => {
         filename: 'dist/bundle-analysis.html',
         open: false,
         gzipSize: true,
-        brotliSize: true
+        brotliSize: true,
+        template: 'treemap' // более информативный вид
       })
     ],
 
@@ -72,23 +80,29 @@ export default defineConfig(({ mode }) => {
         }
       },
 
-      // Оптимизация минификации
-      minify: isProduction ? 'terser' : false,
-      terserOptions: {
-        compress: {
-          drop_console: isProduction,
-          drop_debugger: true,
-          pure_funcs: ['console.log', 'console.debug']
-        }
-      },
+      // Оптимизация минификации через SWC (быстрее чем terser)
+      minify: isProduction ? 'esbuild' : false,
+
+      // SWC оптимизации
+      target: 'es2020',
 
       // Source maps
       sourcemap: !isProduction
     },
 
-    // Оптимизация для development
+    // Дополнительные esbuild оптимизации (работает совместно с SWC)
     esbuild: {
-      drop: isProduction ? ['console', 'debugger'] : []
+      target: 'es2020',
+      drop: isProduction ? ['console', 'debugger'] : [],
+      legalComments: 'none',
+      minifyIdentifiers: isProduction,
+      minifySyntax: isProduction,
+      minifyWhitespace: isProduction
+    },
+
+    // Дополнительные оптимизации
+    define: {
+      __DEV__: !isProduction
     }
   };
 });

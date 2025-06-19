@@ -98,11 +98,4 @@
     "**/*.spec.tsx",
     "src/tests/**/*" // Тестовые утилиты отдельно
   ],
-
-  // === REFERENCES ===
-  // Убираем references для избежания конфликтов
-  // "references": [
-  //   { "path": "./tsconfig.build.json" },
-  //   { "path": "./tsconfig.test.json" }
-  // ]
 }
