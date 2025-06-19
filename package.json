@@ -80,7 +80,7 @@
     "release:patch": "npm version patch && npm run publish:all",
     "release:minor": "npm version minor && npm run publish:all",
     "release:major": "npm version major && npm run publish:all",
-    "publish:all": "git push origin main --tags && gh release create v$(node -p \"require('./package.json').version\") --title \"Release v$(node -p \"require('./package.json').version\")\" --generate-notes --latest"
+    "publish:all": "git push origin main --tags && gh release create v$(node -p \"require('./package.json').version\") --title \"Release v$(node -p \"require('./package.json').version\")\" --generate-notes --latest && npm publish"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
@@ -146,29 +146,14 @@
   },
   "size-limit": [
     {
-      "name": "Full bundle (gzipped)",
+      "name": "Full bundle ES (gzipped)",
       "path": "dist/index.js",
       "limit": "30 KB"
     },
     {
-      "name": "Hooks only (gzipped)",
-      "path": "dist/hooks.js",
-      "limit": "28 KB"
-    },
-    {
-      "name": "Components only (gzipped)",
-      "path": "dist/components.js",
-      "limit": "28 KB"
-    },
-    {
-      "name": "Utils only (gzipped)",
-      "path": "dist/utils.js",
-      "limit": "22 KB"
-    },
-    {
-      "name": "Debug only (gzipped)",
-      "path": "dist/debug.js",
-      "limit": "20 KB"
+      "name": "Full bundle CJS (gzipped)",
+      "path": "dist/index.cjs",
+      "limit": "25 KB"
     }
   ],
   "prettier": {
