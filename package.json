@@ -28,8 +28,8 @@
     "access": "public",
     "registry": "https://registry.npmjs.org"
   },
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": [
     "**/*.css",
@@ -44,30 +44,30 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./hooks": {
       "types": "./dist/hooks.d.ts",
-      "import": "./dist/hooks.es.js",
-      "require": "./dist/hooks.js"
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs"
     },
     "./components": {
       "types": "./dist/components.d.ts",
-      "import": "./dist/components.es.js",
-      "require": "./dist/components.js"
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs"
     },
     "./utils": {
       "types": "./dist/utils.d.ts",
-      "import": "./dist/utils.es.js",
-      "require": "./dist/utils.js"
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
     },
     "./debug": {
       "types": "./dist/debug.d.ts",
-      "import": "./dist/debug.es.js",
-      "require": "./dist/debug.js"
+      "import": "./dist/debug.js",
+      "require": "./dist/debug.cjs"
     },
-    "./styles": "./dist/style.css",
+    "./styles": "./dist/index.css",
     "./package.json": "./package.json"
   },
   "engines": {
