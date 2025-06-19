@@ -57,7 +57,14 @@ export type {
   SSRStickyState,
 
   // Context типы
-  StickyContextValue
+  StickyContextValue,
+
+  // Advanced strategy типы
+  ParallaxConfig,
+  MagneticConfig,
+  FollowScrollConfig,
+  AnimatedConfig,
+  StackingConfig
 } from './types/sticky.types';
 
 // Утилиты (только публичные)
@@ -69,4 +76,4 @@ export { stickyDebugger } from './debug/StickyDebugger';
 import './styles/sticky.scss';
 
 // Версия библиотеки
-export const VERSION = '1.0.0';
+export const VERSION = '1.0.16';
