@@ -1,101 +1,123 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
 
-import type { StickyElement } from '@/types/sticky.types';
-import { useStickyGroup } from '@/hooks';
+import type { StickyState } from '@/types/sticky.types';
+import { useStickyInContainer, type UseStickyInContainerOptions } from '@/hooks/useStickyInContainer';
 import { debugLogger } from '@/debug/debugLogger';
 
-
-export interface StickyContainerProps {
+export interface StickyContainerProps extends UseStickyInContainerOptions {
   children: React.ReactNode;
-  groupId: string;
-  priority?: number;
   className?: string;
+  activeClassName?: string;
+  tag?: keyof JSX.IntrinsicElements;
   style?: React.CSSProperties;
-  onGroupChange?: (elements: StickyElement[]) => void;
+  activeStyle?: React.CSSProperties;
 }
 
 export interface StickyContainerRef {
-  elements: StickyElement[];
-  activeElements: StickyElement[];
-  totalHeight: number;
-  refreshGroup: () => void;
+  element: HTMLElement | null;
+  state: StickyState | null;
+  isSticky: boolean;
+  refresh: () => void;
+  disable: () => void;
+  enable: () => void;
 }
 
 /**
- * Контейнер для группы sticky элементов
- * Принцип Dependency Inversion: зависит от абстракций, не от конкретных реализаций
+ * Компонент для создания sticky элементов внутри кастомных скролл-контейнеров
+ *
+ * @example
+ * ```tsx
+ * <div className="scroll-container" style={{ height: '400px', overflow: 'auto' }}>
+ *   <div style={{ height: '200px' }}>Content before</div>
+ *   <StickyContainer
+ *     container=".scroll-container"
+ *     direction="top"
+ *     offset={{ top: 10 }}
+ *     containerOffset={{ top: 20 }}
+ *     className="my-sticky"
+ *     activeClassName="is-sticky"
+ *   >
+ *     <div>I stick to the container!</div>
+ *   </StickyContainer>
+ *   <div style={{ height: '800px' }}>Long content...</div>
+ * </div>
+ * ```
  */
 export const StickyContainer = observer(forwardRef<StickyContainerRef, StickyContainerProps>(({
   children,
-  groupId,
-  priority = 0,
   className = '',
+  activeClassName = '',
+  tag: Tag = 'div',
   style,
-  onGroupChange
+  activeStyle,
+  container,
+  containerOffset,
+  observeResize,
+  ...stickyOptions
 }, ref) => {
   const {
-    elements,
-    activeElements,
-    refreshGroup,
-    getTotalHeight
-  } = useStickyGroup({
-    groupId,
-    priority,
-    autoCreate: true
+    ref: elementRef,
+    state,
+    isSticky,
+    isActive,
+    refresh,
+    disable,
+    enable
+  } = useStickyInContainer({
+    container,
+    ...(containerOffset ? { containerOffset } : {}),
+    ...(observeResize !== undefined ? { observeResize } : {}),
+    ...stickyOptions
   });
-
-  // Initial setup logging
-  React.useEffect(() => {
-    debugLogger.info(groupId, 'StickyContainer initialized', {
-      priority,
-      elementsCount: elements.length
-    });
-
-    return () => {
-      debugLogger.info(groupId, 'StickyContainer unmounted');
-    };
-  }, [groupId, priority, elements.length]);
-
-  /**
-   * Уведомляем о изменениях в группе
-   */
-  React.useEffect(() => {
-    debugLogger.debug(groupId, 'Group elements changed', {
-      elementsCount: elements.length,
-      activeCount: activeElements.length
-    });
-    onGroupChange?.(elements);
-  }, [elements, onGroupChange, groupId, activeElements.length]);
 
   /**
    * Предоставляем API через ref
+   * Принцип Interface Segregation: предоставляем только необходимые методы
    */
   useImperativeHandle(ref, () => ({
-    elements,
-    activeElements,
-    totalHeight: getTotalHeight(),
-    refreshGroup
-  }), [elements, activeElements, getTotalHeight, refreshGroup]);
+    element: elementRef.current,
+    state,
+    isSticky,
+    refresh,
+    disable,
+    enable
+  }), [elementRef, state, isSticky, refresh, disable, enable]);
 
-  /**
-   * CSS переменные для стилизации
-   */
-  const cssVariables = {
-    '--sticky-group-height': `${getTotalHeight()}px`,
-    '--sticky-active-count': activeElements.length
-  } as React.CSSProperties;
+  // Вычисляем финальные классы
+  const finalClassName = [
+    className,
+    isActive && activeClassName
+  ].filter(Boolean).join(' ');
 
-  return (
-    <div
-      className={`sticky-container ${className}`}
-      style={{ ...style, ...cssVariables }}
-      data-sticky-group={groupId}
-      data-active-count={activeElements.length}
-    >
-      {children}
-    </div>
-  );
+  // Вычисляем финальные стили
+  const finalStyle = {
+    ...style,
+    ...(isActive && activeStyle ? activeStyle : {})
+  };
+
+  // 🔧 Отладочное логирование состояния
+  React.useEffect(() => {
+    if (stickyOptions['id']) {
+      debugLogger.debug(stickyOptions['id'], 'StickyContainer state change', {
+        state,
+        isSticky,
+        isActive,
+        hasContainer: !!container,
+        containerType: typeof container
+      });
+    }
+  }, [stickyOptions['id'], state, isSticky, isActive, container]);
+
+  return React.createElement(Tag, {
+    ref: elementRef,
+    className: finalClassName,
+    style: finalStyle,
+    'data-sticky-id': stickyOptions['id'],
+    'data-sticky': isSticky ? 'true' : 'false',
+    'data-sticky-state': state,
+    'data-sticky-container': !!container
+  }, children);
 }));
 
 StickyContainer.displayName = 'StickyContainer';

@@ -32,7 +32,7 @@ describe('useSticky Integration Tests', () => {
       );
 
       expect(result.current.ref.current).toBeNull();
-      expect(result.current.state).toBeNull(); // Пока элемент не подключен
+      expect(result.current.state).toBe('normal'); // Теперь возвращает 'normal' по умолчанию
       expect(result.current.isSticky).toBe(false);
       expect(result.current.isActive).toBe(false);
       expect(typeof result.current.updateConfig).toBe('function');

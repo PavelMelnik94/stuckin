@@ -1,7 +1,7 @@
 import { makeObservable, observable, action, computed } from 'mobx';
 
 import { debugLogger } from '@/debug/debugLogger';
-import type { StickyConfig, StickyDirection, StickyElement, StickyGroup, StickyState, StickyBoundary, StickyPosition } from '@/types/sticky.types';
+import type { StickyConfig, StickyDirection, StickyElement, StickyGroup, StickyState, StickyBoundary, StickyPosition, StickyScrollContainer } from '@/types/sticky.types';
 
 
 /**
@@ -11,6 +11,7 @@ import type { StickyConfig, StickyDirection, StickyElement, StickyGroup, StickyS
 export class StickyManager {
   @observable elements = new Map<string, StickyElement>();
   @observable groups = new Map<string, StickyGroup>();
+  @observable scrollContainers = new Map<HTMLElement, Set<string>>(); // Контейнеры и их элементы
   @observable isSSR = typeof window === 'undefined';
 
   private intersectionObserver: IntersectionObserver | null = null;
@@ -25,6 +26,7 @@ export class StickyManager {
       this.initializeObservers();
       this.handleResize = this.handleResize.bind(this);
       this.handleScroll = this.handleScroll.bind(this);
+      this.handleContainerScroll = this.handleContainerScroll.bind(this);
 
       window.addEventListener('resize', this.handleResize);
       window.addEventListener('scroll', this.handleScroll, { passive: true });
@@ -108,6 +110,11 @@ export class StickyManager {
     this.intersectionObserver?.observe(htmlElement);
     this.resizeObserver?.observe(htmlElement);
 
+    // Регистрируем кастомный скролл-контейнер если указан
+    if (config.scrollContainer) {
+      this.registerScrollContainer(config.id, config.scrollContainer);
+    }
+
     // Применяем начальные стили
     this.applyInitialStyles(stickyElement);
 
@@ -134,6 +141,11 @@ export class StickyManager {
     // Отключаем наблюдатели
     this.intersectionObserver?.unobserve(element.element);
     this.resizeObserver?.unobserve(element.element);
+
+    // Отключаем кастомный контейнер если был зарегистрирован
+    if (element.config.scrollContainer) {
+      this.unregisterScrollContainer(id);
+    }
 
     // Сбрасываем стили
     this.resetElementStyles(element);
@@ -232,26 +244,42 @@ export class StickyManager {
    * Расчет нового состояния sticky элемента
    */
   private calculateStickyState(element: StickyElement, rect: DOMRect): StickyState {
-    const { direction, offset, boundary } = element.config;
-    const viewport = this.getViewportDimensions();
+    const { direction, offset, boundary, scrollContainer } = element.config;
+
+    // Используем кастомный контейнер или viewport
+    const container = scrollContainer ?
+      this.getContainerDimensions(scrollContainer.element) :
+      this.getViewportDimensions();
 
     // Проверяем границы если заданы
     if (boundary && this.isOutsideBoundary(element, boundary)) {
       return 'bottom-reached';
     }
 
+    // Для кастомного контейнера используем позицию элемента относительно контейнера
+    const targetRect = scrollContainer ?
+      this.getRelativeRect(rect, scrollContainer.element) :
+      rect;
+
+    // Учитываем дополнительные отступы контейнера
+    const containerOffset = scrollContainer?.offset || {};
+
     switch (direction) {
       case 'top':
-        return rect.top <= (offset.top || 0) ? 'sticky' : 'normal';
+        const topThreshold = (offset.top || 0) + (containerOffset.top || 0);
+        return targetRect.top <= topThreshold ? 'sticky' : 'normal';
 
       case 'bottom':
-        return rect.bottom >= viewport.height - (offset.bottom || 0) ? 'sticky' : 'normal';
+        const bottomThreshold = container.height - (offset.bottom || 0) - (containerOffset.bottom || 0);
+        return targetRect.bottom >= bottomThreshold ? 'sticky' : 'normal';
 
       case 'left':
-        return rect.left <= (offset.left || 0) ? 'sticky' : 'normal';
+        const leftThreshold = (offset.left || 0) + (containerOffset.left || 0);
+        return targetRect.left <= leftThreshold ? 'sticky' : 'normal';
 
       case 'right':
-        return rect.right >= viewport.width - (offset.right || 0) ? 'sticky' : 'normal';
+        const rightThreshold = container.width - (offset.right || 0) - (containerOffset.right || 0);
+        return targetRect.right >= rightThreshold ? 'sticky' : 'normal';
 
       default:
         return 'normal';
@@ -262,7 +290,7 @@ export class StickyManager {
    * Применение стилей в зависимости от состояния
    */
   private applyStateStyles(element: StickyElement, state: StickyState): void {
-    const { direction, offset, smooth } = element.config;
+    const { direction, offset, smooth, scrollContainer } = element.config;
     const style = element.element.style;
 
     // Базовые стили
@@ -275,14 +303,26 @@ export class StickyManager {
       case 'sticky':
         // Для новых стратегий позиционирования не используем простое offset[direction]
         if (['top', 'bottom', 'left', 'right'].includes(direction)) {
-          Object.assign(style, baseStyles, {
-            position: 'fixed',
-            [direction]: `${offset[direction as keyof StickyPosition] || 0}px`
-          });
+          // Для кастомного контейнера используем absolute позиционирование
+          if (scrollContainer) {
+            const containerRect = scrollContainer.element.getBoundingClientRect();
+            const containerOffset = scrollContainer.offset || {};
+
+            Object.assign(style, baseStyles, {
+              position: 'absolute',
+              ...this.getContainerPosition(element, direction, offset, containerRect, containerOffset)
+            });
+          } else {
+            // Обычное fixed позиционирование для viewport
+            Object.assign(style, baseStyles, {
+              position: 'fixed',
+              [direction]: `${offset[direction as keyof StickyPosition] || 0}px`
+            });
+          }
         } else {
           // Для новых стратегий используем позиционирование через менеджер стратегий
           Object.assign(style, baseStyles, {
-            position: 'fixed'
+            position: scrollContainer ? 'absolute' : 'fixed'
           });
         }
         element.isActive = true;
@@ -339,6 +379,64 @@ export class StickyManager {
     this.elements.forEach((element) => {
       element.originalPosition = element.element.getBoundingClientRect();
       this.updateStickyState(element);
+    });
+  }
+
+  /**
+   * Регистрация кастомного скролл-контейнера
+   */
+  @action
+  private registerScrollContainer(elementId: string, container: StickyScrollContainer): void {
+    const containerElement = container.element;
+
+    if (!this.scrollContainers.has(containerElement)) {
+      this.scrollContainers.set(containerElement, new Set());
+
+      // Добавляем обработчик скролла для контейнера
+      containerElement.addEventListener('scroll', this.handleContainerScroll, { passive: true });
+
+      // Добавляем наблюдатель за размерами контейнера если нужно
+      if (container.observeResize !== false) {
+        this.resizeObserver?.observe(containerElement);
+      }
+    }
+
+    this.scrollContainers.get(containerElement)?.add(elementId);
+  }
+
+  /**
+   * Отмена регистрации элемента из кастомного контейнера
+   */
+  @action
+  private unregisterScrollContainer(elementId: string): void {
+    this.scrollContainers.forEach((elementIds, container) => {
+      if (elementIds.has(elementId)) {
+        elementIds.delete(elementId);
+
+        // Если в контейнере больше нет элементов, отключаем обработчики
+        if (elementIds.size === 0) {
+          container.removeEventListener('scroll', this.handleContainerScroll);
+          this.resizeObserver?.unobserve(container);
+          this.scrollContainers.delete(container);
+        }
+      }
+    });
+  }
+
+  /**
+   * Обработка скролла кастомного контейнера
+   */
+  private handleContainerScroll(event: Event): void {
+    const container = event.target as HTMLElement;
+    const elementIds = this.scrollContainers.get(container);
+
+    if (!elementIds) return;
+
+    elementIds.forEach(elementId => {
+      const element = this.elements.get(elementId);
+      if (element) {
+        this.updateStickyState(element);
+      }
     });
   }
 
@@ -480,5 +578,76 @@ export class StickyManager {
 
     this.elements.clear();
     this.groups.clear();
+  }
+
+  /**
+   * Получение размеров кастомного контейнера
+   */
+  private getContainerDimensions(container: HTMLElement) {
+    const rect = container.getBoundingClientRect();
+    return {
+      width: rect.width,
+      height: rect.height,
+      top: rect.top,
+      left: rect.left,
+      bottom: rect.bottom,
+      right: rect.right
+    };
+  }
+
+  /**
+   * Получение позиции элемента относительно кастомного контейнера
+   */
+  private getRelativeRect(elementRect: DOMRect, container: HTMLElement): DOMRect {
+    const containerRect = container.getBoundingClientRect();
+    const scrollTop = container.scrollTop;
+    const scrollLeft = container.scrollLeft;
+
+    // Вычисляем позицию элемента относительно видимой области контейнера
+    return {
+      top: elementRect.top - containerRect.top + scrollTop,
+      left: elementRect.left - containerRect.left + scrollLeft,
+      right: elementRect.right - containerRect.left + scrollLeft,
+      bottom: elementRect.bottom - containerRect.top + scrollTop,
+      width: elementRect.width,
+      height: elementRect.height,
+      x: elementRect.x - containerRect.x + scrollLeft,
+      y: elementRect.y - containerRect.y + scrollTop,
+      toJSON: elementRect.toJSON
+    } as DOMRect;
+  }
+
+  /**
+   * Вычисление позиции элемента внутри кастомного контейнера
+   */
+  private getContainerPosition(
+    element: StickyElement,
+    direction: StickyDirection,
+    offset: StickyPosition,
+    _containerRect: DOMRect, // Подчеркивание показывает что параметр намеренно не используется
+    containerOffset: StickyPosition
+  ): Partial<CSSStyleDeclaration> {
+    const container = element.config.scrollContainer!.element;
+    const scrollTop = container.scrollTop;
+    const scrollLeft = container.scrollLeft;
+
+    const styles: Partial<CSSStyleDeclaration> = {};
+
+    switch (direction) {
+      case 'top':
+        styles.top = `${scrollTop + (offset.top || 0) + (containerOffset.top || 0)}px`;
+        break;
+      case 'bottom':
+        styles.bottom = `${(offset.bottom || 0) + (containerOffset.bottom || 0)}px`;
+        break;
+      case 'left':
+        styles.left = `${scrollLeft + (offset.left || 0) + (containerOffset.left || 0)}px`;
+        break;
+      case 'right':
+        styles.right = `${(offset.right || 0) + (containerOffset.right || 0)}px`;
+        break;
+    }
+
+    return styles;
   }
 }

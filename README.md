@@ -683,3 +683,233 @@ MIT © [Pavel Melnik](https://github.com/PavelMelnik94)
 ---
 
 [↑ Вернуться к началу](#️-stuckin)
+
+## 🎯 Кастомные скролл-контейнеры
+
+**НОВИНКА**: Начиная с версии 1.0.17+, библиотека поддерживает sticky элементы внутри кастомных скролл-контейнеров!
+
+### Основные возможности
+
+- ✅ **Прилипание к кастомным контейнерам** - sticky элементы работают внутри `div` с `overflow: auto|scroll`
+- ✅ **Множественные контейнеры** - разные элементы могут использовать разные контейнеры
+- ✅ **Группировка в контейнерах** - sticky группы работают внутри контейнеров
+- ✅ **Горизонтальный и вертикальный скролл** - поддержка всех направлений
+- ✅ **Автоматическое позиционирование** - элементы позиционируются относительно контейнера
+- ✅ **Производительность** - оптимизированное отслеживание контейнеров
+
+### Использование с хуком
+
+```tsx
+import { useStickyInContainer } from 'stuckin';
+
+function MyComponent() {
+  const { ref, isSticky } = useStickyInContainer({
+    container: '.my-scroll-container', // Селектор или HTMLElement
+    direction: 'top',
+    offset: { top: 10 },
+    containerOffset: { top: 20 }, // Дополнительные отступы от контейнера
+    observeResize: true, // Отслеживать изменения размеров контейнера
+    id: 'my-sticky'
+  });
+
+  return (
+    <div className="my-scroll-container" style={{ height: '400px', overflow: 'auto' }}>
+      <div style={{ height: '200px' }}>Content before sticky</div>
+
+      <div ref={ref} className={isSticky ? 'is-sticky' : ''}>
+        Я прилипаю к контейнеру, а не к viewport!
+      </div>
+
+      <div style={{ height: '800px' }}>Long content...</div>
+    </div>
+  );
+}
+```
+
+### Использование с компонентом
+
+```tsx
+import { StickyContainer } from 'stuckin';
+
+function ScrollableCard() {
+  return (
+    <div className="card-container" style={{ height: '300px', overflow: 'auto' }}>
+      <div style={{ height: '100px' }}>Header content</div>
+
+      <StickyContainer
+        container=".card-container"
+        direction="top"
+        offset={{ top: 0 }}
+        containerOffset={{ top: 10 }}
+        className="sticky-toolbar"
+        activeClassName="toolbar-sticky"
+      >
+        <div className="toolbar">
+          <button>Action 1</button>
+          <button>Action 2</button>
+        </div>
+      </StickyContainer>
+
+      <div style={{ height: '600px' }}>Main content...</div>
+    </div>
+  );
+}
+```
+
+### Множественные sticky в одном контейнере
+
+```tsx
+function NavigationContainer() {
+  return (
+    <div className="nav-container" style={{ height: '500px', overflow: 'auto' }}>
+      <div style={{ height: '100px' }}>Top content</div>
+
+      {/* Основной header */}
+      <StickyContainer
+        container=".nav-container"
+        direction="top"
+        offset={{ top: 0 }}
+        groupId="nav-group"
+        priority={10}
+      >
+        <header>Main Navigation</header>
+      </StickyContainer>
+
+      <div style={{ height: '150px' }}>Some content</div>
+
+      {/* Sub-navigation */}
+      <StickyContainer
+        container=".nav-container"
+        direction="top"
+        offset={{ top: 60 }} // Отступ от главного header
+        groupId="nav-group"
+        priority={8}
+      >
+        <nav>Sub Navigation</nav>
+      </StickyContainer>
+
+      <div style={{ height: '1000px' }}>Long content...</div>
+    </div>
+  );
+}
+```
+
+### Горизонтальный скролл
+
+```tsx
+function HorizontalSticky() {
+  return (
+    <div style={{ width: '400px', height: '200px', overflowX: 'auto' }}>
+      <div style={{ width: '1000px', display: 'flex', alignItems: 'center' }}>
+        <div style={{ width: '200px' }}>Scroll right →</div>
+
+        <StickyContainer
+          container={containerRef.current}
+          direction="left"
+          offset={{ left: 10 }}
+        >
+          ← Sticky to left edge
+        </StickyContainer>
+
+        <div style={{ width: '600px' }}>Wide content...</div>
+      </div>
+    </div>
+  );
+}
+```
+
+### Конфигурация контейнера
+
+```tsx
+interface UseStickyContainerOptions {
+  /** Контейнер: HTMLElement, селектор или ref */
+  container: HTMLElement | string | null;
+
+  /** Отступы от границ контейнера */
+  containerOffset?: {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+  };
+
+  /** Отслеживать изменения размеров контейнера */
+  observeResize?: boolean; // по умолчанию true
+
+  /** Все остальные опции из useSticky */
+  direction: 'top' | 'bottom' | 'left' | 'right';
+  offset: StickyPosition;
+  // ... другие опции
+}
+```
+
+### Группы в контейнерах
+
+```tsx
+import { useStickyInContainerGroup } from 'stuckin';
+
+function GroupedSticky() {
+  const { createStickyElement } = useStickyInContainerGroup({
+    container: '.grouped-container',
+    groupId: 'my-group',
+    baseOptions: {
+      direction: 'top',
+      containerOffset: { top: 5 }
+    }
+  });
+
+  const header = createStickyElement({
+    offset: { top: 0 },
+    priority: 10,
+    id: 'header'
+  });
+
+  const subheader = createStickyElement({
+    offset: { top: 50 },
+    priority: 8,
+    id: 'subheader'
+  });
+
+  return (
+    <div className="grouped-container" style={{ height: '400px', overflow: 'auto' }}>
+      <div ref={header.ref}>Header</div>
+      <div ref={subheader.ref}>Subheader</div>
+      {/* контент */}
+    </div>
+  );
+}
+```
+
+### Миграция с viewport на контейнеры
+
+Если у вас есть существующие sticky элементы, привязанные к viewport, вы можете легко мигрировать их:
+
+```tsx
+// До: прилипание к viewport
+<Sticky direction="top" offset={{ top: 20 }}>
+  Content
+</Sticky>
+
+// После: прилипание к контейнеру
+<StickyContainer
+  container=".my-container"
+  direction="top"
+  offset={{ top: 20 }}
+>
+  Content
+</StickyContainer>
+
+// Или с хуком
+const { ref } = useStickyInContainer({
+  container: '.my-container',
+  direction: 'top',
+  offset: { top: 20 }
+});
+```
+
+### Совместимость
+
+- ✅ **Обратная совместимость** - существующий код продолжает работать
+- ✅ **Все стратегии** - follow-scroll, magnetic, parallax работают в контейнерах
+- ✅ **SSR поддержка** - работает с server-side rendering
+- ✅ **TypeScript** - полная типизация для всех новых API

@@ -43,6 +43,7 @@ export interface StickyConfig {
   offset: StickyPosition;
   priority: number;
   boundary?: StickyBoundary;
+  scrollContainer?: StickyScrollContainer; // Новое поле для кастомного контейнера
   zIndex?: number;
   disabled?: boolean;
   smooth?: boolean;
@@ -338,4 +339,18 @@ export interface ExtendedStickyConfig extends StickyConfig {
   followScroll?: FollowScrollConfig;
   animated?: AnimatedConfig;
   stacking?: StackingConfig;
+}
+
+// === КАСТОМНЫЕ СКРОЛЛ-КОНТЕЙНЕРЫ ===
+
+/**
+ * Конфигурация для кастомного скролл-контейнера
+ */
+export interface StickyScrollContainer {
+  /** Элемент-контейнер с overflow: auto|scroll */
+  element: HTMLElement;
+  /** Отступы от границ контейнера */
+  offset?: StickyPosition;
+  /** Следует ли отслеживать размеры контейнера */
+  observeResize?: boolean;
 }

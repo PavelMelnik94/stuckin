@@ -213,7 +213,7 @@ export const useSticky = (options: UseStickyOptions): UseStickyReturn => {
    * Принцип Observer Pattern: реагируем на изменения состояния
    */
   const element = context.elements.get(stickyId);
-  const state = element?.state || null;
+  const state = element?.state || 'normal';
   const isSticky = state === 'sticky';
   const isActive = element?.isActive || false;
 
