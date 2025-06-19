@@ -42,7 +42,6 @@ export const Sticky = observer(forwardRef<StickyRef, StickyProps>(({
     state,
     isSticky,
     isActive,
-    // updateConfig, // TODO: Use this method if needed
     refresh,
     disable,
     enable

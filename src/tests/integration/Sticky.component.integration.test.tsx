@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { screen } from '@testing-library/react';
-// import { render, fireEvent } from '@testing-library/react'; // TODO: Use if needed
 
 import { Sticky } from '../../components/Sticky';
 import { renderWithProvider, simulateScroll, waitForAnimations } from '../utils/testUtils';

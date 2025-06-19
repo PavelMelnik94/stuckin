@@ -82,9 +82,6 @@ export class EnhancedStickyManager extends StickyManager {
     });
   }
 
-  // TODO: Implement updateStickyStateWithDebug when needed
-  // This method will provide enhanced debugging for state updates
-
   /**
    * Получение debug информации для интеграции с debugger
    */

@@ -78,13 +78,28 @@ export const useStickyGroup = (options: UseStickyGroupOptions): UseStickyGroupRe
   }, [context, groupId, elements.length]);
 
   const refreshGroup = useCallback(() => {
-    elements.forEach(_element => {
-      // Принудительно обновляем состояние элементов группы
-      // TODO: Use rect for element update logic
-      // const rect = element.element.getBoundingClientRect();
-      //TODO Здесь нужно добавить логику обновления
+    debugLogger.debug(groupId, 'Refreshing group elements', {
+      elementsCount: elements.length
     });
-  }, [elements]);
+
+    elements.forEach(element => {
+      // Принудительно обновляем состояние элементов группы
+      const rect = element.element.getBoundingClientRect();
+      debugLogger.debug(element.id, 'Updating element bounds', {
+        rect: {
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height
+        }
+      });
+
+      // Обновляем конфигурацию элемента (это принудительно обновит состояние)
+      context.updateConfig(element.id, {
+        offset: element.config.offset // Переустанавливаем тот же offset для триггера обновления
+      });
+    });
+  }, [elements, groupId, context]);
 
   /**
    * Утилитарные методы для работы с группой

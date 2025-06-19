@@ -7,12 +7,6 @@ import { renderHook, act } from '@testing-library/react';
 
 import { useSticky } from '../../hooks/useSticky';
 import { renderWithProvider } from '../utils/testUtils';
-// import { simulateScroll, createTestConfig } from '../utils/testUtils'; // TODO: Use if needed
-
-// TODO: Use wrapper if needed for provider context
-// const wrapper = ({ children }: { children: React.ReactNode }) => (
-//   <div>{children}</div>
-// );
 
 describe('useSticky Integration Tests', () => {
   beforeEach(() => {

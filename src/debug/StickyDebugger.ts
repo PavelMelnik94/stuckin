@@ -678,8 +678,29 @@ class StickyDebugger {
    * Сериализация групп для снимков
    */
   private serializeGroups(): Record<string, any> {
-    // TODO: Интеграция с StickyManager для получения групп
-    return {};
+    const groups: Record<string, any> = {};
+
+    // Получаем группы из глобального менеджера если доступен
+    if (typeof window !== 'undefined' && (window as any).__STICKY_DEBUG__) {
+      const manager = (window as any).__STICKY_DEBUG__;
+      if (manager && manager.groups) {
+        manager.groups.forEach((group: any, groupId: string) => {
+          groups[groupId] = {
+            id: group.id,
+            priority: group.priority,
+            elements: group.elements.map((el: any) => ({
+              id: el.id,
+              state: el.state,
+              element: el.element.tagName.toLowerCase()
+            })),
+            totalHeight: group.totalHeight || 0,
+            created: group.created || Date.now()
+          };
+        });
+      }
+    }
+
+    return groups;
   }
 
   /**

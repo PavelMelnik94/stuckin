@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 
-
 import { useSticky, UseStickyOptions } from './useSticky';
 
+import { debugLogger } from '@/debug/debugLogger';
 import type { StickyState } from '@/types/sticky.types';
 import { stickyDebugger } from '@/debug/StickyDebugger';
 
@@ -94,9 +94,24 @@ export const useDebugSticky = (options: UseDebugStickyOptions) => {
   const debugRender = <T,>(fn: () => T): T => {
     if (!debugConfig.trackPerformance) return fn();
 
-    // TODO: Add performance monitor to stickyDebugger
-    // return stickyDebugger.performanceMonitor?.measureRenderTime(debugLabel, fn) || fn();
-    return fn();
+    // Интеграция с performance monitor
+    const start = performance.now();
+    const result = fn();
+    const renderTime = performance.now() - start;
+
+    debugLogger.debug(debugLabel, 'Render performance', {
+      renderTime: renderTime.toFixed(2) + 'ms',
+      isSlowRender: renderTime > 16 // 60fps threshold
+    });
+
+    if (renderTime > 16) {
+      debugLogger.warning(debugLabel, 'Slow render detected', {
+        renderTime: renderTime.toFixed(2) + 'ms',
+        recommendation: 'Consider using React.memo or optimizing component logic'
+      });
+    }
+
+    return result;
   };
 
   /**

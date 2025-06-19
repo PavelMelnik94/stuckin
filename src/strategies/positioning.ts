@@ -38,16 +38,36 @@ export const standardStrategy: PositionStrategy = {
     return ['top', 'bottom', 'left', 'right'].includes(config.direction);
   },
 
-  calculate: (_element, config, _viewport) => {
-    // TODO: Use element rect for proper calculation
-    // const rect = element.getBoundingClientRect();
+  calculate: (element, config, _viewport) => {
+    const rect = element.getBoundingClientRect();
     const { direction, offset } = config;
 
-    return {
+    // Расчет позиции с учетом размеров элемента
+    const result: PositionResult = {
       position: 'fixed',
-      [direction]: offset[direction] || 0,
       zIndex: config.zIndex || 1000
     };
+
+    switch (direction) {
+      case 'top':
+        result.top = offset.top || 0;
+        result.left = rect.left;
+        break;
+      case 'bottom':
+        result.bottom = offset.bottom || 0;
+        result.left = rect.left;
+        break;
+      case 'left':
+        result.left = offset.left || 0;
+        result.top = rect.top;
+        break;
+      case 'right':
+        result.right = offset.right || 0;
+        result.top = rect.top;
+        break;
+    }
+
+    return result;
   }
 };
 
@@ -58,7 +78,7 @@ export const centeredStrategy: PositionStrategy = {
   name: 'centered',
 
   canHandle: (config) => {
-    return config.direction === 'center' as any;
+    return config.direction === 'center' as unknown;
   },
 
   calculate: (element, config, viewport) => {
@@ -81,7 +101,7 @@ export const smartStrategy: PositionStrategy = {
   name: 'smart',
 
   canHandle: (config) => {
-    return config.direction === 'smart' as any;
+    return config.direction === 'smart' as unknown;
   },
 
   calculate: (element, config, viewport) => {

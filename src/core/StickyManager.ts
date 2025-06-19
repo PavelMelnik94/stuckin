@@ -216,8 +216,6 @@ export class StickyManager {
     }
 
     const rect = element.element.getBoundingClientRect();
-    // TODO: Use these values in sticky calculation
-    // const { direction, offset, boundary } = element.config;
 
     const newState = this.calculateStickyState(element, rect);
 
@@ -361,10 +359,15 @@ export class StickyManager {
     return Array.from(this.elements.values()).find(el => el.element === node);
   }
 
-  private isOutsideBoundary(_element: StickyElement, _boundary: StickyBoundary): boolean {
-    // Логика проверки границ
-    // Реализация зависит от типа boundary
-    return false;
+  private isOutsideBoundary(element: StickyElement, boundary: StickyBoundary): boolean {
+    // Проверка, находится ли элемент за пределами установленной границы
+    const elementRect = element.element.getBoundingClientRect();
+    const boundaryRect = boundary.element.getBoundingClientRect();
+    const offset = boundary.offset || 0;
+
+    // Элемент считается вне границы, если его верхняя часть
+    // превышает нижнюю границу контейнера с учетом offset
+    return elementRect.top > (boundaryRect.bottom - offset);
   }
 
   private resetElementStyles(element: StickyElement): void {
@@ -378,8 +381,21 @@ export class StickyManager {
     style.transition = '';
   }
 
-  private applyInitialStyles(_element: StickyElement): void {
+  private applyInitialStyles(element: StickyElement): void {
     // Применяем начальные стили если нужно
+    const style = element.element.style;
+    const dataset = element.element.dataset;
+
+    // Сохраняем исходные стили для возможного восстановления
+    if (!dataset['originalPosition']) {
+      dataset['originalPosition'] = style.position || 'static';
+      dataset['originalTop'] = style.top || 'auto';
+      dataset['originalLeft'] = style.left || 'auto';
+      dataset['originalZIndex'] = style.zIndex || 'auto';
+    }
+
+    // Дополнительная инициализация если нужно
+    debugLogger.debug(element.id, 'Initial styles applied');
   }
 
   private updateElementVisibility(element: StickyElement, isVisible: boolean): void {
