@@ -344,12 +344,36 @@ export const useSticky = (options: UseStickyOptions): UseStickyReturn => {
 
   // 🔧 Логирование каждого рендера (только в debug режиме)
   useEffect(() => {
+    // ✅ ИСПРАВЛЕНО: Безопасное хеширование конфигурации без JSON.stringify
+    const getConfigHash = (cfg: any): number => {
+      if (!cfg) return 0;
+      let hash = 0;
+
+      // Простое хеширование основных свойств
+      const keys = ['direction', 'offset', 'boundary', 'disabled', 'id', 'groupId'];
+      for (const key of keys) {
+        if (cfg[key] !== undefined) {
+          const value = typeof cfg[key] === 'object' ? JSON.stringify(cfg[key]) : String(cfg[key]);
+          for (let i = 0; i < value.length; i++) {
+            hash = ((hash << 5) - hash + value.charCodeAt(i)) & 0xffffffff;
+          }
+        }
+      }
+
+      // Добавляем hasScrollContainer флаг
+      if (cfg.scrollContainer) {
+        hash = ((hash << 5) - hash + 'scrollContainer'.charCodeAt(0)) & 0xffffffff;
+      }
+
+      return hash;
+    };
+
     debugLogger.debug(stickyId, 'Hook рендер', {
       state,
       isSticky,
       isActive,
       isInitialized,
-      configHash: JSON.stringify(config).length // Простой хеш для отслеживания изменений
+      configHash: getConfigHash(config) // Безопасный хеш
     });
   });
 

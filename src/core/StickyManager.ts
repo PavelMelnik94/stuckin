@@ -510,6 +510,12 @@ export class StickyManager {
             const containerRect = scrollContainer.element.getBoundingClientRect();
             const containerOffset = scrollContainer.offset || {};
 
+            // ✅ ИСПРАВЛЕНО: Убеждаемся, что контейнер имеет relative позиционирование
+            const containerStyle = getComputedStyle(scrollContainer.element);
+            if (containerStyle.position === 'static') {
+              scrollContainer.element.style.position = 'relative';
+            }
+
             Object.assign(style, baseStyles, {
               position: 'absolute',
               ...this.getContainerPosition(element, direction, offset, containerRect, containerOffset)
@@ -875,29 +881,29 @@ export class StickyManager {
    * Вычисление позиции элемента внутри кастомного контейнера
    */
   private getContainerPosition(
-    element: StickyElement,
+    _element: StickyElement,
     direction: StickyDirection,
     offset: StickyPosition,
     _containerRect: DOMRect, // Подчеркивание показывает что параметр намеренно не используется
     containerOffset: StickyPosition
   ): Partial<CSSStyleDeclaration> {
-    const container = element.config.scrollContainer!.element;
-    const scrollTop = container.scrollTop;
-    const scrollLeft = container.scrollLeft;
-
     const styles: Partial<CSSStyleDeclaration> = {};
 
     switch (direction) {
       case 'top':
-        styles.top = `${scrollTop + (offset.top || 0) + (containerOffset.top || 0)}px`;
+        // ✅ ИСПРАВЛЕНО: Прилипаем к верхней видимой части контейнера, а не к scrollTop
+        styles.top = `${(offset.top || 0) + (containerOffset.top || 0)}px`;
         break;
       case 'bottom':
+        // ✅ ИСПРАВЛЕНО: Прилипаем к нижней видимой части контейнера
         styles.bottom = `${(offset.bottom || 0) + (containerOffset.bottom || 0)}px`;
         break;
       case 'left':
-        styles.left = `${scrollLeft + (offset.left || 0) + (containerOffset.left || 0)}px`;
+        // ✅ ИСПРАВЛЕНО: Прилипаем к левой видимой части контейнера
+        styles.left = `${(offset.left || 0) + (containerOffset.left || 0)}px`;
         break;
       case 'right':
+        // ✅ ИСПРАВЛЕНО: Прилипаем к правой видимой части контейнера
         styles.right = `${(offset.right || 0) + (containerOffset.right || 0)}px`;
         break;
     }
