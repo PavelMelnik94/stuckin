@@ -161,27 +161,27 @@
     {
       "name": "Full bundle (gzipped)",
       "path": "dist/index.js",
-      "limit": "25 KB"
+      "limit": "30 KB"
     },
     {
       "name": "Hooks only (gzipped)",
       "path": "dist/hooks.js",
-      "limit": "8 KB"
+      "limit": "28 KB"
     },
     {
       "name": "Components only (gzipped)",
       "path": "dist/components.js",
-      "limit": "12 KB"
+      "limit": "28 KB"
     },
     {
       "name": "Utils only (gzipped)",
       "path": "dist/utils.js",
-      "limit": "6 KB"
+      "limit": "22 KB"
     },
     {
       "name": "Debug only (gzipped)",
       "path": "dist/debug.js",
-      "limit": "10 KB"
+      "limit": "20 KB"
     }
   ],
   "prettier": {

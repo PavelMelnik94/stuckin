@@ -305,10 +305,11 @@ window.__STICKY_DEBUG__.exportData();
 
 ### Bundle Size
 
-- Full Library: ~25KB gzipped
-- Hooks только: ~8KB gzipped
-- Components только: ~12KB gzipped
-- Utils только: ~5KB gzipped
+- Full Library: ~30KB gzipped
+- Hooks только: ~28KB gzipped
+- Components только: ~28KB gzipped
+- Utils только: ~22KB gzipped
+- Debug только: ~20KB gzipped
 
 ### Tree Shaking
 
