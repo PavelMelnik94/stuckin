@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { screen, act } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import { Sticky } from '../../components/Sticky';
 import { renderWithProvider, simulateScroll, waitForAnimations } from '../utils/testUtils';
@@ -79,7 +79,7 @@ describe('Sticky Component Integration Tests', () => {
       // Нужно установить позицию элемента и проскроллить
       Object.defineProperty(stickyElement, 'getBoundingClientRect', {
         value: () => ({
-          top: 30, // меньше offset (50) - значит должен быть sticky
+          top: 30, // меньше offset (50)
           left: 0,
           width: 200,
           height: 100,
@@ -90,18 +90,12 @@ describe('Sticky Component Integration Tests', () => {
         })
       });
 
-      // Принудительно обновляем состояние через менеджер
-      await act(async () => {
-        simulateScroll(0, 100);
-        // Добавляем дополнительный trigger для обновления состояния
-        window.dispatchEvent(new Event('scroll'));
-        await waitForAnimations();
-      });
+      simulateScroll(0, 100);
+      await waitForAnimations();
 
-      // Упрощаем тест - проверяем, что компонент может переключить состояние
-      // через внешнее управление (например, через ref API)
-      expect(stickyElement).toHaveAttribute('data-sticky-state', 'normal');
-      expect(stickyElement).toHaveClass('sticky-normal');
+      // После скролла должны измениться классы
+      expect(stickyElement).toHaveAttribute('data-sticky-state', 'sticky');
+      expect(stickyElement).toHaveClass('sticky-sticky');
     });
 
     test('должен применять активные стили', async () => {
