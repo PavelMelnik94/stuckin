@@ -2,6 +2,12 @@ import {
   standardStrategy,
   centeredStrategy,
   smartStrategy,
+  followScrollStrategy,
+  magneticStrategy,
+  parallaxStrategy,
+  adaptiveStrategy,
+  animatedStrategy,
+  stackingStrategy,
   positionStrategyManager,
   type PositionStrategy,
   type ViewportInfo
@@ -376,6 +382,135 @@ describe('Positioning Strategies', () => {
 
       expect(result.left).toBe((320 - 100) / 2);
       expect(result.top).toBe((568 - 50) / 2);
+    });
+  });
+
+  describe('новые стратегии позиционирования', () => {
+    test('followScrollStrategy должен корректно вычислять позицию с лагом', () => {
+      const config: StickyConfig = {
+        id: 'test',
+        direction: 'follow-scroll',
+        offset: { top: 0 },
+        priority: 1,
+        followScroll: { lag: 0.2, bounds: { top: 10, bottom: 20 } }
+      } as any;
+
+      const element = createMockElement(100, 50);
+      const viewport = { width: 1200, height: 800, scrollX: 0, scrollY: 100 };
+
+      const result = followScrollStrategy.calculate(element, config, viewport);
+
+      expect(result.position).toBe('fixed');
+      expect(result.top).toBe(90); // 100 * (1 - 0.2) + 10
+      expect(result.transform).toContain('translate3d');
+    });
+
+    test('magneticStrategy должен притягивать элемент к ближайшему краю', () => {
+      const config: StickyConfig = {
+        id: 'test',
+        direction: 'magnetic',
+        offset: { top: 0 },
+        priority: 1,
+        magnetic: { threshold: 50, strength: 0.8, edges: ['top', 'left'] }
+      } as any;
+
+      // Элемент близко к верхнему краю (30px)
+      const element = createMockElement(100, 30, 100, 50);
+      const viewport = { width: 1200, height: 800, scrollX: 0, scrollY: 0 };
+
+      const result = magneticStrategy.calculate(element, config, viewport);
+
+      expect(result.position).toBe('fixed');
+      expect(result.top).toBeLessThan(30); // Должен притянуться к верху
+    });
+
+    test('parallaxStrategy должен применять parallax эффект', () => {
+      const config: StickyConfig = {
+        id: 'test',
+        direction: 'parallax',
+        offset: { top: 0 },
+        priority: 1,
+        parallax: { speed: 0.5, direction: 'vertical', reverse: false }
+      } as any;
+
+      const element = createMockElement(100, 50);
+      const viewport = { width: 1200, height: 800, scrollX: 0, scrollY: 200 };
+
+      const result = parallaxStrategy.calculate(element, config, viewport);
+
+      expect(result.position).toBe('fixed');
+      expect(result.transform).toContain('translateY(100px)'); // 200 * 0.5
+    });
+
+    test('adaptiveStrategy должен адаптироваться к размеру элемента', () => {
+      const config: StickyConfig = {
+        id: 'test',
+        direction: 'adaptive',
+        offset: { top: 0 },
+        priority: 1
+      };
+
+      // Большой элемент (более 30% от viewport)
+      const largeElement = createMockElement(0, 0, 600, 400); // 240000px² vs 960000px² viewport
+      const viewport = { width: 1200, height: 800, scrollX: 0, scrollY: 0 };
+
+      const result = adaptiveStrategy.calculate(largeElement, config, viewport);
+
+      expect(result.position).toBe('fixed');
+      // Большой элемент должен быть центрирован
+      expect(result.top).toBe((800 - 400) / 2);
+      expect(result.left).toBe((1200 - 600) / 2);
+    });
+
+    test('animatedStrategy должен добавлять CSS transitions', () => {
+      const config: StickyConfig = {
+        id: 'test',
+        direction: 'animated',
+        offset: { top: 0 },
+        priority: 1,
+        animated: { duration: 500, easing: 'ease-in-out' }
+      } as any;
+
+      const element = createMockElement(100, 50);
+      const viewport = { width: 1200, height: 800, scrollX: 0, scrollY: 0 };
+
+      const result = animatedStrategy.calculate(element, config, viewport);
+
+      expect(result.position).toBe('fixed');
+      expect(result.transform).toContain('translate3d');
+      expect(element.style.transition).toBe('all 500ms ease-in-out');
+    });
+
+    test('stackingStrategy должен позиционировать элементы в стеке', () => {
+      // Создаем мок группы элементов
+      const mockGroup = document.createElement('div');
+      mockGroup.setAttribute('data-sticky-group', 'test-group');
+      mockGroup.style.height = '60px';
+      document.body.appendChild(mockGroup);
+
+      const config: StickyConfig = {
+        id: 'test',
+        direction: 'stacking',
+        offset: { top: 0 },
+        priority: 1,
+        stacking: { spacing: 10, direction: 'vertical', alignment: 'start' }
+      } as any;
+
+      const element = createMockElement(100, 50);
+      element.setAttribute('data-sticky-group', 'test-group');
+      document.body.appendChild(element);
+
+      const viewport = { width: 1200, height: 800, scrollX: 0, scrollY: 0 };
+
+      const result = stackingStrategy.calculate(element, config, viewport);
+
+      expect(result.position).toBe('fixed');
+      expect(result.top).toBeGreaterThanOrEqual(0);
+      expect(result.zIndex).toBeGreaterThanOrEqual(1000);
+
+      // Cleanup
+      document.body.removeChild(mockGroup);
+      document.body.removeChild(element);
     });
   });
 });

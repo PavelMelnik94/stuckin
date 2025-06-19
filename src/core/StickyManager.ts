@@ -1,7 +1,7 @@
 import { makeObservable, observable, action, computed } from 'mobx';
 
 import { debugLogger } from '@/debug/debugLogger';
-import type { StickyConfig, StickyDirection, StickyElement, StickyGroup, StickyState, StickyBoundary } from '@/types/sticky.types';
+import type { StickyConfig, StickyDirection, StickyElement, StickyGroup, StickyState, StickyBoundary, StickyPosition } from '@/types/sticky.types';
 
 
 /**
@@ -273,18 +273,32 @@ export class StickyManager {
 
     switch (state) {
       case 'sticky':
-        Object.assign(style, baseStyles, {
-          position: 'fixed',
-          [direction]: `${offset[direction] || 0}px`
-        });
+        // Для новых стратегий позиционирования не используем простое offset[direction]
+        if (['top', 'bottom', 'left', 'right'].includes(direction)) {
+          Object.assign(style, baseStyles, {
+            position: 'fixed',
+            [direction]: `${offset[direction as keyof StickyPosition] || 0}px`
+          });
+        } else {
+          // Для новых стратегий используем позиционирование через менеджер стратегий
+          Object.assign(style, baseStyles, {
+            position: 'fixed'
+          });
+        }
         element.isActive = true;
         break;
 
       case 'bottom-reached':
-        Object.assign(style, baseStyles, {
-          position: 'absolute',
-          [this.getOppositeDirection(direction)]: '0px'
-        });
+        if (['top', 'bottom', 'left', 'right'].includes(direction)) {
+          Object.assign(style, baseStyles, {
+            position: 'absolute',
+            [this.getOppositeDirection(direction)]: '0px'
+          });
+        } else {
+          Object.assign(style, baseStyles, {
+            position: 'absolute'
+          });
+        }
         element.isActive = false;
         break;
 
@@ -346,13 +360,13 @@ export class StickyManager {
   }
 
   private getOppositeDirection(direction: StickyDirection): string {
-    const opposites = {
+    const opposites: Record<string, string> = {
       top: 'bottom',
       bottom: 'top',
       left: 'right',
       right: 'left'
     };
-    return opposites[direction];
+    return opposites[direction] || 'bottom'; // Fallback для новых направлений
   }
 
   private findElementByNode(node: HTMLElement): StickyElement | undefined {

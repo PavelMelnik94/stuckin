@@ -69,7 +69,11 @@ export function isHTMLElement(value: unknown): value is HTMLElement {
  * Проверяет что строка является валидным направлением sticky
  */
 export function isStickyDirection(value: unknown): value is StickyDirection {
-  return isString(value) && ['top', 'bottom', 'left', 'right'].includes(value);
+  return isString(value) && [
+    'top', 'bottom', 'left', 'right', 'center', 'smart',
+    'follow-scroll', 'magnetic', 'parallax', 'adaptive',
+    'stacking', 'animated'
+  ].includes(value);
 }
 
 /**

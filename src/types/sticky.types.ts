@@ -7,7 +7,19 @@ import React from 'react';
 
 // === БАЗОВЫЕ ТИПЫ ===
 
-export type StickyDirection = 'top' | 'bottom' | 'left' | 'right';
+export type StickyDirection =
+  | 'top'
+  | 'bottom'
+  | 'left'
+  | 'right'
+  | 'center'
+  | 'smart'
+  | 'follow-scroll'
+  | 'magnetic'
+  | 'parallax'
+  | 'adaptive'
+  | 'stacking'
+  | 'animated';
 
 export type StickyState = 'normal' | 'sticky' | 'bottom-reached';
 
@@ -267,4 +279,63 @@ export interface StickyContainerRef {
   activeElements: StickyElement[];
   totalHeight: number;
   refreshGroup: () => void;
+}
+
+// === STRATEGY ТИПЫ ===
+
+/**
+ * Конфигурация для parallax стратегии
+ */
+export interface ParallaxConfig {
+  speed?: number; // Скорость движения (0.1 - 2.0)
+  direction?: 'vertical' | 'horizontal' | 'both';
+  reverse?: boolean; // Обратное направление
+}
+
+/**
+ * Конфигурация для magnetic стратегии
+ */
+export interface MagneticConfig {
+  threshold?: number; // Расстояние для активации магнита (px)
+  edges?: ('top' | 'bottom' | 'left' | 'right')[]; // Активные края
+  strength?: number; // Сила притяжения (0.1 - 1.0)
+}
+
+/**
+ * Конфигурация для follow-scroll стратегии
+ */
+export interface FollowScrollConfig {
+  lag?: number; // Задержка следования (0 - 1.0)
+  bounds?: { top?: number; bottom?: number; left?: number; right?: number };
+  easing?: 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out';
+}
+
+/**
+ * Конфигурация для animated стратегии
+ */
+export interface AnimatedConfig {
+  duration?: number; // Длительность анимации (ms)
+  easing?: string; // CSS easing функция
+  properties?: string[]; // Анимируемые свойства
+}
+
+/**
+ * Конфигурация для stacking стратегии
+ */
+export interface StackingConfig {
+  spacing?: number; // Расстояние между элементами
+  direction?: 'vertical' | 'horizontal';
+  alignment?: 'start' | 'center' | 'end';
+  maxItems?: number; // Максимальное количество элементов в стеке
+}
+
+/**
+ * Расширенная конфигурация StickyConfig с поддержкой стратегий
+ */
+export interface ExtendedStickyConfig extends StickyConfig {
+  parallax?: ParallaxConfig;
+  magnetic?: MagneticConfig;
+  followScroll?: FollowScrollConfig;
+  animated?: AnimatedConfig;
+  stacking?: StackingConfig;
 }

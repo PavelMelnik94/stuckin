@@ -10,6 +10,7 @@
 - 📌 **Sticky элементы** - поддержка sticky элементов с возможностью настройки
 - 🚀 **Высокая производительность** - оптимизировано с Intersection Observer API
 - 🎯 **Multi-directional sticky** - поддержка всех направлений (top/bottom/left/right)
+- 🎨 **Продвинутые стратегии позиционирования** - follow-scroll, magnetic, parallax, adaptive, animated, stacking
 - 👥 **Группы элементов** с автоматическим управлением z-index
 - 📱 **Responsive дизайн** с breakpoints
 - 🔧 **TypeScript support** из коробки
@@ -267,6 +268,194 @@ function SSRCompatibleSticky() {
       Content
     </div>
   );
+}
+```
+
+## 🎯 Стратегии позиционирования
+
+Библиотека поддерживает расширенные стратегии позиционирования для создания уникальных эффектов:
+
+### Follow Scroll
+
+Элемент следует за скроллом с настраиваемым лагом:
+
+```tsx
+<Sticky
+  id="follow-scroll"
+  direction="follow-scroll"
+  followScroll={{
+    lag: 0.1,        // Коэффициент лага (0-1)
+    bounds: {        // Ограничения позиции
+      top: 10,
+      bottom: 10,
+      left: 10,
+      right: 10
+    }
+  }}
+>
+  <div>Следую за скроллом с лагом</div>
+</Sticky>
+```
+
+### Magnetic
+
+Магнитное притяжение к краям viewport:
+
+```tsx
+<Sticky
+  id="magnetic"
+  direction="magnetic"
+  magnetic={{
+    threshold: 50,                             // Расстояние активации
+    strength: 0.8,                            // Сила притяжения (0-1)
+    edges: ['top', 'bottom', 'left', 'right'] // Активные края
+  }}
+>
+  <div>Притягиваюсь к краям!</div>
+</Sticky>
+```
+
+### Parallax
+
+Эффект параллакса при скролле:
+
+```tsx
+<Sticky
+  id="parallax"
+  direction="parallax"
+  parallax={{
+    speed: 0.5,      // Скорость параллакса (0-1)
+    direction: 'y'   // Направление: 'x', 'y', 'both'
+  }}
+>
+  <div>Параллакс эффект</div>
+</Sticky>
+```
+
+### Adaptive
+
+Адаптивное позиционирование в зависимости от размера элемента:
+
+```tsx
+<Sticky
+  id="adaptive"
+  direction="adaptive"
+  adaptive={{
+    sizeBoundary: 0.3,  // Граница для больших элементов (0-1)
+    mobileBreakpoint: 768
+  }}
+>
+  <div>Адаптивное позиционирование</div>
+</Sticky>
+```
+
+### Animated
+
+Позиционирование с плавными CSS переходами:
+
+```tsx
+<Sticky
+  id="animated"
+  direction="animated"
+  animated={{
+    duration: '0.3s',
+    easing: 'ease-in-out',
+    properties: ['top', 'left', 'transform']
+  }}
+>
+  <div>Плавные переходы</div>
+</Sticky>
+```
+
+### Stacking
+
+Элементы располагаются в стек с автоматическим spacing:
+
+```tsx
+<Sticky
+  id="stacked-1"
+  direction="stacking"
+  groupId="stack-group"
+  stacking={{
+    direction: 'vertical',    // 'vertical' или 'horizontal'
+    spacing: 10,             // Расстояние между элементами
+    alignment: 'start'       // 'start', 'center', 'end'
+  }}
+>
+  <div>Первый в стеке</div>
+</Sticky>
+
+<Sticky
+  id="stacked-2"
+  direction="stacking"
+  groupId="stack-group"
+  stacking={{
+    direction: 'vertical',
+    spacing: 10,
+    alignment: 'start'
+  }}
+>
+  <div>Второй в стеке</div>
+</Sticky>
+```
+
+### Комбинирование стратегий
+
+Можно также использовать стратегии через хуки:
+
+```tsx
+import { useSticky } from '@pavelmelnik94/sticky-lib';
+
+function AdvancedStickyComponent() {
+  const { ref, isSticky } = useSticky({
+    id: 'advanced',
+    direction: 'magnetic',
+    magnetic: {
+      threshold: 30,
+      strength: 0.9,
+      edges: ['top', 'left']
+    },
+    onStateChange: (state) => {
+      console.log('Advanced sticky state:', state);
+    }
+  });
+
+  return (
+    <div ref={ref} className={isSticky ? 'magnetic-active' : ''}>
+      Продвинутый sticky элемент
+    </div>
+  );
+}
+```
+
+### 📝 TypeScript интерфейсы
+
+Все стратегии имеют строго типизированные интерфейсы:
+
+```tsx
+import type {
+  FollowScrollConfig,
+  MagneticConfig,
+  ParallaxConfig,
+  AdaptiveConfig,
+  AnimatedConfig,
+  StackingConfig
+} from '@pavelmelnik94/sticky-lib';
+
+// Пример с полной типизацией
+interface MyComponentProps {
+  magneticConfig: MagneticConfig;
+  parallaxConfig: ParallaxConfig;
+}
+
+function MyComponent({ magneticConfig, parallaxConfig }: MyComponentProps) {
+  const { ref } = useSticky({
+    id: 'typed-sticky',
+    direction: 'magnetic',
+    magnetic: magneticConfig,  // Полная поддержка автодополнения
+  });
+
+  return <div ref={ref}>Типизированный sticky</div>;
 }
 ```
 
