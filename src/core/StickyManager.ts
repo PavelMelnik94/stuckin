@@ -1,5 +1,5 @@
 import { makeObservable, observable, action, computed } from 'mobx';
-import { StickyElement, StickyConfig, StickyGroup, StickyState, StickyDirection } from '../types/sticky.types';
+import type { StickyElement, StickyConfig, StickyGroup, StickyState, StickyDirection } from '../types/sticky.types';
 
 /**
  * Основной менеджер для управления sticky элементами
@@ -179,7 +179,7 @@ export class StickyManager {
    * Основная логика обновления sticky состояния
    */
   @action
-  private updateStickyState(element: StickyElement): void {
+  protected updateStickyState(element: StickyElement): void {
     if (element.config.disabled || this.isSSR) {
       this.resetElementStyles(element);
       return;
