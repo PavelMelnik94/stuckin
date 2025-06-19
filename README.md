@@ -1,7 +1,193 @@
 # 🏷️ Stuckin
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-ready-blue.svg)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-18+-blue.svg)### useSticky Hook
+
+Основной хук для работы со sticky элементами.
+
+```tsx
+const {
+  ref,              // Ref для привязки к элементу
+  state,            // Текущее состояние: 'normal' | 'sticky' | 'bottom-reached'
+  isSticky,         // Булево значение sticky состояния
+  isActive,         // Активен ли элемент
+  updateConfig,     // Функция обновления конфигурации
+  refresh,          // Принудительное обновление
+  disable,          // Отключение sticky
+  enable            // Включение sticky
+} = useSticky(options);
+```
+
+### StickyGroup Component
+
+Компонент-контейнер для управления группой sticky элементов с автоматическим z-index менеджментом.
+
+```tsx
+interface StickyGroupProps {
+  groupId: string;                     // Уникальный ID группы
+  priority?: number;                   // Приоритет группы (влияет на z-index)
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+  onGroupChange?: (groupInfo: GroupInfo) => void;
+}
+
+// Пример использования
+function App() {
+  return (
+    <StickyProvider>
+      <StickyGroup groupId="navigation" priority={100}>
+        <Sticky id="header" direction="top" offset={{ top: 0 }}>
+          <nav>Главное меню</nav>
+        </Sticky>
+
+        <Sticky id="sidebar" direction="left" offset={{ left: 0 }}>
+          <aside>Боковая панель</aside>
+        </Sticky>
+      </StickyGroup>
+
+      <main>
+        <p>Основной контент</p>
+      </main>
+    </StickyProvider>
+  );
+}
+```
+
+### StickyContainer Component
+
+Компонент для создания sticky элементов внутри кастомных скролл-контейнеров. Идеально подходит для модальных окон, выпадающих меню, и других контейнеров с собственной прокруткой.
+
+```tsx
+interface StickyContainerProps extends UseStickyInContainerOptions {
+  container: HTMLElement | string;    // Скролл-контейнер или селектор
+  direction: 'top' | 'bottom' | 'left' | 'right'; // Обязательно!
+
+  // Дополнительные опции для контейнера
+  containerOffset?: {                 // Отступы от границ контейнера
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+  };
+  observeResize?: boolean;            // Отслеживание изменения размеров
+
+  // Стандартные sticky опции
+  offset?: StickyPosition;
+  priority?: number;
+  disabled?: boolean;
+
+  // React компонент свойства
+  children: React.ReactNode;
+  className?: string;
+  activeClassName?: string;
+  tag?: keyof JSX.IntrinsicElements;   // По умолчанию 'div'
+  style?: React.CSSProperties;
+  activeStyle?: React.CSSProperties;
+}
+
+// Пример использования
+function ScrollableModal() {
+  return (
+    <div
+      className="modal-container"
+      style={{
+        height: '400px',
+        overflow: 'auto',
+        border: '1px solid #ccc',
+        position: 'relative'
+      }}
+    >
+      <div style={{ height: '200px' }}>Контент до sticky элемента</div>
+
+      <StickyContainer
+        container=".modal-container"
+        direction="top"
+        offset={{ top: 10 }}
+        containerOffset={{ top: 20 }}
+        className="sticky-toolbar"
+        activeClassName="is-sticky"
+        id="modal-toolbar"
+      >
+        <div style={{ background: '#f0f0f0', padding: '10px' }}>
+          Я прилипаю к верху модального окна!
+        </div>
+      </StickyContainer>
+
+      <div style={{ height: '800px' }}>Длинный контент...</div>
+    </div>
+  );
+}
+```
+
+### useStickyInContainer Hook
+
+Хук для создания sticky элементов внутри кастомных скролл-контейнеров.
+
+```tsx
+const {
+  ref,              // Ref для привязки к элементу
+  state,            // Текущее состояние
+  isSticky,         // Булево значение sticky состояния
+  isActive,         // Активен ли элемент
+  refresh,          // Принудительное обновление
+  disable,          // Отключение sticky
+  enable            // Включение sticky
+} = useStickyInContainer({
+  container: '.my-scroll-container',   // или HTMLElement
+  direction: 'top',                    // Обязательно!
+  offset: { top: 10 },
+  containerOffset: { top: 20 },       // Отступы от границ контейнера
+  observeResize: true,                 // Отслеживание ресайза контейнера
+  id: 'sticky-inside-container'
+});
+
+// Пример с HTML элементом как контейнер
+function MyComponent() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { ref: stickyRef, isSticky } = useStickyInContainer({
+    container: containerRef.current,
+    direction: 'top',
+    offset: { top: 15 },
+    id: 'my-sticky'
+  });
+
+  return (
+    <div
+      ref={containerRef}
+      style={{ height: '300px', overflow: 'auto' }}
+    >
+      <div style={{ height: '100px' }}>Контент до sticky</div>
+
+      <div
+        ref={stickyRef}
+        className={isSticky ? 'sticky-active' : ''}
+      >
+        Sticky элемент внутри контейнера!
+      </div>
+
+      <div style={{ height: '600px' }}>Длинный контент...</div>
+    </div>
+  );
+}
+
+// Группа sticky элементов в контейнере
+const useStickyContainerGroup = (options) => {
+  const { container, groupId, baseOptions = {} } = options;
+
+  const createStickyElement = (elementOptions) => {
+    return useStickyInContainer({
+      ...baseOptions,
+      ...elementOptions,
+      container,
+      groupId
+    });
+  };
+
+  return { createStickyElement, groupId };
+};
+```s.org/)
 
 Мощная, гибкая и оптимизированная библиотека для sticky элементов с TypeScript, React 18+, и продвинутой отладкой.
 
@@ -15,7 +201,10 @@
 - [📖 API Документация](#-api-документация)
   - [StickyProvider](#stickyprovider)
   - [Sticky Component](#sticky-component)
+  - [StickyGroup Component](#stickygroup-component)
+  - [StickyContainer Component](#stickycontainer-component)
   - [useSticky Hook](#usesticky-hook)
+  - [useStickyInContainer Hook](#usestickyincontainer-hook)
   - [useStickyGroup Hook](#usestickygroup-hook)
 - [🎨 Продвинутые примеры](#-продвинутые-примеры)
   - [Responsive Sticky](#responsive-sticky)
@@ -44,8 +233,9 @@
 - 📌 **Sticky элементы** - поддержка sticky элементов с возможностью настройки
 - 🚀 **Высокая производительность** - оптимизировано с Intersection Observer API
 - 🎯 **Multi-directional sticky** - поддержка всех направлений (top/bottom/left/right)
+- 📦 **Sticky в контейнерах** - специальная поддержка для модальных окон, выпадающих меню и кастомных скролл-контейнеров
 - 🎨 **Продвинутые стратегии позиционирования** - follow-scroll, magnetic, parallax, adaptive, animated, stacking
-- 👥 **Группы элементов** с автоматическим управлением z-index
+- 👥 **Группы элементов** с автоматическим управлением z-index и приоритетами
 - 📱 **Responsive дизайн** с breakpoints
 - 🔧 **TypeScript support** из коробки
 - 🌐 **SSR совместимость**
@@ -307,6 +497,219 @@ function SSRCompatibleSticky() {
   return (
     <div ref={ref} suppressHydrationWarning={shouldSuppressWarning}>
       Content
+    </div>
+  );
+}
+```
+
+### 📦 Работа с контейнерами
+
+#### Sticky внутри модального окна
+
+```tsx
+import { StickyContainer } from 'stuckin';
+
+function Modal({ children }) {
+  return (
+    <div className="modal-overlay">
+      <div
+        className="modal-content"
+        style={{
+          height: '80vh',
+          overflow: 'auto',
+          background: 'white',
+          borderRadius: '8px',
+          padding: '20px'
+        }}
+      >
+        {/* Заголовок модального окна */}
+        <StickyContainer
+          container=".modal-content"
+          direction="top"
+          offset={{ top: 0 }}
+          className="modal-header"
+          activeClassName="modal-header--sticky"
+          id="modal-title"
+        >
+          <h2>Заголовок модального окна</h2>
+          <button>✕</button>
+        </StickyContainer>
+
+        {/* Основной контент */}
+        <div style={{ height: '150vh' }}>
+          {children}
+        </div>
+
+        {/* Футер модального окна */}
+        <StickyContainer
+          container=".modal-content"
+          direction="bottom"
+          offset={{ bottom: 0 }}
+          className="modal-footer"
+          id="modal-actions"
+        >
+          <button>Отмена</button>
+          <button>Сохранить</button>
+        </StickyContainer>
+      </div>
+    </div>
+  );
+}
+```
+
+#### Навигация в сайдбаре
+
+```tsx
+import { useStickyInContainer } from 'stuckin';
+
+function Sidebar() {
+  const { ref: navRef, isSticky } = useStickyInContainer({
+    container: '.sidebar-container',
+    direction: 'top',
+    offset: { top: 20 },
+    containerOffset: { top: 10 },
+    id: 'sidebar-nav'
+  });
+
+  return (
+    <aside
+      className="sidebar-container"
+      style={{
+        height: '100vh',
+        overflow: 'auto',
+        width: '250px',
+        borderRight: '1px solid #eee'
+      }}
+    >
+      <div style={{ height: '300px', padding: '20px' }}>
+        Верхний контент сайдбара
+      </div>
+
+      <nav
+        ref={navRef}
+        className={`sidebar-nav ${isSticky ? 'sidebar-nav--sticky' : ''}`}
+        style={{
+          background: isSticky ? '#f8f9fa' : 'transparent',
+          padding: '15px',
+          borderRadius: isSticky ? '8px' : '0'
+        }}
+      >
+        <ul>
+          <li><a href="#section1">Раздел 1</a></li>
+          <li><a href="#section2">Раздел 2</a></li>
+          <li><a href="#section3">Раздел 3</a></li>
+        </ul>
+      </nav>
+
+      <div style={{ height: '100vh', padding: '20px' }}>
+        Длинный контент сайдбара
+      </div>
+    </aside>
+  );
+}
+```
+
+#### Группировка sticky элементов
+
+```tsx
+import { StickyGroup, Sticky } from 'stuckin';
+
+function Dashboard() {
+  return (
+    <StickyProvider>
+      {/* Группа основной навигации */}
+      <StickyGroup groupId="main-nav" priority={100}>
+        <Sticky
+          id="header"
+          direction="top"
+          offset={{ top: 0 }}
+        >
+          <header>Главная навигация</header>
+        </Sticky>
+
+        <Sticky
+          id="toolbar"
+          direction="top"
+          offset={{ top: 60 }} // Под хедером
+        >
+          <div>Панель инструментов</div>
+        </Sticky>
+      </StickyGroup>
+
+      {/* Группа контентной области */}
+      <StickyGroup groupId="content" priority={50}>
+        <div style={{ display: 'flex' }}>
+          <Sticky
+            id="sidebar"
+            direction="left"
+            offset={{ left: 0 }}
+          >
+            <aside>Боковая панель</aside>
+          </Sticky>
+
+          <main style={{ flex: 1, marginLeft: '200px' }}>
+            <div style={{ height: '200vh' }}>
+              Основной контент
+            </div>
+          </main>
+        </div>
+      </StickyGroup>
+    </StickyProvider>
+  );
+}
+```
+
+#### Группа с контейнером
+
+```tsx
+import { useStickyContainerGroup } from 'stuckin';
+
+function ScrollableTable() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { createStickyElement } = useStickyContainerGroup({
+    container: containerRef.current,
+    groupId: 'table-elements',
+    baseOptions: {
+      observeResize: true,
+      containerOffset: { top: 5 }
+    }
+  });
+
+  const { ref: headerRef } = createStickyElement({
+    direction: 'top',
+    offset: { top: 0 },
+    id: 'table-header'
+  });
+
+  const { ref: footerRef } = createStickyElement({
+    direction: 'bottom',
+    offset: { bottom: 0 },
+    id: 'table-footer'
+  });
+
+  return (
+    <div
+      ref={containerRef}
+      style={{ height: '400px', overflow: 'auto' }}
+    >
+      <thead ref={headerRef}>
+        <tr>
+          <th>Заголовок 1</th>
+          <th>Заголовок 2</th>
+        </tr>
+      </thead>
+
+      <tbody style={{ height: '800px' }}>
+        {/* Много строк */}
+      </tbody>
+
+      <tfoot ref={footerRef}>
+        <tr>
+          <td>Итого</td>
+          <td>100</td>
+        </tr>
+      </tfoot>
     </div>
   );
 }
