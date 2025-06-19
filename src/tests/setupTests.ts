@@ -27,11 +27,20 @@ global.ResizeObserver = ResizeObserver;
 
 // Мок для Intersection Observer
 const mockIntersectionObserver = jest.fn();
-mockIntersectionObserver.mockReturnValue({
+const mockIntersectionObserverInstance = {
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-});
+};
+
+mockIntersectionObserver.mockReturnValue(mockIntersectionObserverInstance);
+
+// Создаем prototype для spy-поддержки
+mockIntersectionObserver.prototype = {
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+};
 
 global.IntersectionObserver = mockIntersectionObserver;
 
