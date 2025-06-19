@@ -1,12 +1,11 @@
 /**
  * Rollup конфигурация для создания оптимизированных bundle'ов
- * Альтернативный подход с максимальной оптимизацией
  */
 
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
-import { terser } from 'rollup-plugin-terser';
+import { terser } from '@rollup/plugin-terser';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
 import { sizeSnapshot } from 'rollup-plugin-size-snapshot';
@@ -60,10 +59,18 @@ export default [
       }),
       ...(isProduction ? [
         terser({
+          // ← ОБНОВИЛИ конфигурацию для нового плагина
           compress: {
             drop_console: true,
             drop_debugger: true,
-            pure_funcs: ['console.log']
+            pure_funcs: ['console.log'],
+            passes: 2 // Двойная минификация для лучшего результата
+          },
+          mangle: {
+            safari10: true // Совместимость с Safari 10
+          },
+          format: {
+            comments: false // Удаляем комментарии
           }
         })
       ] : []),
@@ -91,7 +98,18 @@ export default [
       typescript({
         declaration: false // Типы уже генерируются в основном bundle
       }),
-      ...(isProduction ? [terser()] : [])
+      ...(isProduction ? [
+        terser({
+          // ← ОБНОВИЛИ и здесь
+          compress: {
+            drop_console: true,
+            drop_debugger: true
+          },
+          format: {
+            comments: false
+          }
+        })
+      ] : [])
     ],
     external: ['react', 'react-dom', 'mobx', 'mobx-react-lite']
   }

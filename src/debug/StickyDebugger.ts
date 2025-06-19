@@ -1,30 +1,67 @@
 /**
  * Система отладки для sticky библиотеки
- * Принцип SRP: отвечает только за debugging функциональность
+ * Принципы:
+ * - SRP: отвечает только за debugging функциональность
+ * - Information Expert: управляет собственными данными
+ * - Encapsulation: контролируемый доступ через геттеры
+ * - Type Safety: строгая типизация для надежности
  */
 
 import { makeObservable, observable, action, computed } from 'mobx';
-import { StickyElement, StickyGroup, StickyState } from '../types/sticky.types';
 import { performanceMonitor } from '../utils/performance';
+import { ENV, envLog } from '../utils/env';
 
+// === СТРОГО ТИПИЗИРОВАННЫЕ ИНТЕРФЕЙСЫ ===
+
+/**
+ * Уровни логирования (строго типизированы)
+ * Принцип: явное определение допустимых значений
+ */
+export type DebugLogLevel = 'error' | 'warn' | 'info' | 'debug';
+
+/**
+ * Типы событий отладки (расширенные и согласованные)
+ * Принцип Open/Closed: легко добавлять новые типы
+ */
+export type DebugEventType =
+  | 'error'
+  | 'warning'
+  | 'info'          // ← Добавляем недостающий тип
+  | 'debug'         // ← Добавляем недостающий тип
+  | 'state-change'
+  | 'config-update'
+  | 'registration'
+  | 'unregistration';
+
+/**
+ * Интерфейс события отладки
+ * Исправлено: stack может быть undefined с учетом exactOptionalPropertyTypes
+ */
 export interface DebugEvent {
   id: string;
   timestamp: number;
-  type: 'state-change' | 'config-update' | 'registration' | 'unregistration' | 'error' | 'warning';
+  type: DebugEventType;
   elementId: string;
   data: any;
-  stack?: string;
+  stack?: string | undefined; // ← Явно указываем undefined
 }
 
+/**
+ * Конфигурация отладки
+ * Обновлено: используем DebugLogLevel
+ */
 export interface DebugConfig {
   enabled: boolean;
-  logLevel: 'error' | 'warn' | 'info' | 'debug';
+  logLevel: DebugLogLevel; // ← Используем строго типизированный уровень
   maxHistorySize: number;
   visualDebug: boolean;
   performanceTracking: boolean;
   autoCapture: boolean;
 }
 
+/**
+ * Снимок состояния отладки
+ */
 export interface DebugSnapshot {
   timestamp: number;
   elements: Record<string, any>;
@@ -36,6 +73,38 @@ export interface DebugSnapshot {
     scrollY: number;
   };
   performance: any[];
+}
+
+/**
+ * Типизированный анализ производительности
+ * Принцип: явная типизация для безопасности
+ */
+export interface PerformanceAnalysis {
+  summary: {
+    totalElements: number;
+    avgRenderTime: number;
+    maxRenderTime: number;
+    totalRecomputations: number;
+    slowElementsCount: number;
+    activeElementsCount: number;
+  } | null;
+  slowElements?: Array<{
+    id: string;
+    renderTime: number;
+    recomputations: number;
+  }>;
+  recommendations?: string[];
+}
+
+/**
+ * Визуальный элемент отладки
+ * Принцип: явная типизация для visual debug элементов
+ */
+interface VisualDebugElement {
+  element: HTMLElement;
+  overlay?: HTMLElement;
+  lastUpdate: number;
+  isActive: boolean;
 }
 
 class StickyDebugger {
@@ -50,20 +119,153 @@ class StickyDebugger {
 
   @observable private events: DebugEvent[] = [];
   @observable private snapshots: DebugSnapshot[] = [];
-  @observable private visualElements = new Map<string, HTMLElement>();
+
+  // ← Исправлено: теперь используется для визуальной отладки
+  @observable private visualElements = new Map<string, VisualDebugElement>();
 
   private eventCounter = 0;
   private visualOverlay: HTMLElement | null = null;
+
+  /**
+   * Карта приоритетов уровней логирования
+   * Исправлено: полное соответствие типам
+   */
+  private readonly LOG_LEVEL_PRIORITY: Record<DebugLogLevel, number> = {
+    'error': 4,
+    'warn': 3,    // ← Исправлено: warn вместо warning
+    'info': 2,
+    'debug': 1
+  } as const;
 
   constructor() {
     makeObservable(this);
 
     // Включаем отладку только в development
-    if (process.env.NODE_ENV === 'development') {
+    if (ENV.isDevelopment) {
       this.enable();
       this.setupGlobalAPI();
     }
   }
+
+  // === ПУБЛИЧНЫЕ ГЕТТЕРЫ ===
+  // Принцип Encapsulation: контролируемый доступ к приватным данным
+
+  /**
+   * Получение конфигурации отладки (readonly)
+   */
+  @computed
+  get debugConfig(): Readonly<DebugConfig> {
+    return Object.freeze({ ...this.config });
+  }
+
+  /**
+   * Получение всех событий (readonly)
+   */
+  @computed
+  get allEvents(): readonly DebugEvent[] {
+    return Object.freeze([...this.events]);
+  }
+
+  /**
+   * Получение всех снимков (readonly)
+   */
+  @computed
+  get allSnapshots(): readonly DebugSnapshot[] {
+    return Object.freeze([...this.snapshots]);
+  }
+
+  /**
+   * Получение отфильтрованных событий по уровню логирования
+   * Исправлено: безопасное обращение к приоритетам
+   */
+  @computed
+  get filteredEvents(): readonly DebugEvent[] {
+    const filtered = this.events.filter(event => {
+      const configPriority = this.LOG_LEVEL_PRIORITY[this.config.logLevel];
+
+      // Маппинг event types на log levels для фильтрации
+      const eventToLogLevel: Record<DebugEventType, DebugLogLevel> = {
+        'error': 'error',
+        'warning': 'warn',
+        'info': 'info',
+        'debug': 'debug',
+        'state-change': 'info',
+        'config-update': 'info',
+        'registration': 'debug',
+        'unregistration': 'debug'
+      };
+
+      const eventLogLevel = eventToLogLevel[event.type];
+      const eventPriority = this.LOG_LEVEL_PRIORITY[eventLogLevel];
+
+      return eventPriority >= configPriority;
+    });
+
+    return Object.freeze(filtered);
+  }
+
+  /**
+   * Анализ производительности (computed для кеширования)
+   * Исправлено: строгая типизация возвращаемого объекта
+   */
+  @computed
+  get performanceAnalysis(): PerformanceAnalysis {
+    const metrics = performanceMonitor.getAllMetrics();
+
+    if (metrics.length === 0) {
+      return {
+        summary: null,
+        slowElements: [],
+        recommendations: ['Нет данных о производительности']
+      };
+    }
+
+    const avgRenderTime = metrics.reduce((sum, m) => sum + m.renderTime, 0) / metrics.length;
+    const maxRenderTime = Math.max(...metrics.map(m => m.renderTime));
+    const totalRecomputations = metrics.reduce((sum, m) => sum + m.recomputations, 0);
+
+    const slowElements = metrics.filter(m => m.renderTime > 16); // > 60fps
+    const activeElements = metrics.filter(m => m.recomputations > 0);
+
+    return {
+      summary: {
+        totalElements: metrics.length,
+        avgRenderTime: Math.round(avgRenderTime * 100) / 100,
+        maxRenderTime: Math.round(maxRenderTime * 100) / 100,
+        totalRecomputations,
+        slowElementsCount: slowElements.length,
+        activeElementsCount: activeElements.length
+      },
+      slowElements: slowElements.map(m => ({
+        id: m.elementId,
+        renderTime: m.renderTime,
+        recomputations: m.recomputations
+      })),
+      recommendations: this.generatePerformanceRecommendations(metrics)
+    };
+  }
+
+  /**
+   * Проверка включенности отладки
+   */
+  @computed
+  get isEnabled(): boolean {
+    return this.config.enabled;
+  }
+
+  /**
+   * Получение статистики визуальных элементов
+   * Принцип Information Expert: класс знает о своих визуальных элементах
+   */
+  @computed
+  get visualElementsStats() {
+    return {
+      total: this.visualElements.size,
+      active: Array.from(this.visualElements.values()).filter(el => el.isActive).length
+    };
+  }
+
+  // === ПУБЛИЧНЫЕ МЕТОДЫ ===
 
   /**
    * Включение системы отладки
@@ -80,6 +282,7 @@ class StickyDebugger {
       performanceMonitor.enable();
     }
 
+    // ← Исправлено: используем правильный тип события
     this.log('info', 'debug-system', 'Система отладки включена', this.config);
   }
 
@@ -90,24 +293,29 @@ class StickyDebugger {
   disable(): void {
     this.config.enabled = false;
     this.removeVisualOverlay();
+    this.clearVisualElements();
     performanceMonitor.disable();
     this.events.length = 0;
     this.snapshots.length = 0;
 
-    console.log('🔧 Система отладки sticky библиотеки отключена');
+    envLog.dev('🔧 Система отладки sticky библиотеки отключена');
   }
 
   /**
    * Логирование событий
+   * Исправлено: правильная типизация и handling stack
    */
   @action
   log(
-    level: DebugEvent['type'],
+    level: DebugEventType, // ← Используем DebugEventType вместо строки
     elementId: string,
     message: string,
     data?: any
   ): void {
     if (!this.config.enabled) return;
+
+    // Исправлено: правильное создание stack с учетом exactOptionalPropertyTypes
+    const stack = this.config.logLevel === 'debug' ? new Error().stack : undefined;
 
     const event: DebugEvent = {
       id: `debug-${++this.eventCounter}`,
@@ -115,7 +323,7 @@ class StickyDebugger {
       type: level,
       elementId,
       data: { message, ...data },
-      stack: this.config.logLevel === 'debug' ? new Error().stack : undefined
+      ...(stack && { stack }) // ← Условное добавление stack только если он есть
     };
 
     this.events.push(event);
@@ -154,130 +362,112 @@ class StickyDebugger {
       this.snapshots.shift();
     }
 
-    console.log(`📸 Снимок состояния${label ? ` "${label}"` : ''} создан`, snapshot);
+    envLog.dev(`📸 Снимок состояния${label ? ` "${label}"` : ''} создан`, snapshot);
     return snapshot;
   }
 
   /**
-   * Сравнение двух снимков
+   * Регистрация визуального элемента для отладки
+   * Принцип: теперь visualElements используется
    */
-  compareSnapshots(snapshot1: DebugSnapshot, snapshot2: DebugSnapshot): any {
-    const changes = {
-      timestamp: {
-        from: snapshot1.timestamp,
-        to: snapshot2.timestamp,
-        diff: snapshot2.timestamp - snapshot1.timestamp
-      },
-      elements: this.compareObjects(snapshot1.elements, snapshot2.elements),
-      groups: this.compareObjects(snapshot1.groups, snapshot2.groups),
-      viewport: this.compareObjects(snapshot1.viewport, snapshot2.viewport)
-    };
+  @action
+  registerVisualElement(elementId: string, element: HTMLElement): void {
+    if (!this.config.visualDebug) return;
 
-    console.log('📊 Сравнение снимков:', changes);
-    return changes;
+    this.visualElements.set(elementId, {
+      element,
+      lastUpdate: Date.now(),
+      isActive: true
+    });
+
+    this.log('registration', elementId, 'Визуальный элемент зарегистрирован');
   }
 
   /**
-   * Анализ производительности
+   * Удаление визуального элемента
    */
-  @computed
-  get performanceAnalysis() {
-    const metrics = performanceMonitor.getAllMetrics();
+  @action
+  unregisterVisualElement(elementId: string): void {
+    const visualEl = this.visualElements.get(elementId);
+    if (visualEl) {
+      // Очищаем overlay если есть
+      if (visualEl.overlay) {
+        visualEl.overlay.remove();
+      }
 
-    if (metrics.length === 0) {
-      return { summary: 'Нет данных о производительности' };
+      this.visualElements.delete(elementId);
+      this.log('unregistration', elementId, 'Визуальный элемент удален');
+    }
+  }
+
+  /**
+   * Обновление конфигурации отладки
+   */
+  @action
+  updateConfig(newConfig: Partial<DebugConfig>): void {
+    const oldConfig = { ...this.config };
+    this.config = { ...this.config, ...newConfig };
+
+    // Обновляем визуальную отладку при изменении настроек
+    if (oldConfig.visualDebug !== this.config.visualDebug) {
+      if (this.config.visualDebug) {
+        this.createVisualOverlay();
+      } else {
+        this.removeVisualOverlay();
+        this.clearVisualElements();
+      }
     }
 
-    const avgRenderTime = metrics.reduce((sum, m) => sum + m.renderTime, 0) / metrics.length;
-    const maxRenderTime = Math.max(...metrics.map(m => m.renderTime));
-    const totalRecomputations = metrics.reduce((sum, m) => sum + m.recomputations, 0);
-
-    const slowElements = metrics.filter(m => m.renderTime > 16); // > 60fps
-    const activeElements = metrics.filter(m => m.recomputations > 0);
-
-    return {
-      summary: {
-        totalElements: metrics.length,
-        avgRenderTime: Math.round(avgRenderTime * 100) / 100,
-        maxRenderTime: Math.round(maxRenderTime * 100) / 100,
-        totalRecomputations,
-        slowElementsCount: slowElements.length,
-        activeElementsCount: activeElements.length
-      },
-      slowElements: slowElements.map(m => ({
-        id: m.elementId,
-        renderTime: m.renderTime,
-        recomputations: m.recomputations
-      })),
-      recommendations: this.generatePerformanceRecommendations(metrics)
-    };
-  }
-
-  /**
-   * Получение отфильтрованных событий
-   */
-  @computed
-  get filteredEvents() {
-    return this.events.filter(event => {
-      const levelPriority = {
-        'error': 4,
-        'warning': 3,
-        'info': 2,
-        'debug': 1
-      };
-
-      const configPriority = levelPriority[this.config.logLevel];
-      const eventPriority = levelPriority[event.type as keyof typeof levelPriority] || 1;
-
-      return eventPriority >= configPriority;
+    this.log('config-update', 'debug-system', 'Конфигурация обновлена', {
+      oldConfig,
+      newConfig: this.config
     });
   }
 
   /**
-   * Поиск проблем в конфигурации
+   * Очистка истории отладки
    */
-  validateConfiguration(elements: Map<string, StickyElement>): string[] {
-    const issues: string[] = [];
+  @action
+  clearHistory(): void {
+    this.events.length = 0;
+    this.snapshots.length = 0;
+    envLog.dev('🧹 История отладки очищена');
+  }
 
-    elements.forEach((element, id) => {
-      // Проверка конфликтов z-index
-      const conflictingElements = Array.from(elements.values()).filter(
-        el => el.id !== id &&
-        el.currentZIndex === element.currentZIndex &&
-        el.isActive &&
-        element.isActive
+  // === ПРИВАТНЫЕ МЕТОДЫ ===
+
+  /**
+   * Генерация рекомендаций по производительности
+   */
+  private generatePerformanceRecommendations(metrics: any[]): string[] {
+    const recommendations: string[] = [];
+
+    const slowElements = metrics.filter(m => m.renderTime > 16);
+    if (slowElements.length > 0) {
+      recommendations.push(
+        `Оптимизируйте рендер медленных элементов: ${slowElements.map(m => m.elementId).join(', ')}`
       );
+    }
 
-      if (conflictingElements.length > 0) {
-        issues.push(
-          `❗ Конфликт z-index у элементов: ${id}, ${conflictingElements.map(el => el.id).join(', ')}`
-        );
-      }
+    const activeElements = metrics.filter(m => m.recomputations > 30);
+    if (activeElements.length > 0) {
+      recommendations.push(
+        `Уменьшите количество пересчетов для: ${activeElements.map(m => m.elementId).join(', ')}`
+      );
+    }
 
-      // Проверка производительности
-      const metrics = performanceMonitor.getMetrics(id);
-      if (metrics && metrics.renderTime > 32) { // < 30fps
-        issues.push(`🐌 Медленный рендер элемента "${id}": ${metrics.renderTime.toFixed(2)}мс`);
-      }
+    if (metrics.length > 20) {
+      recommendations.push('Рассмотрите виртуализацию при большом количестве sticky элементов');
+    }
 
-      // Проверка корректности конфигурации
-      if (!element.config.direction) {
-        issues.push(`⚠️ Не указано направление для элемента "${id}"`);
-      }
-
-      if (element.config.offset && Object.keys(element.config.offset).length === 0) {
-        issues.push(`⚠️ Пустой объект offset для элемента "${id}"`);
-      }
-    });
-
-    return issues;
+    return recommendations;
   }
 
   /**
    * Создание визуального overlay для отладки
    */
   private createVisualOverlay(): void {
-    if (this.visualOverlay) return;
+    if (this.visualOverlay || !ENV.isBrowser) return;
 
     this.visualOverlay = document.createElement('div');
     this.visualOverlay.setAttribute('data-sticky-debug', 'overlay');
@@ -305,12 +495,17 @@ class StickyDebugger {
 
   /**
    * Обновление визуального overlay
+   * Исправлено: безопасная работа с performance.summary
    */
   private updateVisualOverlay(): void {
     if (!this.visualOverlay) return;
 
     const recentEvents = this.events.slice(-10);
     const performance = this.performanceAnalysis;
+
+    // ← Исправлено: безопасное обращение к summary
+    const summary = performance.summary;
+    const hasSummary = summary !== null;
 
     this.visualOverlay.innerHTML = `
       <div style="margin-bottom: 8px; font-weight: bold; color: #4CAF50;">
@@ -319,9 +514,10 @@ class StickyDebugger {
 
       <div style="margin-bottom: 6px;">
         <strong>📊 Performance:</strong><br>
-        Elements: ${performance.summary?.totalElements || 0}<br>
-        Avg Render: ${performance.summary?.avgRenderTime || 0}ms<br>
-        Slow: ${performance.summary?.slowElementsCount || 0}
+        Elements: ${hasSummary ? summary.totalElements : 0}<br>
+        Avg Render: ${hasSummary ? summary.avgRenderTime : 0}ms<br>
+        Slow: ${hasSummary ? summary.slowElementsCount : 0}<br>
+        Visual Elements: ${this.visualElementsStats.total} (${this.visualElementsStats.active} active)
       </div>
 
       <div style="margin-bottom: 6px;">
@@ -349,12 +545,37 @@ class StickyDebugger {
   }
 
   /**
+   * Очистка всех визуальных элементов
+   */
+  private clearVisualElements(): void {
+    this.visualElements.forEach((visualEl, elementId) => {
+      if (visualEl.overlay) {
+        visualEl.overlay.remove();
+      }
+    });
+    this.visualElements.clear();
+  }
+
+  /**
    * Обновление визуальной отладки для элемента
    */
   private updateVisualDebug(elementId: string, event: DebugEvent): void {
     this.updateVisualOverlay();
 
-    // Добавляем визуальные индикаторы к элементам
+    // Работаем с зарегистрированными визуальными элементами
+    const visualEl = this.visualElements.get(elementId);
+    if (visualEl) {
+      visualEl.lastUpdate = Date.now();
+
+      if (event.type === 'error') {
+        visualEl.element.style.outline = '2px solid red';
+        setTimeout(() => {
+          visualEl.element.style.outline = '';
+        }, 2000);
+      }
+    }
+
+    // Fallback: поиск по data-sticky-id
     const elements = document.querySelectorAll(`[data-sticky-id="${elementId}"]`);
     elements.forEach(el => {
       if (event.type === 'error') {
@@ -397,32 +618,28 @@ class StickyDebugger {
       enable: (config?: Partial<DebugConfig>) => this.enable(config),
       disable: () => this.disable(),
 
-      // Получение данных
-      getEvents: () => this.events,
-      getSnapshots: () => this.snapshots,
+      // Получение данных через геттеры
+      getEvents: () => this.allEvents,
+      getSnapshots: () => this.allSnapshots,
       getPerformance: () => this.performanceAnalysis,
+      getConfig: () => this.debugConfig,
 
       // Действия
       captureSnapshot: (label?: string) => this.captureSnapshot(label),
       clearHistory: () => this.clearHistory(),
-      exportData: () => this.exportDebugData(),
+      updateConfig: (config: Partial<DebugConfig>) => this.updateConfig(config),
 
-      // Конфигурация
-      setLogLevel: (level: DebugConfig['logLevel']) => {
-        this.config.logLevel = level;
-      },
+      // Визуальная отладка
+      registerVisualElement: (id: string, el: HTMLElement) => this.registerVisualElement(id, el),
+      unregisterVisualElement: (id: string) => this.unregisterVisualElement(id),
+      getVisualStats: () => this.visualElementsStats,
 
-      toggleVisual: () => {
-        this.config.visualDebug = !this.config.visualDebug;
-        if (this.config.visualDebug) {
-          this.createVisualOverlay();
-        } else {
-          this.removeVisualOverlay();
-        }
-      }
+      // Утилиты
+      log: (level: DebugEventType, elementId: string, message: string, data?: any) =>
+        this.log(level, elementId, message, data)
     };
 
-    console.log(
+    envLog.dev(
       '%c🔧 Sticky Debug API доступен через window.__STICKY_DEBUG__',
       'color: #4CAF50; font-weight: bold; font-size: 14px'
     );
@@ -432,16 +649,35 @@ class StickyDebugger {
    * Сериализация элементов для снимков
    */
   private serializeElements(): Record<string, any> {
-    // Эта функция будет получать элементы от StickyManager
-    // Пока возвращаем пустой объект
-    return {};
+    const serialized: Record<string, any> = {};
+
+    // Сериализуем зарегистрированные визуальные элементы
+    this.visualElements.forEach((visualEl, elementId) => {
+      const rect = visualEl.element.getBoundingClientRect();
+      serialized[elementId] = {
+        isActive: visualEl.isActive,
+        lastUpdate: visualEl.lastUpdate,
+        bounds: {
+          width: rect.width,
+          height: rect.height,
+          top: rect.top,
+          left: rect.left
+        },
+        styles: {
+          position: visualEl.element.style.position,
+          zIndex: visualEl.element.style.zIndex
+        }
+      };
+    });
+
+    return serialized;
   }
 
   /**
    * Сериализация групп для снимков
    */
   private serializeGroups(): Record<string, any> {
-    // Аналогично для групп
+    // TODO: Интеграция с StickyManager для получения групп
     return {};
   }
 
@@ -449,6 +685,10 @@ class StickyDebugger {
    * Получение информации о viewport
    */
   private getViewportInfo() {
+    if (!ENV.isBrowser) {
+      return { width: 0, height: 0, scrollX: 0, scrollY: 0 };
+    }
+
     return {
       width: window.innerWidth,
       height: window.innerHeight,
@@ -458,57 +698,10 @@ class StickyDebugger {
   }
 
   /**
-   * Сравнение объектов для снимков
-   */
-  private compareObjects(obj1: any, obj2: any): any {
-    const changes: any = {};
-
-    const allKeys = new Set([...Object.keys(obj1), ...Object.keys(obj2)]);
-
-    allKeys.forEach(key => {
-      if (obj1[key] !== obj2[key]) {
-        changes[key] = {
-          from: obj1[key],
-          to: obj2[key]
-        };
-      }
-    });
-
-    return changes;
-  }
-
-  /**
-   * Генерация рекомендаций по производительности
-   */
-  private generatePerformanceRecommendations(metrics: any[]): string[] {
-    const recommendations: string[] = [];
-
-    const slowElements = metrics.filter(m => m.renderTime > 16);
-    if (slowElements.length > 0) {
-      recommendations.push(
-        `Оптимизируйте рендер медленных элементов: ${slowElements.map(m => m.elementId).join(', ')}`
-      );
-    }
-
-    const activeElements = metrics.filter(m => m.recomputations > 30);
-    if (activeElements.length > 0) {
-      recommendations.push(
-        `Уменьшите количество пересчетов для: ${activeElements.map(m => m.elementId).join(', ')}`
-      );
-    }
-
-    if (metrics.length > 20) {
-      recommendations.push('Рассмотрите виртуализацию при большом количестве sticky элементов');
-    }
-
-    return recommendations;
-  }
-
-  /**
    * Получение иконки для типа события
    */
-  private getEventIcon(type: DebugEvent['type']): string {
-    const icons = {
+  private getEventIcon(type: DebugEventType): string {
+    const icons: Record<DebugEventType, string> = {
       'error': '❌',
       'warning': '⚠️',
       'info': 'ℹ️',
@@ -525,8 +718,8 @@ class StickyDebugger {
   /**
    * Получение цвета для типа события
    */
-  private getEventColor(type: DebugEvent['type']): string {
-    const colors = {
+  private getEventColor(type: DebugEventType): string {
+    const colors: Record<DebugEventType, string> = {
       'error': '#f44336',
       'warning': '#ff9800',
       'info': '#2196f3',
@@ -538,46 +731,6 @@ class StickyDebugger {
     };
 
     return colors[type] || '#000000';
-  }
-
-  /**
-   * Очистка истории отладки
-   */
-  @action
-  private clearHistory(): void {
-    this.events.length = 0;
-    this.snapshots.length = 0;
-    console.log('🧹 История отладки очищена');
-  }
-
-  /**
-   * Экспорт данных отладки
-   */
-  private exportDebugData(): string {
-    const data = {
-      config: this.config,
-      events: this.events,
-      snapshots: this.snapshots,
-      performance: this.performanceAnalysis,
-      timestamp: Date.now()
-    };
-
-    const json = JSON.stringify(data, null, 2);
-
-    // Создаем blob для скачивания
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `sticky-debug-${Date.now()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    console.log('📤 Данные отладки экспортированы');
-    return json;
   }
 }
 

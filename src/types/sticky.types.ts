@@ -1,6 +1,11 @@
 /**
  * Типы для sticky функциональности
+ * Принцип Interface Segregation: разделяем интерфейсы по назначению
  */
+
+import React from 'react';
+
+// === БАЗОВЫЕ ТИПЫ ===
 
 export type StickyDirection = 'top' | 'bottom' | 'left' | 'right';
 
@@ -18,6 +23,8 @@ export interface StickyBoundary {
   offset?: number;
 }
 
+// === ОСНОВНЫЕ ИНТЕРФЕЙСЫ ===
+
 export interface StickyConfig {
   id: string;
   direction: StickyDirection;
@@ -28,6 +35,7 @@ export interface StickyConfig {
   disabled?: boolean;
   smooth?: boolean;
   breakpoints?: Record<string, Partial<StickyConfig>>;
+  positionStrategy?: string; // Для custom positioning strategies
 }
 
 export interface StickyElement {
@@ -46,6 +54,146 @@ export interface StickyGroup {
   priority: number;
   maxZIndex: number;
 }
+
+// === HOOK ТИПЫ (добавляем недостающие) ===
+
+/**
+ * Опции для useSticky хука
+ */
+export interface UseStickyOptions extends Omit<StickyConfig, 'id'> {
+  id?: string;
+  enabled?: boolean;
+  onStateChange?: (state: StickyState) => void;
+  groupId?: string;
+}
+
+/**
+ * Возвращаемые значения useSticky хука
+ */
+export interface UseStickyReturn {
+  ref: React.RefObject<HTMLElement>;
+  state: StickyState | null;
+  isSticky: boolean;
+  isActive: boolean;
+  updateConfig: (config: Partial<StickyConfig>) => void;
+  refresh: () => void;
+  disable: () => void;
+  enable: () => void;
+}
+
+/**
+ * Опции для useStickyGroup хука
+ */
+export interface UseStickyGroupOptions {
+  groupId: string;
+  priority?: number;
+  autoCreate?: boolean;
+}
+
+/**
+ * Возвращаемые значения useStickyGroup хука
+ */
+export interface UseStickyGroupReturn {
+  elements: StickyElement[];
+  activeElements: StickyElement[];
+  addElement: (elementId: string) => void;
+  removeElement: (elementId: string) => void;
+  refreshGroup: () => void;
+  getTotalHeight: () => number;
+  getGroupBounds: () => DOMRect | null;
+}
+
+/**
+ * Опции для useResponsiveSticky хука
+ */
+export interface UseResponsiveStickyOptions extends Omit<UseStickyOptions, 'direction' | 'offset'> {
+  responsive: ResponsiveConfig;
+  fallback?: Partial<StickyConfig>;
+}
+
+/**
+ * Возвращаемые значения useResponsiveSticky хука
+ */
+export interface UseResponsiveStickyReturn extends UseStickyReturn {
+  currentBreakpoint: string | null;
+  responsiveConfig: Partial<StickyConfig>;
+  isResponsiveDisabled: boolean;
+}
+
+/**
+ * Опции для useSSRSticky хука
+ */
+export interface UseSSRStickyOptions extends UseStickyOptions {
+  ssr?: SSRConfig;
+}
+
+/**
+ * Возвращаемые значения useSSRSticky хука
+ */
+export interface UseSSRStickyReturn extends UseStickyReturn {
+  isSSR: boolean;
+  isHydrated: boolean;
+  shouldSuppressWarning: boolean;
+}
+
+/**
+ * Опции для useDebugSticky хука
+ */
+export interface UseDebugStickyOptions extends UseStickyOptions {
+  debugLabel?: string;
+  debugConfig?: {
+    logStateChanges?: boolean;
+    logConfigUpdates?: boolean;
+    captureSnapshots?: boolean;
+    trackPerformance?: boolean;
+  };
+}
+
+/**
+ * Возвращаемые значения useDebugSticky хука
+ */
+export interface UseDebugStickyReturn extends UseStickyReturn {
+  debugRender: <T>(fn: () => T) => T;
+  captureSnapshot: (label?: string) => any;
+  logDebug: (message: string, data?: any) => void;
+  debugLabel: string;
+  debugHistory: any[];
+}
+
+// === RESPONSIVE ТИПЫ ===
+
+export interface ResponsiveConfig {
+  mobile: Partial<StickyConfig>;
+  tablet: Partial<StickyConfig>;
+  desktop: Partial<StickyConfig>;
+  largeDesktop?: Partial<StickyConfig>;
+}
+
+export interface Breakpoint {
+  name: string;
+  minWidth?: number;
+  maxWidth?: number;
+  minHeight?: number;
+  maxHeight?: number;
+  orientation?: 'portrait' | 'landscape';
+}
+
+// === SSR ТИПЫ ===
+
+export interface SSRConfig {
+  enabled: boolean;
+  fallbackHeight?: number;
+  hydrationDelay?: number;
+  suppressHydrationWarning?: boolean;
+}
+
+export interface SSRStickyState {
+  isSSR: boolean;
+  isHydrated: boolean;
+  shouldSuppressWarning: boolean;
+}
+
+// === CONTEXT ТИПЫ ===
 
 export interface StickyContextValue {
   // Основные методы
@@ -67,4 +215,52 @@ export interface StickyContextValue {
   getElementState: (id: string) => StickyState | null;
   getActiveElements: () => StickyElement[];
   refreshAll: () => void;
+}
+
+// === КОМПОНЕНТ ТИПЫ ===
+
+/**
+ * Props для Sticky компонента
+ */
+export interface StickyProps extends UseStickyOptions {
+  children: React.ReactNode;
+  className?: string;
+  activeClassName?: string;
+  tag?: keyof JSX.IntrinsicElements;
+  style?: React.CSSProperties;
+  activeStyle?: React.CSSProperties;
+}
+
+/**
+ * Ref для Sticky компонента
+ */
+export interface StickyRef {
+  element: HTMLElement | null;
+  state: StickyState | null;
+  isSticky: boolean;
+  refresh: () => void;
+  disable: () => void;
+  enable: () => void;
+}
+
+/**
+ * Props для StickyContainer компонента
+ */
+export interface StickyContainerProps {
+  children: React.ReactNode;
+  groupId: string;
+  priority?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  onGroupChange?: (elements: StickyElement[]) => void;
+}
+
+/**
+ * Ref для StickyContainer компонента
+ */
+export interface StickyContainerRef {
+  elements: StickyElement[];
+  activeElements: StickyElement[];
+  totalHeight: number;
+  refreshGroup: () => void;
 }

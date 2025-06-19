@@ -4,31 +4,60 @@
  */
 
 // Основные компоненты
-export { Sticky } from './components/Sticky';
-export { StickyContainer } from './components/StickyContainer';
-export { DebugPanel } from './components/DebugPanel';
+export { Sticky, StickyContainer, DebugPanel } from './components';
 
 // Хуки
-export { useSticky } from './hooks/useSticky';
-export { useStickyGroup } from './hooks/useStickyGroup';
-export { useStickyObserver } from './hooks/useStickyObserver';
-export { useResponsiveSticky } from './hooks/useResponsiveSticky';
-export { useSSRSticky } from './hooks/useSSRSticky';
-export { useDebugSticky } from './hooks/useDebugSticky';
+export {
+  useSticky,
+  useStickyGroup,
+  useStickyObserver,
+  useResponsiveSticky,
+  useSSRSticky,
+  useDebugSticky
+} from './hooks';
 
 // Контекст
 export { StickyProvider, useStickyContext } from './context/StickyContext';
 
-// Типы (только самые важные для публичного API)
+// Типы (полный набор для публичного API)
 export type {
+  // Базовые типы
   StickyConfig,
   StickyState,
   StickyDirection,
   StickyPosition,
   StickyElement,
   StickyGroup,
+  StickyBoundary,
+
+  // Hook типы
   UseStickyOptions,
-  UseStickyReturn
+  UseStickyReturn,
+  UseStickyGroupOptions,
+  UseStickyGroupReturn,
+  UseResponsiveStickyOptions,
+  UseResponsiveStickyReturn,
+  UseSSRStickyOptions,
+  UseSSRStickyReturn,
+  UseDebugStickyOptions,
+  UseDebugStickyReturn,
+
+  // Компонент типы
+  StickyProps,
+  StickyRef,
+  StickyContainerProps,
+  StickyContainerRef,
+
+  // Responsive типы
+  ResponsiveConfig,
+  Breakpoint,
+
+  // SSR типы
+  SSRConfig,
+  SSRStickyState,
+
+  // Context типы
+  StickyContextValue
 } from './types/sticky.types';
 
 // Утилиты (только публичные)
