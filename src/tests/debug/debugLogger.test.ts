@@ -4,11 +4,21 @@
 
 import { debugLogger } from '../../debug/debugLogger';
 import { stickyDebugger } from '../../debug/StickyDebugger';
+import { ENV } from '../../utils/env';
 
 // Мокаем StickyDebugger
 jest.mock('../../debug/StickyDebugger', () => ({
   stickyDebugger: {
     log: jest.fn()
+  }
+}));
+
+// Мокаем ENV для production проверок
+jest.mock('../../utils/env', () => ({
+  ENV: {
+    isProduction: false,
+    isDevelopment: true,
+    isTest: true
   }
 }));
 
