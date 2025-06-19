@@ -156,7 +156,9 @@ export interface UseSSRStickyReturn extends UseStickyReturn {
 /**
  * Опции для useDebugSticky хука
  */
-export interface UseDebugStickyOptions extends UseStickyOptions {
+export interface UseDebugStickyOptions extends Omit<UseStickyOptions, 'direction' | 'offset'> {
+  direction?: UseStickyOptions['direction'];
+  offset?: UseStickyOptions['offset'];
   debugLabel?: string;
   debugConfig?: {
     logStateChanges?: boolean;

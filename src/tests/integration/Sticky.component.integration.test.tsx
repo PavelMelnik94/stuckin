@@ -262,7 +262,9 @@ describe('Sticky Component Integration Tests', () => {
     test('должен корректно обрабатывать отсутствие children', () => {
       expect(() => {
         renderWithProvider(
-          <Sticky id="no-children-test" direction="top" offset={{ top: 0 }} />
+          <Sticky id="no-children-test" direction="top" offset={{ top: 0 }}>
+            <div>Test content</div>
+          </Sticky>
         );
       }).not.toThrow();
     });

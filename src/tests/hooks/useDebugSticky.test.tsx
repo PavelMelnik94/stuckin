@@ -147,6 +147,8 @@ describe('useDebugSticky', () => {
       renderHook(
         () => useDebugSticky({
           id: 'test-element',
+          direction: 'top',
+          offset: { top: 10 },
           debugConfig: {
             logStateChanges: false,
             logConfigUpdates: false,
@@ -440,7 +442,7 @@ describe('useDebugSticky', () => {
         { wrapper: TestWrapper }
       );
 
-      const newConfig = { enabled: false };
+      const newConfig = { disabled: true };
 
       act(() => {
         result.current.updateConfig(newConfig);
@@ -467,7 +469,7 @@ describe('useDebugSticky', () => {
       );
 
       act(() => {
-        result.current.updateConfig({ enabled: false });
+        result.current.updateConfig({ disabled: true });
       });
 
       // Проверяем, что логирование config-update не произошло

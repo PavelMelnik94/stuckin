@@ -57,8 +57,8 @@ describe('useSticky Integration Tests', () => {
 
       // Используем act для установки ref и ждем эффекты
       await act(async () => {
-        // Устанавливаем ref и ждем обновления
-        result.current.ref.current = mockElement;
+        // Устанавливаем ref через private field (для тестов)
+        (result.current.ref as any).current = mockElement;
         // Принудительно вызываем refresh для инициализации состояния
         result.current.refresh();
       });
@@ -166,7 +166,7 @@ describe('useSticky Integration Tests', () => {
       document.body.appendChild(mockElement);
 
       await act(async () => {
-        result.current.ref.current = mockElement;
+        (result.current.ref as any).current = mockElement;
         result.current.refresh();
       });
 
@@ -192,7 +192,7 @@ describe('useSticky Integration Tests', () => {
       document.body.appendChild(mockElement);
 
       await act(async () => {
-        result.current.ref.current = mockElement;
+        (result.current.ref as any).current = mockElement;
         result.current.refresh();
       });
 

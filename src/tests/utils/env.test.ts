@@ -48,7 +48,7 @@ describe('ENV', () => {
 
   describe('динамические проверки', () => {
     test('должен проверять NODE_ENV корректно', () => {
-      expect(process?.env?.NODE_ENV).toBe('test');
+      expect(process?.env?.['NODE_ENV']).toBe('test');
     });
 
     test('все ENV свойства должны быть boolean', () => {

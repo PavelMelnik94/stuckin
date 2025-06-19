@@ -71,10 +71,11 @@ describe('StickyDebugger', () => {
 
       expect(stickyDebugger.allEvents.length).toBe(initialCount + 1);
       const event = stickyDebugger.allEvents[stickyDebugger.allEvents.length - 1];
-      expect(event.type).toBe('debug');
-      expect(event.elementId).toBe('test-element');
-      expect(event.data.message).toBe('Test message');
-      expect(event.data.test).toBe('data');
+      expect(event).toBeDefined();
+      expect(event!.type).toBe('debug');
+      expect(event!.elementId).toBe('test-element');
+      expect(event!.data.message).toBe('Test message');
+      expect(event!.data.test).toBe('data');
     });
 
     it('должен создавать уникальные ID для событий', () => {
@@ -83,7 +84,8 @@ describe('StickyDebugger', () => {
 
       const events = stickyDebugger.allEvents;
       const lastTwoEvents = events.slice(-2);
-      expect(lastTwoEvents[0].id).not.toBe(lastTwoEvents[1].id);
+      expect(lastTwoEvents.length).toBe(2);
+      expect(lastTwoEvents[0]!.id).not.toBe(lastTwoEvents[1]!.id);
     });
 
     it('должен очищать историю событий', () => {
@@ -157,7 +159,8 @@ describe('StickyDebugger', () => {
       const recentEvents = events.slice(-eventTypes.length);
 
       eventTypes.forEach((type, index) => {
-        expect(recentEvents[index].type).toBe(type);
+        expect(recentEvents[index]).toBeDefined();
+        expect(recentEvents[index]!.type).toBe(type);
       });
     });
   });
@@ -172,7 +175,8 @@ describe('StickyDebugger', () => {
 
       const filteredEvents = stickyDebugger.filteredEvents;
       expect(filteredEvents.length).toBe(1);
-      expect(filteredEvents[0].type).toBe('error');
+      expect(filteredEvents[0]).toBeDefined();
+      expect(filteredEvents[0]!.type).toBe('error');
     });
 
     it('должен показывать все события при debug уровне', () => {
@@ -265,7 +269,9 @@ describe('StickyDebugger', () => {
 
       const events = stickyDebugger.allEvents;
       expect(events.length).toBe(3);
-      expect(events[events.length - 1].data.message).toBe('Message 4');
+      const lastEvent = events[events.length - 1];
+      expect(lastEvent).toBeDefined();
+      expect(lastEvent!.data.message).toBe('Message 4');
     });
   });
 
@@ -277,7 +283,8 @@ describe('StickyDebugger', () => {
 
       const events = stickyDebugger.allEvents;
       const lastEvent = events[events.length - 1];
-      expect(lastEvent.data.message).toBe('Test message');
+      expect(lastEvent).toBeDefined();
+      expect(lastEvent!.data.message).toBe('Test message');
     });
 
     it('должен обрабатывать null данные', () => {

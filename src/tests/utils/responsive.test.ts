@@ -47,24 +47,24 @@ describe('Responsive Utils', () => {
     });
 
     it('должен иметь правильную структуру breakpoints', () => {
-      expect(DEFAULT_BREAKPOINTS.mobile).toEqual({
+      expect(DEFAULT_BREAKPOINTS['mobile']).toEqual({
         name: 'mobile',
         maxWidth: 767
       });
 
-      expect(DEFAULT_BREAKPOINTS.tablet).toEqual({
+      expect(DEFAULT_BREAKPOINTS['tablet']).toEqual({
         name: 'tablet',
         minWidth: 768,
         maxWidth: 1023
       });
 
-      expect(DEFAULT_BREAKPOINTS.desktop).toEqual({
+      expect(DEFAULT_BREAKPOINTS['desktop']).toEqual({
         name: 'desktop',
         minWidth: 1024,
         maxWidth: 1439
       });
 
-      expect(DEFAULT_BREAKPOINTS.largeDesktop).toEqual({
+      expect(DEFAULT_BREAKPOINTS['largeDesktop']).toEqual({
         name: 'largeDesktop',
         minWidth: 1440
       });

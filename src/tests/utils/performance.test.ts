@@ -5,7 +5,7 @@
 import { performanceMonitor } from '../../utils/performance';
 
 describe('Performance Utils', () => {
-  const originalNodeEnv = process?.env?.NODE_ENV;
+  const originalNodeEnv = process?.env?.['NODE_ENV'];
 
   beforeEach(() => {
     jest.useFakeTimers();
@@ -16,18 +16,18 @@ describe('Performance Utils', () => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
     performanceMonitor.disable();
-    process.env.NODE_ENV = originalNodeEnv;
+    process.env["NODE_ENV"] = originalNodeEnv;
   });
 
   describe('PerformanceMonitor', () => {
     test('должен включаться только в development режиме', () => {
       // В production не должен включаться
-      process.env.NODE_ENV = 'production';
+      process.env["NODE_ENV"] = 'production';
       performanceMonitor.enable();
       expect(performanceMonitor.getMetrics('test')).toBeNull();
 
       // В development должен работать
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       // Проверяем что мониторинг включен
@@ -37,7 +37,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен измерять время рендера', () => {
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       const testFunction = jest.fn(() => 'result');
@@ -52,7 +52,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен измерять отзывчивость скролла', () => {
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       const scrollHandler = jest.fn();
@@ -68,7 +68,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен отслеживать пересчеты', () => {
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       // Сначала создаем метрику через measureRenderTime
@@ -85,7 +85,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен возвращать все метрики', () => {
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       performanceMonitor.measureRenderTime('element1', () => 'test1');
@@ -98,7 +98,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен поддерживать подписку на изменения метрик', () => {
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       const observer = jest.fn();
@@ -118,7 +118,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен генерировать отчет о производительности', () => {
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       performanceMonitor.measureRenderTime('element1', () => 'test');
@@ -131,7 +131,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен возвращать сообщение об отсутствии данных для пустого отчета', () => {
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       const report = performanceMonitor.generateReport();
@@ -139,7 +139,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен корректно обрабатывать отключение мониторинга', () => {
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       performanceMonitor.measureRenderTime('test-element', () => 'result');
@@ -160,7 +160,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен обрабатывать ошибки в измеряемых функциях', () => {
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       const errorFunction = () => {
@@ -173,7 +173,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен возвращать null для несуществующего элемента', () => {
-      process.env.NODE_ENV = 'development';
+      process.env["NODE_ENV"] = 'development';
       performanceMonitor.enable();
 
       expect(performanceMonitor.getMetrics('non-existent')).toBeNull();

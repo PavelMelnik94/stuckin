@@ -161,7 +161,7 @@ describe('useStickyInContainer', () => {
         return (
           <div className="test-container" style={{ height: '300px', overflow: 'auto' }}>
             <div style={{ height: '200px' }}>Content before</div>
-            <div ref={ref} data-testid="sticky-element" data-sticky={isSticky} data-state={state}>
+            <div ref={ref as React.RefObject<HTMLDivElement>} data-testid="sticky-element" data-sticky={isSticky} data-state={state}>
               Sticky Element
             </div>
             <div style={{ height: '600px' }}>Content after</div>
@@ -278,10 +278,8 @@ describe('useStickyInContainer', () => {
             priority: 5,
             onStateChange,
             boundary: {
-              top: 0,
-              bottom: 1000,
-              left: 0,
-              right: 1000
+              element: document.body,
+              offset: 10
             }
           }),
         { wrapper: StickyProvider }

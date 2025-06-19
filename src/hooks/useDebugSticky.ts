@@ -6,7 +6,9 @@ import { debugLogger } from '@/debug/debugLogger';
 import type { StickyState } from '@/types/sticky.types';
 import { stickyDebugger } from '@/debug/StickyDebugger';
 
-export interface UseDebugStickyOptions extends UseStickyOptions {
+export interface UseDebugStickyOptions extends Omit<UseStickyOptions, 'direction' | 'offset'> {
+  direction?: UseStickyOptions['direction'];
+  offset?: UseStickyOptions['offset'];
   debugLabel?: string;
   debugConfig?: {
     logStateChanges?: boolean;
@@ -32,7 +34,13 @@ export const useDebugSticky = (options: UseDebugStickyOptions) => {
     ...options.debugConfig
   };
 
-  const stickyResult = useSticky(options);
+  const stickyOptions: UseStickyOptions = {
+    direction: 'top',
+    offset: { top: 0 },
+    ...options
+  };
+
+  const stickyResult = useSticky(stickyOptions);
 
   /**
    * Отслеживание изменений состояния

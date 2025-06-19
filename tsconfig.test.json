@@ -7,13 +7,9 @@
     "moduleResolution": "node", // Node.js разрешение для Jest
     "composite": false, // Отключаем для избежания конфликтов
 
-    // === RELAXED СТРОГОСТЬ ДЛЯ ТЕСТОВ ===
-    "noUnusedLocals": false, // Разрешаем неиспользуемые в тестах
-    "noUnusedParameters": false, // Разрешаем неиспользуемые параметры
-    "strictPropertyInitialization": false, // Упрощаем инициализацию в тестах
-
-    // === ГЕНЕРАЦИЯ ===
+    // === ГЕНЕРАЦИЯ (отключаем для тестов) ===
     "declaration": false, // Не генерируем типы для тестов
+    "declarationMap": false, // Отключаем declarationMap когда declaration=false
     "sourceMap": true, // Source maps для отладки тестов
     "inlineSourceMap": false,
     "inlineSources": false,
@@ -23,20 +19,7 @@
       "jest", // Jest типы
       "@testing-library/jest-dom", // Jest-DOM матчеры
       "node" // Node.js типы
-    ],
-
-    // === АЛИАСЫ (те же что и в основном конфиге) ===
-    "paths": {
-      "@/*": [ "src/*" ],
-      "@/components/*": [ "src/components/*" ],
-      "@/hooks/*": [ "src/hooks/*" ],
-      "@/utils/*": [ "src/utils/*" ],
-      "@/types/*": [ "src/types/*" ],
-      "@/core/*": [ "src/core/*" ],
-      "@/context/*": [ "src/context/*" ],
-      "@/debug/*": [ "src/debug/*" ],
-      "@/tests/*": [ "src/tests/*" ]
-    }
+    ]
   },
 
   "include": [
@@ -46,8 +29,13 @@
     "src/**/*.spec.tsx",
     "src/tests/**/*", // Тестовые утилиты
     "src/**/__tests__/**/*",
-    "src/**/__mocks__/**/*",
-    "jest.config.js",
-    "jest.setup.ts"
+    "src/**/__mocks__/**/*"
+  ],
+
+  // Важно: НЕ исключаем тесты, поскольку мы их явно включаем
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage"
   ]
 }

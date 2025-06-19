@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 
-import { StickyContainer } from '../../components/StickyContainer';
+import { StickyContainer, type StickyContainerRef } from '../../components/StickyContainer';
 import { renderWithProvider } from '../utils/testUtils';
 
 describe('StickyContainer', () => {
@@ -268,14 +268,7 @@ describe('StickyContainer', () => {
 
   describe('ref функциональность', () => {
     it('должен предоставлять API через ref', () => {
-      const ref = React.createRef<{
-        element: HTMLElement | null;
-        state: string | null;
-        isSticky: boolean;
-        refresh: () => void;
-        disable: () => void;
-        enable: () => void;
-      }>();
+      const ref = React.createRef<StickyContainerRef>();
 
       renderWithProvider(
         <div className="test-scroll-container">
@@ -301,14 +294,7 @@ describe('StickyContainer', () => {
     });
 
     it('должен обновлять состояние через ref методы', () => {
-      const ref = React.createRef<{
-        element: HTMLElement | null;
-        state: string | null;
-        isSticky: boolean;
-        refresh: () => void;
-        disable: () => void;
-        enable: () => void;
-      }>();
+      const ref = React.createRef<StickyContainerRef>();
 
       renderWithProvider(
         <div className="test-scroll-container">
@@ -376,7 +362,9 @@ describe('StickyContainer', () => {
             direction="top"
             offset={{ top: 10 }}
             id="test-no-children"
-          />
+          >
+            <div>Test children</div>
+          </StickyContainer>
         </div>
       );
 
