@@ -63,8 +63,9 @@ export interface StickyGroup {
 /**
  * Опции для useSticky хука
  */
-export interface UseStickyOptions extends Omit<StickyConfig, 'id'> {
+export interface UseStickyOptions extends Omit<StickyConfig, 'id' | 'priority'> {
   id?: string;
+  priority?: number;
   enabled?: boolean;
   onStateChange?: (state: StickyState) => void;
   groupId?: string;

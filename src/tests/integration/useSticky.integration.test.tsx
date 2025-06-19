@@ -4,13 +4,15 @@
 
 import React from 'react';
 import { renderHook, act } from '@testing-library/react';
-import { useSticky } from '../../hooks/useSticky';
-import { renderWithProvider, simulateScroll, createTestConfig } from '../utils/testUtils';
 
-// Обертка для хука с провайдером
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <div>{children}</div>
-);
+import { useSticky } from '../../hooks/useSticky';
+import { renderWithProvider } from '../utils/testUtils';
+// import { simulateScroll, createTestConfig } from '../utils/testUtils'; // TODO: Use if needed
+
+// TODO: Use wrapper if needed for provider context
+// const wrapper = ({ children }: { children: React.ReactNode }) => (
+//   <div>{children}</div>
+// );
 
 describe('useSticky Integration Tests', () => {
   beforeEach(() => {

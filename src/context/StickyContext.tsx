@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useRef, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
+
 import { StickyManager } from '../core/StickyManager';
 import { StickyContextValue } from '../types/sticky.types';
 

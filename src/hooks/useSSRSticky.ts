@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useSticky, UseStickyOptions } from './useSticky';
+
 import { ssrManager, SSRConfig } from '../utils/ssr';
+
+import { useSticky, UseStickyOptions } from './useSticky';
 
 export interface UseSSRStickyOptions extends UseStickyOptions {
   ssr?: SSRConfig;

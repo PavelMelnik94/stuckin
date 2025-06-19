@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
+
 import { useStickyGroup } from '../hooks/useStickyGroup';
 import { StickyElement } from '../types/sticky.types';
 

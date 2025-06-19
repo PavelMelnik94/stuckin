@@ -5,6 +5,7 @@
 
 import React, { ReactElement } from 'react';
 import { render, RenderOptions, RenderResult } from '@testing-library/react';
+
 import { StickyProvider } from '../../context/StickyContext';
 import { StickyConfig } from '../../types/sticky.types';
 

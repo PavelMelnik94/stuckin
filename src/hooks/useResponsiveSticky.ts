@@ -1,8 +1,10 @@
 import { useEffect, useState, useMemo } from 'react';
+
 // import { observer } from 'mobx-react-lite'; // TODO: Add if needed
-import { useSticky, UseStickyOptions } from './useSticky';
 import { responsiveManager, ResponsiveConfig } from '../utils/responsive';
 import { StickyConfig } from '../types/sticky.types';
+
+import { useSticky, UseStickyOptions } from './useSticky';
 
 export interface UseResponsiveStickyOptions extends UseStickyOptions {
   responsive: ResponsiveConfig;

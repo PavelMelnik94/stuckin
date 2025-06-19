@@ -4,10 +4,12 @@
  */
 
 import { action } from 'mobx';
+
 import type { StickyConfig } from '../types/sticky.types';
-import { StickyManager } from './StickyManager';
 import { stickyDebugger } from '../debug/StickyDebugger';
 import { performanceMonitor } from '../utils/performance';
+
+import { StickyManager } from './StickyManager';
 
 /**
  * Расширенный StickyManager с отладочными возможностями

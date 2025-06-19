@@ -7,28 +7,17 @@
  */
 
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
+
 import { useStickyContext } from '../context/StickyContext';
 import { debugLogger } from '../debug/debugLogger';
-import { StickyConfig, StickyState } from '../types/sticky.types';
+import { UseStickyOptions, UseStickyReturn, StickyConfig } from '../types/sticky.types';
+
+// Реэкспорт типов для удобства
+export type { UseStickyOptions, UseStickyReturn } from '../types/sticky.types';
+
 import { generateId } from '@/utils/id';
 
-export interface UseStickyOptions extends Omit<StickyConfig, 'id'> {
-  id?: string;
-  enabled?: boolean;
-  onStateChange?: (state: StickyState) => void;
-  groupId?: string;
-}
-
-export interface UseStickyReturn {
-  ref: React.RefObject<HTMLElement>;
-  state: StickyState | null;
-  isSticky: boolean;
-  isActive: boolean;
-  updateConfig: (config: Partial<StickyConfig>) => void;
-  refresh: () => void;
-  disable: () => void;
-  enable: () => void;
-}
+// Используем интерфейсы из общих типов
 
 /**
  * Основной хук для работы со sticky элементами

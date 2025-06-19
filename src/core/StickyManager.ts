@@ -1,4 +1,5 @@
 import { makeObservable, observable, action, computed } from 'mobx';
+
 import type { StickyElement, StickyConfig, StickyGroup, StickyState, StickyDirection } from '../types/sticky.types';
 
 /**

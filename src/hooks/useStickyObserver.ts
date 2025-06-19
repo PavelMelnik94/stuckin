@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+
 import { useStickyContext } from '../context/StickyContext';
 
 export interface UseStickyObserverOptions {

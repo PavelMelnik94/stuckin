@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { useSticky, UseStickyOptions } from './useSticky';
+
 import { stickyDebugger } from '../debug/StickyDebugger';
 import { StickyState } from '../types/sticky.types';
+
+import { useSticky, UseStickyOptions } from './useSticky';
 
 export interface UseDebugStickyOptions extends UseStickyOptions {
   debugLabel?: string;
