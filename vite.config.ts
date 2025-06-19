@@ -14,7 +14,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      react(),
+      react({
+        jsxRuntime: 'automatic'
+      }),
 
       // Генерация TypeScript деклараций
       dts({
@@ -50,6 +52,8 @@ export default defineConfig(({ mode }) => {
         external: [
           'react',
           'react-dom',
+          'react/jsx-runtime',
+          'react/jsx-dev-runtime',
           'mobx',
           'mobx-react-lite'
         ],
@@ -58,6 +62,8 @@ export default defineConfig(({ mode }) => {
           globals: {
             react: 'React',
             'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'ReactJSXRuntime',
+            'react/jsx-dev-runtime': 'ReactJSXDevRuntime',
             mobx: 'mobx',
             'mobx-react-lite': 'mobxReactLite'
           },
