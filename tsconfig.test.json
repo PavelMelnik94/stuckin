@@ -5,6 +5,7 @@
     "target": "ES2022", // Современный JS для Node.js
     "module": "CommonJS", // CommonJS для Jest
     "moduleResolution": "node", // Node.js разрешение для Jest
+    "composite": false, // Отключаем для избежания конфликтов
 
     // === RELAXED СТРОГОСТЬ ДЛЯ ТЕСТОВ ===
     "noUnusedLocals": false, // Разрешаем неиспользуемые в тестах

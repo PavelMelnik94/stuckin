@@ -10,7 +10,7 @@
     "declaration": true, // Обязательно генерируем типы
     "declarationMap": true, // Source maps для типов
     "emitDeclarationOnly": false, // Генерируем и JS и типы
-    "composite": true, // Для project references
+    "composite": false, // Отключаем для избежания конфликтов
 
     // === ОПТИМИЗАЦИЯ ===
     "removeComments": true, // Удаляем комментарии в продакшене

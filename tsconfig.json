@@ -65,8 +65,8 @@
     "rootDir": "./src", // Корневая папка исходников
 
     // === ПРОИЗВОДИТЕЛЬНОСТЬ ===
-    "incremental": true, // Инкрементальная компиляция
-    "tsBuildInfoFile": "./.tsbuildinfo", // Файл для кеша
+    "incremental": false, // Отключаем инкрементальную компиляцию для избежания конфликтов
+    // "tsBuildInfoFile": "./.tsbuildinfo", // Файл для кеша
     "skipLibCheck": true, // Пропускаем проверку .d.ts библиотек
     "forceConsistentCasingInFileNames": true, // Консистентность имен файлов
 
@@ -100,8 +100,9 @@
   ],
 
   // === REFERENCES ===
-  "references": [
-    { "path": "./tsconfig.build.json" }, // Конфиг для сборки
-    { "path": "./tsconfig.test.json" } // Конфиг для тестов
-  ]
+  // Убираем references для избежания конфликтов
+  // "references": [
+  //   { "path": "./tsconfig.build.json" },
+  //   { "path": "./tsconfig.test.json" }
+  // ]
 }

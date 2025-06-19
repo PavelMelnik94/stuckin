@@ -3,6 +3,8 @@
  * Принцип Interface Segregation: отдельные интерфейсы для server и client
  */
 
+import React, { useEffect, useState } from 'react';
+
 export interface SSRConfig {
   enabled: boolean;
   fallbackHeight?: number;
