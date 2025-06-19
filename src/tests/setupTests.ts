@@ -6,6 +6,22 @@ import '@testing-library/jest-dom';
 import 'intersection-observer';
 import ResizeObserver from 'resize-observer-polyfill';
 
+// Мок для Element.prototype.getBoundingClientRect
+Element.prototype.getBoundingClientRect = jest.fn(function(this: Element) {
+  // Возвращаем позицию ниже триггера sticky для корректных тестов
+  return {
+    width: 100,
+    height: 50,
+    top: 100,
+    left: 0,
+    bottom: 150,
+    right: 100,
+    x: 0,
+    y: 100,
+    toJSON: jest.fn()
+  } as DOMRect;
+});
+
 // Полифил для ResizeObserver
 global.ResizeObserver = ResizeObserver;
 

@@ -116,6 +116,8 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.0",
     "@size-limit/preset-small-lib": "^11.0.2",
+    "@swc/core": "^1.12.3",
+    "@swc/jest": "^0.2.38",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
@@ -182,38 +184,6 @@
       "limit": "10 KB"
     }
   ],
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/tests/setupTests.ts"
-    ],
-    "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
-      "<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}"
-    ],
-    "moduleNameMapping": {
-      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-      "^@/(.*)$": "<rootDir>/src/$1"
-    },
-    "collectCoverageFrom": [
-      "src/**/*.{ts,tsx}",
-      "!src/**/*.d.ts",
-      "!src/tests/**/*",
-      "!src/**/*.stories.{ts,tsx}",
-      "!src/index.ts"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 85,
-        "functions": 85,
-        "lines": 85,
-        "statements": 85
-      }
-    },
-    "clearMocks": true,
-    "restoreMocks": true
-  },
   "prettier": {
     "semi": true,
     "trailingComma": "es5",

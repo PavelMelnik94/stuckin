@@ -48,7 +48,7 @@ export function renderWithProvider(
 export function createMockElement(
   width: number = 100,
   height: number = 50,
-  position: { top: number; left: number } = { top: 0, left: 0 }
+  position: { top: number; left: number } = { top: 100, left: 0 } // Изменили с 0 на 100
 ): HTMLElement {
   const element = document.createElement('div');
 
@@ -139,11 +139,11 @@ export function simulateIntersection(
  * Ожидание завершения анимаций и таймеров
  */
 export async function waitForAnimations(): Promise<void> {
-  // Ждем завершения всех таймеров
-  jest.runAllTimers();
-
   // Ждем следующий tick для обновления компонентов
   await new Promise(resolve => setTimeout(resolve, 0));
+
+  // Даем время для обработки событий
+  await new Promise(resolve => setTimeout(resolve, 16));
 }
 
 /**
