@@ -1,5 +1,4 @@
 import { useEffect, useCallback, useMemo } from 'react';
-import { observer } from 'mobx-react-lite';
 import { useStickyContext } from '../context/StickyContext';
 import { StickyElement } from '../types/sticky.types';
 
@@ -68,7 +67,7 @@ export const useStickyGroup = (options: UseStickyGroupOptions): UseStickyGroupRe
     elements.forEach(element => {
       // Принудительно обновляем состояние элементов группы
       const rect = element.element.getBoundingClientRect();
-      // Здесь можно добавить логику обновления
+      //TODO Здесь нужно добавить логику обновления
     });
   }, [elements]);
 

@@ -43,9 +43,12 @@ export interface StickyElement {
   element: HTMLElement;
   config: StickyConfig;
   state: StickyState;
+  previousState: StickyState | null;
   originalPosition: DOMRect;
   currentZIndex: number;
   isActive: boolean;
+  lastUpdate: number;
+  transitionCount: number;
 }
 
 export interface StickyGroup {
