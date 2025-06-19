@@ -43,9 +43,10 @@ export default defineConfig(({ mode }) => {
           index: resolve(__dirname, 'src/index.ts'),
           hooks: resolve(__dirname, 'src/hooks/index.ts'),
           components: resolve(__dirname, 'src/components/index.ts'),
-          utils: resolve(__dirname, 'src/utils/index.ts')
+          utils: resolve(__dirname, 'src/utils/index.ts'),
+          debug: resolve(__dirname, 'src/debug/index.ts')
         },
-        formats: ['es', 'cjs', 'umd'],
+        formats: ['es', 'cjs'],
         name: 'StickyLib'
       },
 

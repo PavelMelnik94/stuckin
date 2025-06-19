@@ -39,29 +39,29 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.es.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./hooks": {
+      "types": "./dist/hooks.d.ts",
       "import": "./dist/hooks.es.js",
-      "require": "./dist/hooks.js",
-      "types": "./dist/hooks.d.ts"
+      "require": "./dist/hooks.js"
     },
     "./components": {
+      "types": "./dist/components.d.ts",
       "import": "./dist/components.es.js",
-      "require": "./dist/components.js",
-      "types": "./dist/components.d.ts"
+      "require": "./dist/components.js"
     },
     "./utils": {
+      "types": "./dist/utils.d.ts",
       "import": "./dist/utils.es.js",
-      "require": "./dist/utils.js",
-      "types": "./dist/utils.d.ts"
+      "require": "./dist/utils.js"
     },
     "./debug": {
+      "types": "./dist/debug.d.ts",
       "import": "./dist/debug.es.js",
-      "require": "./dist/debug.js",
-      "types": "./dist/debug.d.ts"
+      "require": "./dist/debug.js"
     },
     "./styles": "./dist/style.css",
     "./package.json": "./package.json"
