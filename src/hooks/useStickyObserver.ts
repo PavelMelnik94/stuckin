@@ -16,12 +16,18 @@ export const useStickyObserver = (options: UseStickyObserverOptions = {}) => {
   const context = useStickyContext();
   const observerRef = useRef<IntersectionObserver | null>(null);
   const elementsRef = useRef<Set<HTMLElement>>(new Set());
+  const onIntersectRef = useRef(options.onIntersect);
 
   const {
     threshold = [0, 0.25, 0.5, 0.75, 1],
     rootMargin = '0px',
     onIntersect
   } = options;
+
+  // Обновляем ref при изменении callback
+  useEffect(() => {
+    onIntersectRef.current = onIntersect;
+  }, [onIntersect]);
 
   /**
    * Создаем наблюдатель
@@ -32,7 +38,7 @@ export const useStickyObserver = (options: UseStickyObserverOptions = {}) => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          onIntersect?.(entry.isIntersecting, entry);
+          onIntersectRef.current?.(entry.isIntersecting, entry);
         });
       },
       {
@@ -45,7 +51,7 @@ export const useStickyObserver = (options: UseStickyObserverOptions = {}) => {
     return () => {
       observerRef.current?.disconnect();
     };
-  }, [threshold, rootMargin, onIntersect, context.isSSR]);
+  }, [threshold, rootMargin, context.isSSR]);
 
   /**
    * Добавление элемента для наблюдения
