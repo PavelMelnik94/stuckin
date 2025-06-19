@@ -75,16 +75,18 @@ export const Sticky = observer(forwardRef<StickyRef, StickyProps>(({
     ...(isActive && activeStyle)
   };
 
+  const Element = Tag as any;
+
   return (
-    <Tag
-      ref={elementRef as any}
+    <Element
+      ref={elementRef}
       className={classes}
       style={combinedStyle}
       data-sticky-id={stickyOptions.id}
       data-sticky-state={state}
     >
       {children}
-    </Tag>
+    </Element>
   );
 }));
 

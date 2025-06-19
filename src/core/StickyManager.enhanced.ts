@@ -4,7 +4,7 @@
  */
 
 import { action } from 'mobx';
-import type { StickyConfig, StickyElement } from '../types/sticky.types';
+import type { StickyConfig } from '../types/sticky.types';
 import { StickyManager } from './StickyManager';
 import { stickyDebugger } from '../debug/StickyDebugger';
 import { performanceMonitor } from '../utils/performance';
@@ -78,42 +78,8 @@ export class EnhancedStickyManager extends StickyManager {
     });
   }
 
-  /**
-   * Обновление состояния с отладкой
-   * TODO: Использовать этот метод для отладки обновлений состояния
-   */
-  @action
-  private _updateStickyStateWithDebug(element: StickyElement): void {
-    const prevState = element.state;
-
-    // Замеряем производительность обновления
-    const updateTime = performanceMonitor.measureRenderTime(element.id, () => {
-      this.updateStickyState(element);
-    });
-
-    // Отслеживаем пересчеты
-    performanceMonitor.trackRecomputation(element.id);
-
-    // Логируем изменения состояния
-    if (element.state !== prevState) {
-      stickyDebugger.log(
-        'state-change',
-        element.id,
-        `Состояние изменилось: ${prevState} → ${element.state}`,
-        {
-          previousState: prevState,
-          currentState: element.state,
-          updateTime,
-          elementRect: element.element.getBoundingClientRect()
-        }
-      );
-
-      // Автоматическое создание снимка при критических изменениях
-      if (stickyDebugger.debugConfig.autoCapture && element.state === 'sticky') {
-        stickyDebugger.captureSnapshot(`${element.id}-became-sticky`);
-      }
-    }
-  }
+  // TODO: Implement updateStickyStateWithDebug when needed
+  // This method will provide enhanced debugging for state updates
 
   /**
    * Получение debug информации для интеграции с debugger
