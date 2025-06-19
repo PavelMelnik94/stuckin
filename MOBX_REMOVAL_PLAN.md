@@ -36,11 +36,11 @@ const StickyContext = createContext<{
 // Custom hook для подписок на изменения
 const useSubscription = (manager: StickyManager, selector: (state) => any) => {
   const [value, setValue] = useState(() => selector(manager.getState()));
-  
+
   useEffect(() => {
     return manager.subscribe((state) => setValue(selector(state)));
   }, []);
-  
+
   return value;
 };
 ```
@@ -50,13 +50,13 @@ const useSubscription = (manager: StickyManager, selector: (state) => any) => {
 class StickyManager extends EventTarget {
   private elements = new Map<string, StickyElement>();
   private groups = new Map<string, StickyGroup>();
-  
+
   // Вместо @action используем notify pattern
   registerSticky(element: HTMLElement, config: StickyConfig) {
     this.elements.set(config.id, stickyElement);
     this.notify('element-registered', { id: config.id });
   }
-  
+
   private notify(type: string, data: any) {
     this.dispatchEvent(new CustomEvent(type, { detail: data }));
   }
@@ -69,7 +69,7 @@ class StickyManager extends EventTarget {
 export const Sticky: React.FC<StickyProps> = (props) => {
   const { state, dispatch } = useContext(StickyContext);
   const element = useSubscription(manager, s => s.elements.get(props.id));
-  
+
   // обычная логика без observer
 };
 ```

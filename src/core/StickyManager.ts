@@ -1,4 +1,4 @@
-import { makeObservable, observable, action, computed } from 'mobx';
+import { makeObservable, observable, action, computed, runInAction } from 'mobx';
 
 import { debugLogger } from '@/debug/debugLogger';
 import type { StickyConfig, StickyDirection, StickyElement, StickyGroup, StickyState, StickyBoundary, StickyPosition, StickyScrollContainer } from '@/types/sticky.types';
@@ -18,6 +18,24 @@ export class StickyManager {
   private resizeObserver: ResizeObserver | null = null;
   private scrollTimeout: number | null = null;
   private zIndexCounter = 1000;
+
+  // === ОПТИМИЗАЦИИ ПРОТИВ ДРОЖАНИЯ ===
+
+  // Кеш для getBoundingClientRect - самая дорогая операция
+  private rectCache = new Map<string, { rect: DOMRect; timestamp: number }>();
+  private stateCache = new Map<string, StickyState>();
+  private stateDebounceTimeouts = new Map<string, number>();
+
+  // Конфигурация оптимизации
+  private readonly RECT_CACHE_TTL = 8; // ms - время жизни кеша
+  private readonly STATE_DEBOUNCE = 30; // ms - дебаунс состояний
+  private readonly POSITION_THRESHOLD = 2; // px - порог для предотвращения дрожания
+  private readonly SCROLL_THROTTLE_REDUCED = 8; // ms - уменьшенный throttle
+
+  // Состояние скролла для управления CSS transitions
+  private isScrolling = false;
+  private scrollEndTimeout: number | null = null;
+  private readonly SCROLL_END_DELAY = 150; // ms
 
   constructor() {
     makeObservable(this);
@@ -241,6 +259,62 @@ export class StickyManager {
   }
 
   /**
+   * Оптимизированное обновление состояния с дебаунсингом и кешированием
+   */
+  @action
+  protected updateStickyStateOptimized(element: StickyElement): void {
+    if (element.config.disabled || this.isSSR) {
+      this.resetElementStyles(element);
+      return;
+    }
+
+    // Используем кешированный rect для оптимизации
+    const rect = this.getCachedRect(element.element, element.id);
+    const newState = this.calculateStickyStateWithThreshold(element, rect);
+
+    // Проверяем кеш состояния
+    const cachedState = this.stateCache.get(element.id);
+    if (newState === cachedState) {
+      return; // Состояние не изменилось, пропускаем обновление
+    }
+
+    // Дебаунсинг для предотвращения дрожания на границах
+    const existingTimeout = this.stateDebounceTimeouts.get(element.id);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+    }
+
+    const timeout = window.setTimeout(() => {
+      this.finalizeStateChange(element, newState);
+      this.stateDebounceTimeouts.delete(element.id);
+    }, this.STATE_DEBOUNCE);
+
+    this.stateDebounceTimeouts.set(element.id, timeout);
+  }
+
+  /**
+   * Финализация изменения состояния с оптимизациями
+   */
+  @action
+  private finalizeStateChange(element: StickyElement, newState: StickyState): void {
+    const oldState = element.state;
+
+    if (newState !== oldState) {
+      element.state = newState;
+      element.previousState = oldState;
+      element.lastUpdate = Date.now();
+      element.transitionCount++;
+
+      this.stateCache.set(element.id, newState);
+
+      this.applyStateStylesOptimized(element, newState);
+      this.notifyStateChange(element, newState);
+
+      debugLogger.stateChange(element.id, oldState, newState);
+    }
+  }
+
+  /**
    * Расчет нового состояния sticky элемента
    */
   private calculateStickyState(element: StickyElement, rect: DOMRect): StickyState {
@@ -284,6 +358,134 @@ export class StickyManager {
       default:
         return 'normal';
     }
+  }
+
+  /**
+   * Расчет состояния с пороговыми значениями для предотвращения дрожания
+   */
+  private calculateStickyStateWithThreshold(element: StickyElement, rect: DOMRect): StickyState {
+    const { direction, offset, boundary, scrollContainer } = element.config;
+
+    // Используем кастомный контейнер или viewport
+    const container = scrollContainer ?
+      this.getContainerDimensions(scrollContainer.element) :
+      this.getViewportDimensions();
+
+    // Проверяем границы если заданы
+    if (boundary && this.isOutsideBoundary(element, boundary)) {
+      return 'bottom-reached';
+    }
+
+    // Для кастомного контейнера используем позицию элемента относительно контейнера
+    const targetRect = scrollContainer ?
+      this.getRelativeRect(rect, scrollContainer.element) :
+      rect;
+
+    // Учитываем дополнительные отступы контейнера
+    const containerOffset = scrollContainer?.offset || {};
+
+    // ВАЖНО: Добавляем пороговые значения для предотвращения дрожания
+    const THRESHOLD = this.POSITION_THRESHOLD;
+
+    switch (direction) {
+      case 'top':
+        const topThreshold = (offset.top || 0) + (containerOffset.top || 0);
+        return targetRect.top <= (topThreshold + THRESHOLD) ? 'sticky' : 'normal';
+
+      case 'bottom':
+        const bottomThreshold = container.height - (offset.bottom || 0) - (containerOffset.bottom || 0);
+        return targetRect.bottom >= (bottomThreshold - THRESHOLD) ? 'sticky' : 'normal';
+
+      case 'left':
+        const leftThreshold = (offset.left || 0) + (containerOffset.left || 0);
+        return targetRect.left <= (leftThreshold + THRESHOLD) ? 'sticky' : 'normal';
+
+      case 'right':
+        const rightThreshold = container.width - (offset.right || 0) - (containerOffset.right || 0);
+        return targetRect.right >= (rightThreshold - THRESHOLD) ? 'sticky' : 'normal';
+
+      default:
+        return 'normal';
+    }
+  }
+
+  /**
+   * Оптимизированное применение стилей с GPU ускорением
+   */
+  private applyStateStylesOptimized(element: StickyElement, state: StickyState): void {
+    const { element: htmlElement, config } = element;
+
+    // Добавляем базовый класс оптимизации
+    htmlElement.classList.add('sticky-optimized');
+
+    if (state === 'sticky' && !element.isActive) {
+      element.isActive = true;
+
+      const styles = htmlElement.style;
+      styles.position = 'sticky';
+
+      // GPU ускорение только если не в режиме активного скролла
+      if (!this.isScrolling) {
+        styles.willChange = 'transform';
+        styles.transform = 'translate3d(0,0,0)';
+      }
+
+      this.applyPositionWithThreshold(htmlElement, config);
+
+      if (config.priority !== undefined) {
+        element.currentZIndex = this.getNextZIndex(config.priority);
+        styles.zIndex = String(element.currentZIndex);
+      }
+
+    } else if (state !== 'sticky' && element.isActive) {
+      element.isActive = false;
+      this.resetElementStylesOptimized(htmlElement);
+    }
+  }
+
+  /**
+   * Применение позиционирования с округлением для предотвращения дрожания
+   */
+  private applyPositionWithThreshold(element: HTMLElement, config: StickyConfig): void {
+    const { direction, offset = {} } = config;
+    const styles = element.style;
+
+    // Округляем значения для избежания субпиксельного дрожания
+    const roundedOffset = (value: number) =>
+      Math.round(value / this.POSITION_THRESHOLD) * this.POSITION_THRESHOLD;
+
+    switch (direction) {
+      case 'top':
+        styles.top = `${roundedOffset(offset.top || 0)}px`;
+        break;
+      case 'bottom':
+        styles.bottom = `${roundedOffset(offset.bottom || 0)}px`;
+        break;
+      case 'left':
+        styles.left = `${roundedOffset(offset.left || 0)}px`;
+        break;
+      case 'right':
+        styles.right = `${roundedOffset(offset.right || 0)}px`;
+        break;
+    }
+  }
+
+  /**
+   * Оптимизированный сброс стилей
+   */
+  private resetElementStylesOptimized(htmlElement: HTMLElement): void {
+    const styles = htmlElement.style;
+    styles.position = '';
+    styles.top = '';
+    styles.bottom = '';
+    styles.left = '';
+    styles.right = '';
+    styles.zIndex = '';
+    styles.willChange = '';
+    styles.transform = '';
+
+    // Убираем классы оптимизации
+    htmlElement.classList.remove('sticky-scrolling', 'sticky-stable', 'sticky-optimized');
   }
 
   /**
@@ -359,26 +561,48 @@ export class StickyManager {
   }
 
   /**
-   * Обработка скролла с throttling
+   * Оптимизированная обработка скролла с предотвращением дрожания
    */
   private handleScroll(): void {
+    // Отмечаем начало скролла для управления CSS transitions
+    if (!this.isScrolling) {
+      this.isScrolling = true;
+      this.toggleScrollingState(true);
+    }
+
+    // Сброс таймера окончания скролла
+    if (this.scrollEndTimeout) {
+      clearTimeout(this.scrollEndTimeout);
+    }
+
+    this.scrollEndTimeout = window.setTimeout(() => {
+      this.isScrolling = false;
+      this.toggleScrollingState(false);
+    }, this.SCROLL_END_DELAY);
+
     if (this.scrollTimeout) return;
 
     this.scrollTimeout = window.setTimeout(() => {
-      this.elements.forEach((element) => {
-        this.updateStickyState(element);
+      // Группируем все изменения в один MobX action для лучшей производительности
+      runInAction(() => {
+        this.elements.forEach((element) => {
+          this.updateStickyStateOptimized(element);
+        });
       });
       this.scrollTimeout = null;
-    }, 16); // ~60fps
+    }, this.SCROLL_THROTTLE_REDUCED);
   }
 
   /**
-   * Обработка изменения размера окна
+   * Обработка изменения размера окна с очисткой кешей
    */
   private handleResize(): void {
+    // Очищаем кеши при изменении размеров
+    this.clearCaches();
+
     this.elements.forEach((element) => {
-      element.originalPosition = element.element.getBoundingClientRect();
-      this.updateStickyState(element);
+      element.originalPosition = this.getCachedRect(element.element, element.id);
+      this.updateStickyStateOptimized(element);
     });
   }
 
@@ -522,6 +746,24 @@ export class StickyManager {
     this.updateStickyState(element);
   }
 
+  private clearCaches(): void {
+    this.rectCache.clear();
+    this.stateCache.clear();
+  }
+
+  private toggleScrollingState(isScrolling: boolean): void {
+    this.elements.forEach(element => {
+      const el = element.element;
+      if (isScrolling) {
+        el.classList.add('sticky-scrolling');
+        el.classList.remove('sticky-stable');
+      } else {
+        el.classList.remove('sticky-scrolling');
+        el.classList.add('sticky-stable');
+      }
+    });
+  }
+
   private updateGroupPriorities(): void {
     // Обновление приоритетов групп
     this.groups.forEach((group) => {
@@ -561,7 +803,7 @@ export class StickyManager {
   }
 
   /**
-   * Очистка ресурсов
+   * Очистка ресурсов с полной очисткой оптимизаций
    */
   destroy(): void {
     if (!this.isSSR) {
@@ -575,6 +817,18 @@ export class StickyManager {
     if (this.scrollTimeout) {
       clearTimeout(this.scrollTimeout);
     }
+
+    // Очищаем новые таймауты для оптимизаций
+    if (this.scrollEndTimeout) {
+      clearTimeout(this.scrollEndTimeout);
+    }
+
+    // Очищаем все debounce таймауты
+    this.stateDebounceTimeouts.forEach(timeout => clearTimeout(timeout));
+    this.stateDebounceTimeouts.clear();
+
+    // Очищаем кеши
+    this.clearCaches();
 
     this.elements.clear();
     this.groups.clear();
@@ -649,5 +903,22 @@ export class StickyManager {
     }
 
     return styles;
+  }
+
+  /**
+   * Кешированное получение DOMRect для оптимизации производительности
+   */
+  private getCachedRect(element: HTMLElement, elementId: string): DOMRect {
+    const cached = this.rectCache.get(elementId);
+    const now = performance.now();
+
+    if (cached && (now - cached.timestamp) < this.RECT_CACHE_TTL) {
+      return cached.rect;
+    }
+
+    const rect = element.getBoundingClientRect();
+    this.rectCache.set(elementId, { rect, timestamp: now });
+
+    return rect;
   }
 }

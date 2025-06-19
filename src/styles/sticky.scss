@@ -67,6 +67,54 @@
   }
 }
 
+// === ОПТИМИЗАЦИИ ПРОТИВ ДРОЖАНИЯ ===
+
+// Базовые оптимизации для всех sticky элементов
+.sticky-optimized {
+  // GPU ускорение
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+
+  // Сглаживание анимаций
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  // Оптимизация рендеринга
+  contain: layout style paint;
+
+  // Убираем дрожание на субпиксельных значениях
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+// Отключение transitions во время активного скролла
+.sticky-optimized.sticky-scrolling {
+  transition: none !important;
+  animation: none !important;
+}
+
+// Плавные переходы после окончания скролла
+.sticky-optimized.sticky-stable {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Для мобильных устройств - более агрессивная оптимизация
+@media (max-width: 768px) {
+  .sticky-optimized {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+// Respect пользовательских настроек анимаций
+@media (prefers-reduced-motion: reduce) {
+  .sticky-optimized {
+    transition: none !important;
+    animation: none !important;
+    will-change: auto;
+  }
+}
+
 // Responsive breakpoints
 @media (max-width: 768px) {
   .sticky-container {
