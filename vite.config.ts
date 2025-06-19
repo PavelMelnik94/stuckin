@@ -47,7 +47,7 @@ export default defineConfig(({ mode }) => {
           debug: resolve(__dirname, 'src/debug/index.ts')
         },
         formats: ['es', 'cjs'],
-        name: 'StickyLib'
+        name: 'stuckin'
       },
 
       rollupOptions: {
