@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from 'react';
 // import { observer } from 'mobx-react-lite'; // TODO: Add if needed
 import { responsiveManager, ResponsiveConfig } from '../utils/responsive';
 import { StickyConfig } from '../types/sticky.types';
+import { debugLogger } from '../debug/debugLogger';
 
 import { useSticky, UseStickyOptions } from './useSticky';
 
@@ -24,27 +25,46 @@ export const useResponsiveSticky = (options: UseResponsiveStickyOptions) => {
    * Подписка на изменения breakpoint
    */
   useEffect(() => {
+    debugLogger.debug('useResponsiveSticky', 'Setting up breakpoint subscription');
+
     const unsubscribe = responsiveManager.subscribe((breakpoint) => {
+      debugLogger.debug('useResponsiveSticky', 'Breakpoint changed', { breakpoint });
       setCurrentBreakpoint(breakpoint);
     });
 
-    return unsubscribe;
+    return () => {
+      debugLogger.debug('useResponsiveSticky', 'Cleaning up breakpoint subscription');
+      unsubscribe();
+    };
   }, []);
 
   /**
    * Получение конфигурации для текущего breakpoint
    */
   const responsiveConfig = useMemo(() => {
-    if (!currentBreakpoint) return options.fallback || {};
+    debugLogger.debug('useResponsiveSticky', 'Calculating responsive config', { currentBreakpoint });
+
+    if (!currentBreakpoint) {
+      debugLogger.debug('useResponsiveSticky', 'No breakpoint, using fallback config', { fallback: options.fallback });
+      return options.fallback || {};
+    }
 
     const breakpointConfig = responsiveManager.getConfigForBreakpoint(
       options.responsive as unknown as Record<string, unknown>
     );
 
-    return {
+    const mergedConfig = {
       ...options.fallback,
       ...(breakpointConfig || {})
     } as Partial<StickyConfig>;
+
+    debugLogger.debug('useResponsiveSticky', 'Applied responsive config', {
+      breakpointConfig,
+      mergedConfig,
+      currentBreakpoint
+    });
+
+    return mergedConfig;
   }, [currentBreakpoint, options.responsive, options.fallback]);
 
   /**

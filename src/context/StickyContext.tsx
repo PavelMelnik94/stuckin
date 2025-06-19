@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 
 import { StickyManager } from '../core/StickyManager';
 import { StickyContextValue } from '../types/sticky.types';
+import { debugLogger } from '../debug/debugLogger';
 
 /**
  * Context для управления sticky функциональностью
@@ -28,9 +29,18 @@ export const StickyProvider: React.FC<StickyProviderProps> = observer(({
   if (!managerRef.current) {
     managerRef.current = new StickyManager();
 
+    // 🔧 Логирование инициализации контекста
+    debugLogger.info('context', 'StickyProvider инициализирован', {
+      debug,
+      timestamp: Date.now()
+    });
+
     if (debug) {
       // Добавляем debug функционал
       (window as any).__STICKY_DEBUG__ = managerRef.current;
+      debugLogger.info('context', 'Debug режим активирован', {
+        globalObject: '__STICKY_DEBUG__'
+      });
     }
   }
 
@@ -39,6 +49,10 @@ export const StickyProvider: React.FC<StickyProviderProps> = observer(({
   // Очистка при размонтировании
   useEffect(() => {
     return () => {
+      debugLogger.info('context', 'StickyProvider размонтирован', {
+        totalElements: manager.elements.size,
+        totalGroups: manager.groups.size
+      });
       manager.destroy();
     };
   }, [manager]);

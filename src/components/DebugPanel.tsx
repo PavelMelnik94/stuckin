@@ -1,6 +1,5 @@
 /**
  * Визуальная панель отладки для sticky элементов
- * Принципы:
  * - Single Responsibility: только UI отладочной панели
  * - Interface Segregation: разделенные интерфейсы для разных частей
  * - Low Coupling: минимальная зависимость от StickyDebugger

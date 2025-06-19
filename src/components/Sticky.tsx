@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 
 import { useSticky, UseStickyOptions } from '../hooks/useSticky';
 import { StickyState } from '../types/sticky.types';
+import { debugLogger } from '../debug/debugLogger';
 
 export interface StickyProps extends UseStickyOptions {
   children: React.ReactNode;
@@ -67,6 +68,18 @@ export const Sticky = observer(forwardRef<StickyRef, StickyProps>(({
     `sticky-${state}`,
     isSticky && 'is-sticky'
   ].filter(Boolean).join(' ');
+
+  // 🔧 Логирование изменений состояния компонента
+  React.useEffect(() => {
+    if (stickyOptions.id && state) {
+      debugLogger.debug(stickyOptions.id, 'Компонент Sticky: изменение состояния', {
+        state,
+        isSticky,
+        isActive,
+        className: classes
+      });
+    }
+  }, [state, isSticky, isActive, stickyOptions.id, classes]);
 
   /**
    * Объединяем стили

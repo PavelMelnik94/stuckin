@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { ssrManager, SSRConfig } from '../utils/ssr';
+import { debugLogger } from '../debug/debugLogger';
 
 import { useSticky, UseStickyOptions } from './useSticky';
 
@@ -20,9 +21,19 @@ export const useSSRSticky = (options: UseSSRStickyOptions) => {
    * Ожидание готовности клиента
    */
   useEffect(() => {
+    debugLogger.debug('useSSRSticky', 'Initializing SSR hook', {
+      isSSR: ssrState.isSSR,
+      elementId: options.id
+    });
+
     if (ssrState.isSSR) return;
 
     const cleanup = ssrManager.onHydrated(() => {
+      debugLogger.debug('useSSRSticky', 'Client hydrated, enabling sticky functionality', {
+        elementId: options.id,
+        delay: options.ssr?.hydrationDelay || 100
+      });
+
       // Добавляем небольшую задержку для стабилизации layout
       setTimeout(() => {
         setIsClientReady(true);
@@ -30,7 +41,7 @@ export const useSSRSticky = (options: UseSSRStickyOptions) => {
     });
 
     return cleanup;
-  }, [ssrState.isSSR, options.ssr?.hydrationDelay]);
+  }, [ssrState.isSSR, options.ssr?.hydrationDelay, options.id]);
 
   /**
    * Отключаем sticky функциональность до hydration

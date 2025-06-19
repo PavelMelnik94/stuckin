@@ -3,6 +3,8 @@
  * Принцип SRP: отвечает только за сбор и анализ метрик производительности
  */
 
+import { debugLogger } from '../debug/debugLogger';
+
 export interface PerformanceMetrics {
   elementId: string;
   renderTime: number;
@@ -41,6 +43,7 @@ class PerformanceMonitor {
   enable(): void {
     if (process.env.NODE_ENV === 'development') {
       this.isEnabled = true;
+      debugLogger.info('performance-monitor', 'Performance monitoring enabled');
       this.startMemoryMonitoring();
     }
   }
@@ -49,6 +52,7 @@ class PerformanceMonitor {
    * Отключение мониторинга
    */
   disable(): void {
+    debugLogger.info('performance-monitor', 'Performance monitoring disabled');
     this.isEnabled = false;
     this.metrics.clear();
     this.observers.clear();
@@ -68,6 +72,10 @@ class PerformanceMonitor {
 
     // Предупреждение если рендер слишком медленный
     if (renderTime > this.thresholds.maxRenderTime) {
+      debugLogger.warning(elementId, `Slow render detected: ${renderTime.toFixed(2)}ms`, {
+        renderTime,
+        threshold: this.thresholds.maxRenderTime
+      });
       console.warn(
         `🐌 Медленный рендер sticky элемента "${elementId}": ${renderTime.toFixed(2)}мс`,
         '\nРекомендации:',
@@ -94,6 +102,10 @@ class PerformanceMonitor {
       this.updateMetric(elementId, { scrollResponsiveness });
 
       if (scrollResponsiveness > this.thresholds.maxScrollDelay) {
+        debugLogger.warning(elementId, `Slow scroll handling detected: ${scrollResponsiveness.toFixed(2)}ms`, {
+          scrollResponsiveness,
+          threshold: this.thresholds.maxScrollDelay
+        });
         console.warn(
           `🐌 Медленная обработка скролла для "${elementId}": ${scrollResponsiveness.toFixed(2)}мс`,
           '\nРекомендации:',

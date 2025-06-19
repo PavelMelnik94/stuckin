@@ -2,6 +2,7 @@ import { useEffect, useCallback, useMemo } from 'react';
 
 import { useStickyContext } from '../context/StickyContext';
 import { StickyElement } from '../types/sticky.types';
+import { debugLogger } from '../debug/debugLogger';
 
 export interface UseStickyGroupOptions {
   groupId: string;
@@ -32,6 +33,10 @@ export const useStickyGroup = (options: UseStickyGroupOptions): UseStickyGroupRe
    */
   useEffect(() => {
     if (autoCreate && !context.groups.has(groupId)) {
+      debugLogger.info(groupId, 'Автосоздание группы sticky элементов', {
+        priority: priority || 0,
+        autoCreate
+      });
       context.createGroup(groupId, priority);
     }
   }, [context, groupId, priority, autoCreate]);
@@ -57,12 +62,20 @@ export const useStickyGroup = (options: UseStickyGroupOptions): UseStickyGroupRe
    * Методы управления группой
    */
   const addElement = useCallback((elementId: string) => {
+    debugLogger.info(groupId, 'Добавление элемента в группу', {
+      elementId,
+      groupSize: elements.length
+    });
     context.addToGroup(elementId, groupId);
-  }, [context, groupId]);
+  }, [context, groupId, elements.length]);
 
   const removeElement = useCallback((elementId: string) => {
+    debugLogger.info(groupId, 'Удаление элемента из группы', {
+      elementId,
+      groupSize: elements.length
+    });
     context.removeFromGroup(elementId, groupId);
-  }, [context, groupId]);
+  }, [context, groupId, elements.length]);
 
   const refreshGroup = useCallback(() => {
     elements.forEach(_element => {

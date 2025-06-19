@@ -1,6 +1,7 @@
 import { makeObservable, observable, action, computed } from 'mobx';
 
 import type { StickyElement, StickyConfig, StickyGroup, StickyState, StickyDirection } from '../types/sticky.types';
+import { debugLogger } from '../debug/debugLogger';
 
 /**
  * Основной менеджер для управления sticky элементами
@@ -67,9 +68,15 @@ export class StickyManager {
   @action
   registerSticky(htmlElement: HTMLElement, config: StickyConfig): void {
     if (this.elements.has(config.id)) {
+      debugLogger.warning(config.id, 'Попытка регистрации уже существующего элемента', { config });
       console.warn(`Sticky element with id "${config.id}" already exists`);
       return;
     }
+
+    debugLogger.info(config.id, 'Начало регистрации sticky элемента', {
+      elementTag: htmlElement.tagName,
+      config
+    });
 
     const originalPosition = htmlElement.getBoundingClientRect();
     const zIndex = config.zIndex || this.getNextZIndex(config.priority);
@@ -89,6 +96,13 @@ export class StickyManager {
 
     this.elements.set(config.id, stickyElement);
 
+    // 🔧 Логирование успешной регистрации
+    debugLogger.registration(config.id, {
+      zIndex,
+      position: originalPosition,
+      totalElements: this.elements.size
+    });
+
     // Подключаем наблюдатели
     this.intersectionObserver?.observe(htmlElement);
     this.resizeObserver?.observe(htmlElement);
@@ -106,7 +120,15 @@ export class StickyManager {
   @action
   unregisterSticky(id: string): void {
     const element = this.elements.get(id);
-    if (!element) return;
+    if (!element) {
+      debugLogger.warning(id, 'Попытка удаления несуществующего элемента');
+      return;
+    }
+
+    debugLogger.info(id, 'Начало удаления sticky элемента', {
+      groupsCount: this.groups.size,
+      totalElements: this.elements.size
+    });
 
     // Отключаем наблюдатели
     this.intersectionObserver?.unobserve(element.element);
@@ -121,6 +143,9 @@ export class StickyManager {
     });
 
     this.elements.delete(id);
+
+    // 🔧 Логирование завершения удаления
+    debugLogger.unregistration(id, 'manual unregister');
   }
 
   /**

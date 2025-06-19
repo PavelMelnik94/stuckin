@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 
 import { useStickyGroup } from '../hooks/useStickyGroup';
 import { StickyElement } from '../types/sticky.types';
+import { debugLogger } from '../debug/debugLogger';
 
 export interface StickyContainerProps {
   children: React.ReactNode;
@@ -43,12 +44,28 @@ export const StickyContainer = observer(forwardRef<StickyContainerRef, StickyCon
     autoCreate: true
   });
 
+  // Initial setup logging
+  React.useEffect(() => {
+    debugLogger.info(groupId, 'StickyContainer initialized', {
+      priority,
+      elementsCount: elements.length
+    });
+
+    return () => {
+      debugLogger.info(groupId, 'StickyContainer unmounted');
+    };
+  }, [groupId, priority, elements.length]);
+
   /**
    * Уведомляем о изменениях в группе
    */
   React.useEffect(() => {
+    debugLogger.debug(groupId, 'Group elements changed', {
+      elementsCount: elements.length,
+      activeCount: activeElements.length
+    });
     onGroupChange?.(elements);
-  }, [elements, onGroupChange]);
+  }, [elements, onGroupChange, groupId, activeElements.length]);
 
   /**
    * Предоставляем API через ref

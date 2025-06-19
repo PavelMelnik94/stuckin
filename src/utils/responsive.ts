@@ -4,6 +4,7 @@
  */
 
 import type { StickyConfig } from '../types/sticky.types';
+import { debugLogger } from '../debug/debugLogger';
 
 export interface Breakpoint {
   name: string;
@@ -66,6 +67,7 @@ class ResponsiveManager {
    * Добавление нового breakpoint
    */
   addBreakpoint(name: string, breakpoint: Breakpoint): void {
+    debugLogger.debug('responsive-manager', 'Adding breakpoint', { name, breakpoint });
     this.breakpoints.set(name, { ...breakpoint, name });
 
     if (typeof window !== 'undefined') {
@@ -166,6 +168,10 @@ class ResponsiveManager {
     for (const [name] of sortedBreakpoints) {
       if (this.matches(name)) {
         if (this.currentBreakpoint !== name) {
+          debugLogger.debug('responsive-manager', 'Breakpoint changed', {
+            from: this.currentBreakpoint,
+            to: name
+          });
           this.currentBreakpoint = name;
           this.notifyObservers(name);
         }
@@ -175,6 +181,7 @@ class ResponsiveManager {
 
     // Fallback к mobile если ничего не подошло
     if (this.currentBreakpoint !== 'mobile') {
+      debugLogger.debug('responsive-manager', 'Fallback to mobile breakpoint');
       this.currentBreakpoint = 'mobile';
       this.notifyObservers('mobile');
     }
