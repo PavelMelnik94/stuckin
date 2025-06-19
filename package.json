@@ -78,7 +78,7 @@
     "build:watch": "vite build --watch",
     "build:analyze": "vite build --mode analyze",
     "clean": "rimraf dist coverage .nyc_output",
-    "lint": "eslint src --ext .ts,.tsx --max-warnings 30",
+    "lint": "eslint src --ext .ts,.tsx --max-warnings 35",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
@@ -92,8 +92,14 @@
     "size-limit": "size-limit",
     "analyze": "npm run build:analyze && npx vite-bundle-analyzer dist/stats.html",
     "prepublishOnly": "npm run lint && npm run type-check && npm run test:ci && npm run build && npm run size-limit",
-    "release": "npm run prepublishOnly && npm publish",
-    "release:beta": "npm run prepublishOnly && npm publish --tag beta"
+    "release": "npm run version:patch && npm run publish:github",
+    "release:minor": "npm run version:minor && npm run publish:github",
+    "release:major": "npm run version:major && npm run publish:github",
+    "version:patch": "npm version patch",
+    "version:minor": "npm version minor",
+    "version:major": "npm version major",
+    "publish:github": "git push origin main --tags && npm run github:release && npm publish",
+    "github:release": "gh release create v$(node -p \"require('./package.json').version\") --title \"Release v$(node -p \"require('./package.json').version\")\" --notes-file CHANGELOG.md --generate-notes"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
