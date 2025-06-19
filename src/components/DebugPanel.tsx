@@ -316,7 +316,7 @@ interface PerformanceTabProps {
 
 const PerformanceTab: React.FC<PerformanceTabProps> = React.memo(({ analysis }) => (
   <div>
-    {analysis.summary ? (
+    {analysis?.summary ? (
       <>
         <div style={{ marginBottom: '8px' }}>
           <strong>📊 Сводка:</strong>
@@ -339,7 +339,7 @@ const PerformanceTab: React.FC<PerformanceTabProps> = React.memo(({ analysis }) 
       </>
     ) : (
       <div style={{ opacity: 0.5, textAlign: 'center', padding: '20px' }}>
-        {analysis.summary}
+        Нет данных для анализа производительности
       </div>
     )}
   </div>
