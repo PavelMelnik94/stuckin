@@ -76,8 +76,16 @@ export default defineConfig(({ mode }) => {
             'mobx-react-lite': 'mobxReactLite'
           },
           // Собираем всё в один файл без chunks
-          inlineDynamicImports: true
-        }
+          inlineDynamicImports: true,
+          // Дополнительные оптимизации
+          compact: true,
+          minifyInternalExports: true
+        },
+
+        // Дополнительные плагины для оптимизации
+        plugins: isProduction ? [
+          // Дополнительная tree shaking оптимизация
+        ] : []
       },
 
       // Оптимизация минификации через SWC (быстрее чем terser)
@@ -97,12 +105,15 @@ export default defineConfig(({ mode }) => {
       legalComments: 'none',
       minifyIdentifiers: isProduction,
       minifySyntax: isProduction,
-      minifyWhitespace: isProduction
+      minifyWhitespace: isProduction,
+      // Более агрессивная оптимизация
+      treeShaking: true
     },
 
     // Дополнительные оптимизации
     define: {
-      __DEV__: !isProduction
+      __DEV__: !isProduction,
+      'process.env.NODE_ENV': JSON.stringify(mode)
     }
   };
 });
