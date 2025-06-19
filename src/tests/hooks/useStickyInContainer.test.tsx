@@ -146,9 +146,7 @@ describe('useStickyInContainer', () => {
         expect(result.current.state).toBe('normal');
       });
     });
-  });
-
-  describe('интеграция с компонентом', () => {
+  });  describe('интеграция с компонентом', () => {
     it('должен работать в реальном компоненте', () => {
       function TestComponent() {
         const { ref, isSticky, state } = useStickyInContainer({

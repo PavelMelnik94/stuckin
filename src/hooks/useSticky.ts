@@ -63,7 +63,8 @@ export const useSticky = (options: UseStickyOptions): UseStickyReturn => {
       ...baseConfig,
       ...(options.boundary !== undefined && { boundary: options.boundary }),
       ...(options.zIndex !== undefined && { zIndex: options.zIndex }),
-      ...(options.breakpoints !== undefined && { breakpoints: options.breakpoints })
+      ...(options.breakpoints !== undefined && { breakpoints: options.breakpoints }),
+      ...(options.scrollContainer !== undefined && { scrollContainer: options.scrollContainer })
     };
 
     // 🔧 Логирование создания конфигурации
@@ -71,7 +72,8 @@ export const useSticky = (options: UseStickyOptions): UseStickyReturn => {
       config: configWithOptionals,
       hasOptionalBoundary: options.boundary !== undefined,
       hasOptionalZIndex: options.zIndex !== undefined,
-      hasOptionalBreakpoints: options.breakpoints !== undefined
+      hasOptionalBreakpoints: options.breakpoints !== undefined,
+      hasScrollContainer: options.scrollContainer !== undefined
     });
 
     return configWithOptionals;
@@ -84,7 +86,8 @@ export const useSticky = (options: UseStickyOptions): UseStickyReturn => {
     options.zIndex,
     options.enabled,
     options.smooth,
-    options.breakpoints
+    options.breakpoints,
+    options.scrollContainer
   ]);
 
   /**

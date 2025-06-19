@@ -163,7 +163,6 @@ describe('StickyContainer', () => {
             <div>Test Content</div>
           </StickyContainer>
         );
-      }).not.toThrow();
-    });
+      }).not.toThrow();    });
   });
 });

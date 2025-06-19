@@ -8,7 +8,40 @@ import ResizeObserver from 'resize-observer-polyfill';
 
 // Мок для Element.prototype.getBoundingClientRect
 Element.prototype.getBoundingClientRect = jest.fn(function(this: Element) {
-  // Возвращаем позицию ниже триггера sticky для корректных тестов
+  // Более реалистичный мок для разных типов элементов
+  const className = this.className || '';
+
+  // Особая логика для тестового контейнера
+  if (className.includes('test-container')) {
+    return {
+      width: 100,
+      height: 300, // Реальная высота контейнера из CSS
+      top: 0,      // Контейнер начинается с top: 0
+      left: 0,
+      bottom: 300,
+      right: 100,
+      x: 0,
+      y: 0,
+      toJSON: jest.fn()
+    } as DOMRect;
+  }
+
+  // Для sticky элементов внутри контейнера
+  if (this.getAttribute?.('data-testid') === 'sticky-element') {
+    return {
+      width: 100,
+      height: 50,
+      top: 200, // Элемент после content-before (200px)
+      left: 0,
+      bottom: 250,
+      right: 100,
+      x: 0,
+      y: 200,
+      toJSON: jest.fn()
+    } as DOMRect;
+  }
+
+  // Дефолтные значения для других элементов
   return {
     width: 100,
     height: 50,
