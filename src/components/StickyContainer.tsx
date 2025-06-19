@@ -2,10 +2,10 @@ import React, { forwardRef, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
 
 import type { StickyState } from '@/types/sticky.types';
-import { useStickyInContainer, type UseStickyInContainerOptions } from '@/hooks/useStickyInContainer';
+import { useStickyInContainer, type UseStickyContainerOptions } from '@/hooks/useStickyInContainer';
 import { debugLogger } from '@/debug/debugLogger';
 
-export interface StickyContainerProps extends UseStickyInContainerOptions {
+export interface StickyContainerProps extends UseStickyContainerOptions {
   children: React.ReactNode;
   className?: string;
   activeClassName?: string;
@@ -81,7 +81,7 @@ export const StickyContainer = observer(forwardRef<StickyContainerRef, StickyCon
   // 🔧 Отладочное логирование состояния
   React.useEffect(() => {
     if (stickyOptions['id']) {
-      debugLogger.debug(stickyOptions['id'], 'StickyContainer state change', {
+      debugLogger.debug(stickyOptions['id'], 'StickyGroup state change', {
         state,
         isSticky,
         isActive,

@@ -8,7 +8,7 @@ import { useSticky } from './useSticky';
 
 import type { UseStickyOptions, UseStickyReturn, StickyScrollContainer } from '@/types/sticky.types';
 
-export interface UseStickyInContainerOptions extends Omit<UseStickyOptions, 'scrollContainer'> {
+export interface UseStickyContainerOptions extends Omit<UseStickyOptions, 'scrollContainer'> {
   /** Элемент-контейнер с прокруткой или селектор */
   container: HTMLElement | string | null;
   /** Отступы от границ контейнера */
@@ -49,7 +49,7 @@ export interface UseStickyInContainerOptions extends Omit<UseStickyOptions, 'scr
  * }
  * ```
  */
-export const useStickyInContainer = (options: UseStickyInContainerOptions): UseStickyReturn => {
+export const useStickyInContainer = (options: UseStickyContainerOptions): UseStickyReturn => {
   // Находим элемент контейнера
   const resolvedContainer = useMemo(() => {
     if (!options.container) return null;
@@ -91,22 +91,22 @@ export const useStickyInContainer = (options: UseStickyInContainerOptions): UseS
 /**
  * Хук для создания нескольких sticky элементов в одном контейнере
  */
-export interface UseStickyContainerGroupOptions {
+export interface UseStickyGroupGroupOptions {
   /** Элемент-контейнер с прокруткой */
   container: HTMLElement | string | null;
   /** ID группы для элементов */
   groupId: string;
   /** Базовые настройки для всех элементов */
-  baseOptions?: Partial<UseStickyInContainerOptions>;
+  baseOptions?: Partial<UseStickyContainerOptions>;
 }
 
-export const useStickyContainerGroup = (options: UseStickyContainerGroupOptions) => {
+export const useStickyGroupGroup = (options: UseStickyGroupGroupOptions) => {
   const { container, groupId, baseOptions = {} } = options;
 
   /**
    * Создает sticky элемент с привязкой к группе и контейнеру
    */
-  const createStickyElement = (elementOptions: UseStickyInContainerOptions) => {
+  const createStickyElement = (elementOptions: UseStickyContainerOptions) => {
     return useStickyInContainer({
       ...baseOptions,
       ...elementOptions,

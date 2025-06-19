@@ -6,8 +6,8 @@
 
 // Основные компоненты
 export { Sticky } from './Sticky';
-export { StickyGroup } from './StickyGroup';
 export { StickyContainer } from './StickyContainer';
+export { StickyGroup } from './StickyGroup';
 export { DebugPanel } from './DebugPanel';
 
 // Экспортируем типы компонентов
@@ -17,11 +17,11 @@ export type {
 } from '../types/sticky.types';
 
 export type {
-  StickyGroupProps,
-  StickyGroupRef
-} from './StickyGroup';
-
-export type {
   StickyContainerProps,
   StickyContainerRef
 } from './StickyContainer';
+
+export type {
+  StickyGroupProps,
+  StickyGroupRef
+} from './StickyGroup';

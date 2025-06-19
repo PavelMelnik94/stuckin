@@ -4,7 +4,7 @@
  */
 
 // Основные компоненты
-export { Sticky, StickyGroup, StickyContainer, DebugPanel } from './components';
+export { Sticky, StickyContainer, StickyGroup, DebugPanel } from './components';
 
 // Хуки
 export {
@@ -15,11 +15,11 @@ export {
   useSSRSticky,
   useDebugSticky,
   useStickyInContainer,
-  useStickyContainerGroup
+  useStickyGroupGroup
 } from './hooks';
 
 // Дополнительные типы для контейнеров
-export type { UseStickyInContainerOptions } from './hooks/useStickyInContainer';
+export type { UseStickyContainerOptions } from './hooks/useStickyInContainer';
 export type { StickyContainerProps, StickyContainerRef } from './components/StickyContainer';
 export type { StickyGroupProps, StickyGroupRef } from './components/StickyGroup';
 

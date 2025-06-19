@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 
-import { StickyContainer, type StickyContainerRef } from '../../components/StickyContainer';
+import { StickyGroup, type StickyGroupRef } from '../../components/StickyGroup';
 import { renderWithProvider } from '../utils/testUtils';
 
-describe('StickyContainer', () => {
+describe('StickyGroup', () => {
   let mockContainer: HTMLElement;
 
   beforeEach(() => {
@@ -26,14 +26,14 @@ describe('StickyContainer', () => {
     it('должен рендерить дочерние элементы', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
             id="test-basic"
           >
             <div data-testid="sticky-content">Sticky Content</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -44,7 +44,7 @@ describe('StickyContainer', () => {
     it('должен применять переданный className', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -52,7 +52,7 @@ describe('StickyContainer', () => {
             className="custom-sticky-class"
           >
             <div>Content</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -65,7 +65,7 @@ describe('StickyContainer', () => {
 
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -73,7 +73,7 @@ describe('StickyContainer', () => {
             style={customStyle}
           >
             <div>Styled Content</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -85,14 +85,14 @@ describe('StickyContainer', () => {
     it('должен устанавливать data-атрибуты', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
             id="test-data-attrs"
           >
             <div>Content</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -106,14 +106,14 @@ describe('StickyContainer', () => {
     it('должен работать с селектором контейнера', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
             id="test-selector"
           >
             <div>Selector Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -123,14 +123,14 @@ describe('StickyContainer', () => {
     it('должен работать с HTMLElement контейнером', () => {
       renderWithProvider(
         <div>
-          <StickyContainer
+          <StickyGroup
             container={mockContainer}
             direction="top"
             offset={{ top: 10 }}
             id="test-element"
           >
             <div>Element Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -140,7 +140,7 @@ describe('StickyContainer', () => {
     it('должен поддерживать containerOffset', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -148,7 +148,7 @@ describe('StickyContainer', () => {
             id="test-container-offset"
           >
             <div>Offset Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -168,14 +168,14 @@ describe('StickyContainer', () => {
       it(`должен поддерживать направление ${direction}`, () => {
         renderWithProvider(
           <div className="test-scroll-container">
-            <StickyContainer
+            <StickyGroup
               container=".test-scroll-container"
               direction={direction}
               offset={offset}
               id={`test-direction-${direction}`}
             >
               <div>{direction} Direction</div>
-            </StickyContainer>
+            </StickyGroup>
           </div>
         );
 
@@ -188,7 +188,7 @@ describe('StickyContainer', () => {
     it('должен изменять классы при изменении activeClassName', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -196,7 +196,7 @@ describe('StickyContainer', () => {
             activeClassName="is-sticky-active"
           >
             <div>Active Class Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -211,7 +211,7 @@ describe('StickyContainer', () => {
 
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -219,7 +219,7 @@ describe('StickyContainer', () => {
             activeStyle={activeStyle}
           >
             <div>Active Style Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -231,7 +231,7 @@ describe('StickyContainer', () => {
     it('должен использовать кастомный тег', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -239,7 +239,7 @@ describe('StickyContainer', () => {
             tag="section"
           >
             <div>Custom Tag Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -250,14 +250,14 @@ describe('StickyContainer', () => {
     it('должен использовать div по умолчанию', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
             id="test-default-tag"
           >
             <div>Default Tag Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -268,11 +268,11 @@ describe('StickyContainer', () => {
 
   describe('ref функциональность', () => {
     it('должен предоставлять API через ref', () => {
-      const ref = React.createRef<StickyContainerRef>();
+      const ref = React.createRef<StickyGroupRef>();
 
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -280,7 +280,7 @@ describe('StickyContainer', () => {
             ref={ref}
           >
             <div>Ref Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -294,11 +294,11 @@ describe('StickyContainer', () => {
     });
 
     it('должен обновлять состояние через ref методы', () => {
-      const ref = React.createRef<StickyContainerRef>();
+      const ref = React.createRef<StickyGroupRef>();
 
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -306,7 +306,7 @@ describe('StickyContainer', () => {
             ref={ref}
           >
             <div>Ref Methods Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -325,7 +325,7 @@ describe('StickyContainer', () => {
     it('должен работать с группами через groupId', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -334,8 +334,8 @@ describe('StickyContainer', () => {
             priority={10}
           >
             <div>Group Test 1</div>
-          </StickyContainer>
-          <StickyContainer
+          </StickyGroup>
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 50 }}
@@ -344,7 +344,7 @@ describe('StickyContainer', () => {
             priority={8}
           >
             <div>Group Test 2</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -357,14 +357,14 @@ describe('StickyContainer', () => {
     it('должен корректно обрабатывать отсутствие children', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
             id="test-no-children"
           >
             <div>Test children</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -375,7 +375,7 @@ describe('StickyContainer', () => {
     it('должен работать с null/undefined в children', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -384,7 +384,7 @@ describe('StickyContainer', () => {
             {null}
             {undefined}
             <div>Valid Child</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -394,14 +394,14 @@ describe('StickyContainer', () => {
     it('должен работать с несуществующим контейнером', () => {
       renderWithProvider(
         <div>
-          <StickyContainer
+          <StickyGroup
             container=".non-existent-container"
             direction="top"
             offset={{ top: 10 }}
             id="test-no-container"
           >
             <div>No Container Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -415,7 +415,7 @@ describe('StickyContainer', () => {
 
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -423,7 +423,7 @@ describe('StickyContainer', () => {
             onStateChange={onStateChange}
           >
             <div>Callback Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -436,7 +436,7 @@ describe('StickyContainer', () => {
     it('должен поддерживать ARIA атрибуты', () => {
       renderWithProvider(
         <div className="test-scroll-container">
-          <StickyContainer
+          <StickyGroup
             container=".test-scroll-container"
             direction="top"
             offset={{ top: 10 }}
@@ -445,7 +445,7 @@ describe('StickyContainer', () => {
             <div role="banner" aria-label="Sticky Header">
               Accessible Content
             </div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -459,14 +459,14 @@ describe('StickyContainer', () => {
     it('должен обрабатывать null контейнер', () => {
       renderWithProvider(
         <div>
-          <StickyContainer
+          <StickyGroup
             container={null}
             direction="top"
             offset={{ top: 10 }}
             id="test-null-container"
           >
             <div>Null Container Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -476,14 +476,14 @@ describe('StickyContainer', () => {
     it('должен обрабатывать пустую строку как контейнер', () => {
       renderWithProvider(
         <div>
-          <StickyContainer
+          <StickyGroup
             container=""
             direction="top"
             offset={{ top: 10 }}
             id="test-empty-container"
           >
             <div>Empty Container Test</div>
-          </StickyContainer>
+          </StickyGroup>
         </div>
       );
 
@@ -497,14 +497,14 @@ describe('StickyContainer', () => {
       expect(() => {
         render(
           <div className="test-scroll-container">
-            <StickyContainer
+            <StickyGroup
               container=".test-scroll-container"
               direction="top"
               offset={{ top: 10 }}
               id="test-no-provider"
             >
               <div>No Provider Test</div>
-            </StickyContainer>
+            </StickyGroup>
           </div>
         );
       }).toThrow('useStickyContext must be used within StickyProvider');

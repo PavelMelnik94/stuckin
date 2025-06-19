@@ -53,7 +53,7 @@ export const StickyGroup = observer(forwardRef<StickyGroupRef, StickyGroupProps>
     });
 
     return () => {
-      debugLogger.info(groupId, 'StickyContainer unmounted');
+      debugLogger.info(groupId, 'StickyGroup unmounted');
     };
   }, [groupId, priority, elements.length]);
 

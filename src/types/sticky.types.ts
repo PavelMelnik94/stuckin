@@ -263,9 +263,9 @@ export interface StickyRef {
 }
 
 /**
- * Props для StickyContainer компонента
+ * Props для StickyGroup компонента
  */
-export interface StickyContainerProps {
+export interface StickyGroupProps {
   children: React.ReactNode;
   groupId: string;
   priority?: number;
@@ -275,9 +275,9 @@ export interface StickyContainerProps {
 }
 
 /**
- * Ref для StickyContainer компонента
+ * Ref для StickyGroup компонента
  */
-export interface StickyContainerRef {
+export interface StickyGroupRef {
   elements: StickyElement[];
   activeElements: StickyElement[];
   totalHeight: number;

@@ -4,7 +4,7 @@ import {useStickyObserver} from './useStickyObserver'
 import {useResponsiveSticky} from './useResponsiveSticky'
 import {useSSRSticky} from './useSSRSticky'
 import {useDebugSticky} from './useDebugSticky'
-import {useStickyInContainer, useStickyContainerGroup} from './useStickyInContainer'
+import {useStickyInContainer, useStickyGroupGroup} from './useStickyInContainer'
 
 export {
   useSticky,
@@ -14,5 +14,5 @@ export {
   useSSRSticky,
   useDebugSticky,
   useStickyInContainer,
-  useStickyContainerGroup
+  useStickyGroupGroup
 }
