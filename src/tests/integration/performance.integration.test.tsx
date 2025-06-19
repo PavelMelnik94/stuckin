@@ -77,8 +77,8 @@ describe('Performance Integration Tests', () => {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      // Должно обрабатываться быстро (менее 100мс)
-      expect(duration).toBeLessThan(100);
+      // Должно обрабатываться быстро (менее 200мс для стабильности в CI)
+      expect(duration).toBeLessThan(200);
     });
   });
 

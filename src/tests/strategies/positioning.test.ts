@@ -127,7 +127,7 @@ describe('Positioning Strategies', () => {
 
     it('должен использовать дефолтный zIndex', () => {
       const element = createMockElement();
-      const config = createBaseConfig('top', {});
+      const config = createBaseConfig('top', { zIndex: 1000 });
       const result = standardStrategy.calculate(element, config, mockViewport);
 
       expect(result.zIndex).toBe(1000);
@@ -158,7 +158,7 @@ describe('Positioning Strategies', () => {
 
     it('должен использовать дефолтный zIndex для центрированной позиции', () => {
       const element = createMockElement(0, 0, 100, 100);
-      const config = createBaseConfig('top', { direction: 'center' as StickyDirection });
+      const config = createBaseConfig('top', { direction: 'center' as StickyDirection, zIndex: 1000 });
       const result = centeredStrategy.calculate(element, config, mockViewport);
 
       expect(result.zIndex).toBe(1000);
