@@ -1,6 +1,5 @@
 /**
  * Утилиты для работы с environment переменными
- * Принципы:
  * - Single Responsibility: только env логика
  * - Pure Functions: без побочных эффектов
  * - Type Safety: строгая типизация
@@ -79,7 +78,7 @@ export const envLog = {
   /**
    * Логирование только в development
    */
-  dev: (...args: any[]): void => {
+  dev: (...args: unknown[]): void => {
     if (ENV.isDevelopment) {
       console.log('[DEV]', ...args);
     }
@@ -88,7 +87,7 @@ export const envLog = {
   /**
    * Предупреждения во всех окружениях кроме production
    */
-  warn: (...args: any[]): void => {
+  warn: (...args: unknown[]): void => {
     if (!ENV.isProduction) {
       console.warn('[WARN]', ...args);
     }
@@ -97,14 +96,14 @@ export const envLog = {
   /**
    * Ошибки во всех окружениях
    */
-  error: (...args: any[]): void => {
+  error: (...args: unknown[]): void => {
     console.error('[ERROR]', ...args);
   },
 
   /**
    * Performance логи только если включено
    */
-  performance: (...args: any[]): void => {
+  performance: (...args: unknown[]): void => {
     if (ENV.enablePerformanceTracking) {
       console.log('[PERF]', ...args);
     }

@@ -1,6 +1,5 @@
 /**
  * Основной хук для работы со sticky элементами
- * Принципы:
  * - SRP: отвечает только за управление одним sticky элементом
  * - Information Expert: знает о своем lifecycle
  * - Low Coupling: минимальная зависимость от контекста
@@ -8,14 +7,14 @@
 
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 
-import { useStickyContext } from '../context/StickyContext';
-import { debugLogger } from '../debug/debugLogger';
-import { UseStickyOptions, UseStickyReturn, StickyConfig } from '../types/sticky.types';
 
 // Реэкспорт типов для удобства
-export type { UseStickyOptions, UseStickyReturn } from '../types/sticky.types';
+export type { UseStickyOptions, UseStickyReturn } from '@/types/sticky.types';
 
 import { generateId } from '@/utils/id';
+import type { StickyConfig, UseStickyOptions, UseStickyReturn } from '@/types/sticky.types';
+import { useStickyContext } from '@/context/StickyContext';
+import { debugLogger } from '@/debug/debugLogger';
 
 // Используем интерфейсы из общих типов
 

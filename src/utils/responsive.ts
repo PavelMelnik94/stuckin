@@ -3,8 +3,8 @@
  * Принцип Open/Closed: легко расширяется новыми breakpoints
  */
 
-import type { StickyConfig } from '../types/sticky.types';
-import { debugLogger } from '../debug/debugLogger';
+import type { StickyConfig } from '@/types/sticky.types';
+import { debugLogger } from '@/debug/debugLogger';
 
 export interface Breakpoint {
   name: string;

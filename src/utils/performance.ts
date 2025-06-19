@@ -3,7 +3,7 @@
  * Принцип SRP: отвечает только за сбор и анализ метрик производительности
  */
 
-import { debugLogger } from '../debug/debugLogger';
+import { debugLogger } from '@/debug/debugLogger';
 
 export interface PerformanceMetrics {
   elementId: string;
@@ -152,7 +152,7 @@ class PerformanceMonitor {
    * Мониторинг использования памяти
    */
   private startMemoryMonitoring(): void {
-    const memory = (performance as any).memory;
+    const memory = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
     if (!memory) return;
 
     setInterval(() => {

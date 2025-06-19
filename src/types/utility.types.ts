@@ -47,14 +47,14 @@ export type NonNullable<T> = T extends null | undefined ? never : T;
 /**
  * Тип для callback функций с типизированными параметрами
  */
-export type Callback<TArgs extends any[] = [], TReturn = void> = (
+export type Callback<TArgs extends unknown[] = [], TReturn = void> = (
   ...args: TArgs
 ) => TReturn;
 
 /**
  * Тип для async callback функций
  */
-export type AsyncCallback<TArgs extends any[] = [], TReturn = void> = (
+export type AsyncCallback<TArgs extends unknown[] = [], TReturn = void> = (
   ...args: TArgs
 ) => Promise<TReturn>;
 
@@ -75,7 +75,7 @@ export type StateUpdater<T> = (prevState: T) => T;
  */
 export type ExtendedHTMLElement<T extends HTMLElement = HTMLElement> = T & {
   __stickyId?: string;
-  __stickyConfig?: any;
+  __stickyConfig?: unknown;
 };
 
 /**
@@ -133,7 +133,7 @@ export interface MemoryInfo {
  */
 export interface StickyError extends Error {
   code: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
 }
 
 /**

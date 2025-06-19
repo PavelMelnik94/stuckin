@@ -57,7 +57,7 @@ class SSRManager {
         this.hydrationCallbacks.add(() => {
           resolve(callback());
         });
-      }) as any;
+      }) as T;
     }
 
     return callback();

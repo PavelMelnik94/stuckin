@@ -1,9 +1,10 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
 
-import { useSticky, UseStickyOptions } from '../hooks/useSticky';
-import { StickyState } from '../types/sticky.types';
-import { debugLogger } from '../debug/debugLogger';
+import type { StickyState, UseStickyOptions } from '@/types/sticky.types';
+import { useSticky } from '@/hooks';
+import { debugLogger } from '@/debug/debugLogger';
+
 
 export interface StickyProps extends UseStickyOptions {
   children: React.ReactNode;
@@ -89,7 +90,7 @@ export const Sticky = observer(forwardRef<StickyRef, StickyProps>(({
     ...(isActive && activeStyle)
   };
 
-  const Element = Tag as any;
+  const Element = Tag as React.ElementType;
 
   return (
     <Element

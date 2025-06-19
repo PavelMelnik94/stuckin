@@ -3,7 +3,7 @@
  * Принцип Strategy Pattern: различные алгоритмы позиционирования
  */
 
-import type { StickyConfig } from '../types/sticky.types';
+import type { StickyConfig } from '@/types/sticky.types';
 
 export interface PositionStrategy {
   name: string;

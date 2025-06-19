@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import { ssrManager, SSRConfig } from '../utils/ssr';
-import { debugLogger } from '../debug/debugLogger';
 
 import { useSticky, UseStickyOptions } from './useSticky';
+
+import type { SSRConfig } from '@/types/sticky.types';
+import { ssrManager } from '@/utils/ssr';
+import { debugLogger } from '@/debug/debugLogger';
 
 export interface UseSSRStickyOptions extends UseStickyOptions {
   ssr?: SSRConfig;

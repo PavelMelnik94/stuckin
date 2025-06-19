@@ -1,6 +1,5 @@
 /**
  * Система отладки для sticky библиотеки
- * Принципы:
  * - SRP: отвечает только за debugging функциональность
  * - Information Expert: управляет собственными данными
  * - Encapsulation: контролируемый доступ через геттеры
@@ -9,8 +8,9 @@
 
 import { makeObservable, observable, action, computed } from 'mobx';
 
-import { performanceMonitor } from '../utils/performance';
-import { ENV, envLog } from '../utils/env';
+import { ENV, envLog } from '@/utils/env';
+import { performanceMonitor } from '@/utils/performance';
+
 
 // === СТРОГО ТИПИЗИРОВАННЫЕ ИНТЕРФЕЙСЫ ===
 

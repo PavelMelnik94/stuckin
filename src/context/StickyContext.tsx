@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useRef, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 
-import { StickyManager } from '../core/StickyManager';
-import { StickyContextValue } from '../types/sticky.types';
-import { debugLogger } from '../debug/debugLogger';
+import type { StickyContextValue } from '@/types/sticky.types';
+import { StickyManager } from '@/core/StickyManager';
+import { debugLogger } from '@/debug/debugLogger';
+
 
 /**
  * Context для управления sticky функциональностью
@@ -37,7 +38,7 @@ export const StickyProvider: React.FC<StickyProviderProps> = observer(({
 
     if (debug) {
       // Добавляем debug функционал
-      (window as any).__STICKY_DEBUG__ = managerRef.current;
+      (window as unknown as { __STICKY_DEBUG__: StickyManager }).__STICKY_DEBUG__ = managerRef.current;
       debugLogger.info('context', 'Debug режим активирован', {
         globalObject: '__STICKY_DEBUG__'
       });

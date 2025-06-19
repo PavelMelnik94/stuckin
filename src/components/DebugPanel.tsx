@@ -8,8 +8,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 
-import { stickyDebugger } from '../debug/StickyDebugger';
-import { ENV } from '../utils/env';
+
+import { ENV } from '@/utils/env';
+import { stickyDebugger } from '@/debug/StickyDebugger';
 
 interface DebugPanelProps {
   position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';

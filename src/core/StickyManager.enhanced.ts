@@ -5,11 +5,13 @@
 
 import { action } from 'mobx';
 
-import type { StickyConfig } from '../types/sticky.types';
-import { stickyDebugger } from '../debug/StickyDebugger';
-import { performanceMonitor } from '../utils/performance';
+
 
 import { StickyManager } from './StickyManager';
+
+import type { StickyConfig } from '@/types/sticky.types';
+import { performanceMonitor } from '@/utils/performance';
+import { stickyDebugger } from '@/debug/StickyDebugger';
 
 /**
  * Расширенный StickyManager с отладочными возможностями

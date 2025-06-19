@@ -1,7 +1,8 @@
 import { makeObservable, observable, action, computed } from 'mobx';
 
-import type { StickyElement, StickyConfig, StickyGroup, StickyState, StickyDirection } from '../types/sticky.types';
-import { debugLogger } from '../debug/debugLogger';
+import { debugLogger } from '@/debug/debugLogger';
+import type { StickyConfig, StickyDirection, StickyElement, StickyGroup, StickyState, StickyBoundary } from '@/types/sticky.types';
+
 
 /**
  * Основной менеджер для управления sticky элементами
@@ -360,7 +361,7 @@ export class StickyManager {
     return Array.from(this.elements.values()).find(el => el.element === node);
   }
 
-  private isOutsideBoundary(_element: StickyElement, _boundary: any): boolean {
+  private isOutsideBoundary(_element: StickyElement, _boundary: StickyBoundary): boolean {
     // Логика проверки границ
     // Реализация зависит от типа boundary
     return false;

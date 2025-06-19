@@ -158,10 +158,10 @@ export interface UseDebugStickyOptions extends UseStickyOptions {
  */
 export interface UseDebugStickyReturn extends UseStickyReturn {
   debugRender: <T>(fn: () => T) => T;
-  captureSnapshot: (label?: string) => any;
-  logDebug: (message: string, data?: any) => void;
+  captureSnapshot: (label?: string) => unknown;
+  logDebug: (message: string, data?: unknown) => void;
   debugLabel: string;
-  debugHistory: any[];
+  debugHistory: unknown[];
 }
 
 // === RESPONSIVE ТИПЫ ===

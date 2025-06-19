@@ -1,8 +1,8 @@
 import { useEffect, useCallback, useMemo } from 'react';
 
-import { useStickyContext } from '../context/StickyContext';
-import { StickyElement } from '../types/sticky.types';
-import { debugLogger } from '../debug/debugLogger';
+import { useStickyContext } from '@/context/StickyContext';
+import { StickyElement } from '@/types/sticky.types';
+import { debugLogger } from '@/debug/debugLogger';
 
 export interface UseStickyGroupOptions {
   groupId: string;
