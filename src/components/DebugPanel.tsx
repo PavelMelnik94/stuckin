@@ -8,9 +8,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 
-
 import { ENV } from '@/utils/env';
-import { stickyDebugger } from '@/debug/StickyDebugger';
+import { stickyDebugger, type DebugEvent, type PerformanceAnalysis } from '@/debug/StickyDebugger';
 
 interface DebugPanelProps {
   position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
@@ -251,7 +250,7 @@ const DebugPanelTabs: React.FC<DebugPanelTabsProps> = React.memo(({
  * Принцип Pure Component: только отображение данных
  */
 interface EventsTabProps {
-  events: readonly any[];
+  events: readonly DebugEvent[];
 }
 
 const EventsTab: React.FC<EventsTabProps> = React.memo(({ events }) => (
@@ -281,7 +280,7 @@ const EventsTab: React.FC<EventsTabProps> = React.memo(({ events }) => (
  * Принцип: композиция мелких компонентов
  */
 interface EventItemProps {
-  event: any;
+  event: DebugEvent;
   isLatest: boolean;
 }
 
@@ -311,7 +310,7 @@ const EventItem: React.FC<EventItemProps> = React.memo(({ event, isLatest }) => 
  * Таб с производительностью
  */
 interface PerformanceTabProps {
-  analysis: any;
+  analysis: PerformanceAnalysis;
 }
 
 const PerformanceTab: React.FC<PerformanceTabProps> = React.memo(({ analysis }) => (
@@ -329,11 +328,11 @@ const PerformanceTab: React.FC<PerformanceTabProps> = React.memo(({ analysis }) 
           <div>Медленных: {analysis.summary.slowElementsCount}</div>
         </div>
 
-        {analysis.slowElements?.length > 0 && (
+        {analysis.slowElements && analysis.slowElements.length > 0 && (
           <SlowElementsList elements={analysis.slowElements} />
         )}
 
-        {analysis.recommendations?.length > 0 && (
+        {analysis.recommendations && analysis.recommendations.length > 0 && (
           <RecommendationsList recommendations={analysis.recommendations} />
         )}
       </>
@@ -349,7 +348,11 @@ const PerformanceTab: React.FC<PerformanceTabProps> = React.memo(({ analysis }) 
  * Список медленных элементов
  */
 interface SlowElementsListProps {
-  elements: any[];
+  elements: Array<{
+    id: string;
+    renderTime: number;
+    recomputations: number;
+  }>;
 }
 
 const SlowElementsList: React.FC<SlowElementsListProps> = React.memo(({ elements }) => (
@@ -357,7 +360,7 @@ const SlowElementsList: React.FC<SlowElementsListProps> = React.memo(({ elements
     <div style={{ marginBottom: '4px', fontSize: '11px' }}>
       <strong>🐌 Медленные элементы:</strong>
     </div>
-    {elements.map((el: any) => (
+    {elements.map((el) => (
       <div key={el.id} style={{ fontSize: '10px', marginBottom: '2px' }}>
         {el.id}: {el.renderTime.toFixed(2)}мс
       </div>
