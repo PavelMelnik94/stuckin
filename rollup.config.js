@@ -8,7 +8,6 @@ import typescript from '@rollup/plugin-typescript';
 import * as terser from '@rollup/plugin-terser';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
-import { sizeSnapshot } from 'rollup-plugin-size-snapshot';
 
 const isProduction = process?.env?.NODE_ENV === 'production';
 
@@ -73,8 +72,7 @@ export default [
             comments: false // Удаляем комментарии
           }
         })
-      ] : []),
-      sizeSnapshot() // Отслеживание размера
+      ] : [])
     ],
     external: ['react', 'react-dom', 'mobx', 'mobx-react-lite']
   },
