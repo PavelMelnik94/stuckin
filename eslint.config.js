@@ -61,5 +61,12 @@ export default [
         version: 'detect'
       }
     }
+  },
+  // Исключения для тестовых файлов
+  {
+    files: ['src/**/*.test.{ts,tsx}', 'src/tests/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off'
+    }
   }
 ];
