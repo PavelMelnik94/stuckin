@@ -39,15 +39,10 @@ export default defineConfig(({ mode }) => {
 
     build: {
       lib: {
-        entry: {
-          index: resolve(__dirname, 'src/index.ts'),
-          hooks: resolve(__dirname, 'src/hooks/index.ts'),
-          components: resolve(__dirname, 'src/components/index.ts'),
-          utils: resolve(__dirname, 'src/utils/index.ts'),
-          debug: resolve(__dirname, 'src/debug/index.ts')
-        },
+        entry: resolve(__dirname, 'src/index.ts'),
         formats: ['es', 'cjs'],
-        name: 'stuckin'
+        name: 'stuckin',
+        fileName: (format) => `index.${format === 'cjs' ? 'cjs' : 'js'}`
       },
 
       rollupOptions: {
@@ -66,14 +61,8 @@ export default defineConfig(({ mode }) => {
             mobx: 'mobx',
             'mobx-react-lite': 'mobxReactLite'
           },
-
-          // Чистые имена для chunk'ов
-          chunkFileNames: (chunkInfo) => {
-            const facadeModuleId = chunkInfo.facadeModuleId
-              ? chunkInfo.facadeModuleId.split('/').pop()?.replace('.ts', '')
-              : 'chunk';
-            return `${facadeModuleId}-[hash].js`;
-          }
+          // Собираем всё в один файл без chunks
+          inlineDynamicImports: true
         }
       },
 
@@ -88,13 +77,7 @@ export default defineConfig(({ mode }) => {
       },
 
       // Source maps
-      sourcemap: !isProduction,
-
-      // Размер chunk'ов
-      chunkSizeWarningLimit: 500, // 500kb warning
-
-      // CSS code splitting
-      cssCodeSplit: true
+      sourcemap: !isProduction
     },
 
     // Оптимизация для development

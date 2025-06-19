@@ -47,27 +47,7 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./hooks": {
-      "types": "./dist/hooks.d.ts",
-      "import": "./dist/hooks.js",
-      "require": "./dist/hooks.cjs"
-    },
-    "./components": {
-      "types": "./dist/components.d.ts",
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs"
-    },
-    "./utils": {
-      "types": "./dist/utils.d.ts",
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs"
-    },
-    "./debug": {
-      "types": "./dist/debug.d.ts",
-      "import": "./dist/debug.js",
-      "require": "./dist/debug.cjs"
-    },
-    "./styles": "./dist/index.css",
+    "./styles": "./dist/stuckin.css",
     "./package.json": "./package.json"
   },
   "engines": {
