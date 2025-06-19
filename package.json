@@ -24,6 +24,10 @@
     "url": "https://github.com/PavelMelnik94/stuckin/issues"
   },
   "homepage": "https://github.com/PavelMelnik94/stuckin#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
@@ -92,14 +96,11 @@
     "size-limit": "size-limit",
     "analyze": "npm run build:analyze && npx vite-bundle-analyzer dist/stats.html",
     "prepublishOnly": "npm run lint && npm run type-check && npm run test:ci && npm run build && npm run size-limit",
-    "release": "npm run version:patch && npm run publish:github",
-    "release:minor": "npm run version:minor && npm run publish:github",
-    "release:major": "npm run version:major && npm run publish:github",
-    "version:patch": "npm version patch",
-    "version:minor": "npm version minor",
-    "version:major": "npm version major",
-    "publish:github": "git push origin main --tags && npm run github:release && npm publish",
-    "github:release": "gh release create v$(node -p \"require('./package.json').version\") --title \"Release v$(node -p \"require('./package.json').version\")\" --notes-file CHANGELOG.md --generate-notes"
+    "release": "npm run release:patch",
+    "release:patch": "npm version patch && npm run publish:all",
+    "release:minor": "npm version minor && npm run publish:all",
+    "release:major": "npm version major && npm run publish:all",
+    "publish:all": "git push origin main --tags && gh release create v$(node -p \"require('./package.json').version\") --title \"Release v$(node -p \"require('./package.json').version\")\" --generate-notes --latest"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
