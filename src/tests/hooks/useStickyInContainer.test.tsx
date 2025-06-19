@@ -1,6 +1,5 @@
-import { render, screen, act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react';
-import React from 'react';
+import {  screen, act } from '@testing-library/react';
 
 import { useStickyInContainer } from '../../hooks/useStickyInContainer';
 import { StickyProvider } from '../../context/StickyContext';

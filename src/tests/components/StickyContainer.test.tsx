@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 
 import { StickyContainer } from '../../components/StickyContainer';
-import { StickyProvider } from '../../context/StickyContext';
 import { renderWithProvider } from '../utils/testUtils';
 
 describe('StickyContainer', () => {

@@ -3,7 +3,9 @@
  */
 
 import { useMemo } from 'react';
+
 import { useSticky } from './useSticky';
+
 import type { UseStickyOptions, UseStickyReturn, StickyScrollContainer } from '@/types/sticky.types';
 
 export interface UseStickyInContainerOptions extends Omit<UseStickyOptions, 'scrollContainer'> {
@@ -77,9 +79,8 @@ export const useStickyInContainer = (options: UseStickyInContainerOptions): UseS
 
   // Используем базовый useSticky с дополнительной конфигурацией
   const stickyOptions: UseStickyOptions = useMemo(() => {
-    const { container, containerOffset, observeResize, ...restOptions } = options;
     return {
-      ...restOptions,
+      ...options,
       ...(scrollContainer ? { scrollContainer } : {})
     };
   }, [options, scrollContainer]);

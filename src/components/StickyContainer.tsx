@@ -25,24 +25,6 @@ export interface StickyContainerRef {
 
 /**
  * Компонент для создания sticky элементов внутри кастомных скролл-контейнеров
- *
- * @example
- * ```tsx
- * <div className="scroll-container" style={{ height: '400px', overflow: 'auto' }}>
- *   <div style={{ height: '200px' }}>Content before</div>
- *   <StickyContainer
- *     container=".scroll-container"
- *     direction="top"
- *     offset={{ top: 10 }}
- *     containerOffset={{ top: 20 }}
- *     className="my-sticky"
- *     activeClassName="is-sticky"
- *   >
- *     <div>I stick to the container!</div>
- *   </StickyContainer>
- *   <div style={{ height: '800px' }}>Long content...</div>
- * </div>
- * ```
  */
 export const StickyContainer = observer(forwardRef<StickyContainerRef, StickyContainerProps>(({
   children,
