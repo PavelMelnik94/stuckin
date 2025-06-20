@@ -4,7 +4,7 @@
  */
 
 // Основные компоненты
-export { Sticky, StickyContainer, StickyGroup, DebugPanel } from './components';
+export { Sticky, StickyContainer, DebugPanel } from './components';
 
 // Хуки
 export {
@@ -13,15 +13,8 @@ export {
   useStickyObserver,
   useResponsiveSticky,
   useSSRSticky,
-  useDebugSticky,
-  useStickyInContainer,
-  useStickyGroupGroup
+  useDebugSticky
 } from './hooks';
-
-// Дополнительные типы для контейнеров
-export type { UseStickyContainerOptions } from './hooks/useStickyInContainer';
-export type { StickyContainerProps, StickyContainerRef } from './components/StickyContainer';
-export type { StickyGroupProps, StickyGroupRef } from './components/StickyGroup';
 
 // Контекст
 export { StickyProvider, useStickyContext } from './context/StickyContext';
@@ -34,6 +27,7 @@ export type {
   StickyDirection,
   StickyPosition,
   StickyElement,
+  StickyGroup,
   StickyBoundary,
 
   // Hook типы
@@ -51,6 +45,8 @@ export type {
   // Компонент типы
   StickyProps,
   StickyRef,
+  // StickyContainerProps,
+  // StickyContainerRef,
 
   // Responsive типы
   ResponsiveConfig,
@@ -80,4 +76,4 @@ export { stickyDebugger } from './debug/StickyDebugger';
 import './styles/sticky.scss';
 
 // Версия библиотеки
-export const VERSION = '1.0.16';
+export const VERSION = '1.0.26';
