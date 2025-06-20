@@ -47,6 +47,14 @@ export default defineConfig(({ mode }) => {
       }
     },
 
+    define: {
+      // Безопасная замена process.env для браузера
+      'process.env.NODE_ENV': JSON.stringify(mode),
+      // Предотвращаем ошибки с process в браузере
+      'typeof process': JSON.stringify('undefined'),
+      global: 'globalThis',
+    },
+
     build: {
       lib: {
         entry: resolve(__dirname, 'src/index.ts'),

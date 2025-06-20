@@ -80,4 +80,4 @@ export { stickyDebugger } from './debug/StickyDebugger';
 import './styles/sticky.scss';
 
 // Версия библиотеки
-export const VERSION = '1.0.16';
+export const VERSION = '1.0.17';
