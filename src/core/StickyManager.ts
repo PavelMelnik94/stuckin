@@ -575,12 +575,15 @@ export class StickyManager {
    */
   private resetElementStylesOptimized(htmlElement: HTMLElement): void {
     const styles = htmlElement.style;
-    styles.position = '';
-    styles.top = '';
-    styles.bottom = '';
-    styles.left = '';
-    styles.right = '';
-    styles.zIndex = '';
+    const dataset = htmlElement.dataset;
+
+    // Восстанавливаем исходные стили если они были сохранены
+    styles.position = dataset['originalPosition'] || '';
+    styles.top = dataset['originalTop'] || '';
+    styles.bottom = dataset['originalBottom'] || '';
+    styles.left = dataset['originalLeft'] || '';
+    styles.right = dataset['originalRight'] || '';
+    styles.zIndex = dataset['originalZIndex'] || '';
     styles.willChange = '';
     styles.transform = '';
 
@@ -814,13 +817,19 @@ export class StickyManager {
 
   private resetElementStyles(element: StickyElement): void {
     const style = element.element.style;
-    style.position = '';
-    style.top = '';
-    style.bottom = '';
-    style.left = '';
-    style.right = '';
-    style.zIndex = '';
+    const dataset = element.element.dataset;
+
+    // Восстанавливаем исходные стили если они были сохранены
+    style.position = dataset['originalPosition'] || '';
+    style.top = dataset['originalTop'] || '';
+    style.bottom = dataset['originalBottom'] || '';
+    style.left = dataset['originalLeft'] || '';
+    style.right = dataset['originalRight'] || '';
+    style.zIndex = dataset['originalZIndex'] || '';
     style.transition = '';
+
+    // Сбрасываем активное состояние
+    element.isActive = false;
   }
 
   private applyInitialStyles(element: StickyElement): void {
@@ -830,10 +839,12 @@ export class StickyManager {
 
     // Сохраняем исходные стили для возможного восстановления
     if (!dataset['originalPosition']) {
-      dataset['originalPosition'] = style.position || 'static';
-      dataset['originalTop'] = style.top || 'auto';
-      dataset['originalLeft'] = style.left || 'auto';
-      dataset['originalZIndex'] = style.zIndex || 'auto';
+      dataset['originalPosition'] = style.position || '';
+      dataset['originalTop'] = style.top || '';
+      dataset['originalBottom'] = style.bottom || '';
+      dataset['originalLeft'] = style.left || '';
+      dataset['originalRight'] = style.right || '';
+      dataset['originalZIndex'] = style.zIndex || '';
     }
 
     // Дополнительная инициализация если нужно

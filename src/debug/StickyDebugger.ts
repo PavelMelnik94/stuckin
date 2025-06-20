@@ -141,8 +141,8 @@ class StickyDebugger {
   constructor() {
     makeObservable(this);
 
-    // Включаем отладку только в development
-    if (ENV.isDevelopment) {
+    // Включаем отладку только если debug режим включен
+    if (ENV.enableDebug) {
       this.enable();
       this.setupGlobalAPI();
     }
@@ -299,7 +299,7 @@ class StickyDebugger {
     this.events.length = 0;
     this.snapshots.length = 0;
 
-    envLog.dev('🔧 Система отладки sticky библиотеки отключена');
+    envLog.debug('🔧 Система отладки sticky библиотеки отключена');
   }
 
   /**
@@ -363,7 +363,7 @@ class StickyDebugger {
       this.snapshots.shift();
     }
 
-    envLog.dev(`📸 Снимок состояния${label ? ` "${label}"` : ''} создан`, snapshot);
+    envLog.debug(`📸 Снимок состояния${label ? ` "${label}"` : ''} создан`, snapshot);
     return snapshot;
   }
 
@@ -432,7 +432,7 @@ class StickyDebugger {
   clearHistory(): void {
     this.events.length = 0;
     this.snapshots.length = 0;
-    envLog.dev('🧹 История отладки очищена');
+    envLog.debug('🧹 История отладки очищена');
   }
 
   // === ПРИВАТНЫЕ МЕТОДЫ ===
@@ -640,7 +640,7 @@ class StickyDebugger {
         this.log(level, elementId, message, data)
     };
 
-    envLog.dev(
+    envLog.debug(
       '%c🔧 Sticky Debug API доступен через window.__STICKY_DEBUG__',
       'color: #4CAF50; font-weight: bold; font-size: 14px'
     );

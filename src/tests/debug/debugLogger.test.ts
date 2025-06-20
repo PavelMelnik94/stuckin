@@ -4,6 +4,7 @@
 
 import { debugLogger } from '../../debug/debugLogger';
 import { stickyDebugger } from '../../debug/StickyDebugger';
+import { setGlobalDebugMode } from '../../utils/env';
 
 // Мокаем StickyDebugger
 jest.mock('../../debug/StickyDebugger', () => ({
@@ -12,20 +13,18 @@ jest.mock('../../debug/StickyDebugger', () => ({
   }
 }));
 
-// Мокаем ENV для production проверок
-jest.mock('../../utils/env', () => ({
-  ENV: {
-    isProduction: false,
-    isDevelopment: true,
-    isTest: true
-  }
-}));
-
 describe('debugLogger', () => {
   const mockedStickyDebugger = stickyDebugger as jest.Mocked<typeof stickyDebugger>;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Включаем debug режим для тестов
+    setGlobalDebugMode(true);
+  });
+
+  afterEach(() => {
+    // Выключаем debug режим после тестов
+    setGlobalDebugMode(false);
   });
 
   describe('методы логирования по уровням', () => {

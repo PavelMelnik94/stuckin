@@ -1,33 +1,28 @@
 /**
- * Утилиты для работы с environment переменными
- * - Single Responsibility: только env логика
+ * Утилиты для определения окружения
+ * - Не зависят от process.env
+ * - Контролируются пользователем через провайдер
  * - Pure Functions: без побочных эффектов
- * - Type Safety: строгая типизация
  */
 
 /**
- * Безопасное получение NODE_ENV с fallback для browser/node окружений
+ * Глобальное состояние debug режима
+ * Будет устанавливаться через StickyProvider
  */
-const getNodeEnv = (): 'development' | 'production' | 'test' => {
-  // В браузере всегда используем production
-  if (typeof window !== 'undefined') {
-    return 'production';
-  }
+let globalDebugEnabled = false;
 
-  // В Node.js окружении (например, тесты)
-  // Используем глобальную переменную, которая будет заменена во время сборки
-  try {
-    // @ts-ignore - эта переменная будет заменена Vite
-    const nodeEnv = __NODE_ENV__;
-    if (nodeEnv === 'development' || nodeEnv === 'production' || nodeEnv === 'test') {
-      return nodeEnv;
-    }
-  } catch {
-    // Fallback
-  }
+/**
+ * Установка глобального debug режима
+ */
+export const setGlobalDebugMode = (enabled: boolean): void => {
+  globalDebugEnabled = enabled;
+};
 
-  // Fallback для неопределенного NODE_ENV
-  return 'development';
+/**
+ * Получение текущего debug режима
+ */
+export const getGlobalDebugMode = (): boolean => {
+  return globalDebugEnabled;
 };
 
 /**
@@ -45,87 +40,62 @@ const isServerEnv = (): boolean => {
 };
 
 /**
- * Безопасное получение environment переменных для browser/node окружений
- */
-const getEnvVar = (_key: string, defaultValue: string = ''): string => {
-  // В браузере не используем environment переменные
-  if (typeof window !== 'undefined') {
-    return defaultValue;
-  }
-
-  // В Node.js среде возвращаем дефолтное значение
-  // Это безопасно, так как мы не храним чувствительных данных
-  return defaultValue;
-};
-
-/**
  * Константы окружения для всего приложения
- * Принцип Information Expert: централизованная информация об окружении
+ * Больше не зависят от NODE_ENV, контролируются пользователем
  */
 export const ENV = {
-  // Основные флаги окружения (динамические)
-  get isDevelopment() { return getNodeEnv() === 'development'; },
-  get isProduction() { return getNodeEnv() === 'production'; },
-  get isTest() { return getNodeEnv() === 'test'; },
-
-  // Исходное значение (динамическое)
-  get nodeEnv() { return getNodeEnv(); },
-
-  // Флаги платформы
+  // Платформа
   isBrowser: isBrowserEnv(),
   isServer: isServerEnv(),
 
-  // Дополнительные build флаги
-  buildMode: getEnvVar('BUILD_MODE', 'library') as 'library' | 'standalone',
-  analyzeBundle: getEnvVar('ANALYZE_BUNDLE') === 'true',
+  // Debug режим контролируется пользователем
+  get enableDebug() { return getGlobalDebugMode(); },
+  get enablePerformanceTracking() { return getGlobalDebugMode(); },
 
-  // Debug флаги
-  enableDebug: getNodeEnv() === 'development',
-  enablePerformanceTracking: getNodeEnv() !== 'production'
+  // Build флаги (статические)
+  buildMode: 'library' as const,
+  analyzeBundle: false
 } as const;
 
 /**
  * Type guards для проверки окружения
- * Принцип: явные функции вместо прямого обращения к константам
+ * Теперь основаны на debug режиме пользователя
  */
-export const isDev = (): boolean => ENV.isDevelopment;
-export const isProd = (): boolean => ENV.isProduction;
-export const isTest = (): boolean => ENV.isTest;
+export const isDebugMode = (): boolean => ENV.enableDebug;
 export const isBrowser = (): boolean => ENV.isBrowser;
 export const isServer = (): boolean => ENV.isServer;
 
 /**
- * Логирование с учетом окружения
- * Принцип: централизованная логика логирования
+ * Логирование с учетом debug режима пользователя
  */
 export const envLog = {
   /**
-   * Логирование только в development
+   * Логирование только в debug режиме
    */
-  dev: (...args: unknown[]): void => {
-    if (ENV.isDevelopment) {
-      console.log('[DEV]', ...args);
+  debug: (...args: unknown[]): void => {
+    if (ENV.enableDebug) {
+      console.log('[DEBUG]', ...args);
     }
   },
 
   /**
-   * Предупреждения во всех окружениях кроме production
+   * Предупреждения только в debug режиме
    */
   warn: (...args: unknown[]): void => {
-    if (!ENV.isProduction) {
+    if (ENV.enableDebug) {
       console.warn('[WARN]', ...args);
     }
   },
 
   /**
-   * Ошибки во всех окружениях
+   * Ошибки всегда показываются
    */
   error: (...args: unknown[]): void => {
     console.error('[ERROR]', ...args);
   },
 
   /**
-   * Performance логи только если включено
+   * Performance логи только если включен debug
    */
   performance: (...args: unknown[]): void => {
     if (ENV.enablePerformanceTracking) {

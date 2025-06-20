@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import type { StickyContextValue } from '@/types/sticky.types';
 import { StickyManager } from '@/core/StickyManager';
 import { debugLogger } from '@/debug/debugLogger';
+import { setGlobalDebugMode } from '@/utils/env';
 
 
 /**
@@ -25,6 +26,11 @@ export const StickyProvider: React.FC<StickyProviderProps> = observer(({
   debug = false
 }) => {
   const managerRef = useRef<StickyManager | null>(null);
+
+  // Устанавливаем debug режим при монтировании
+  useEffect(() => {
+    setGlobalDebugMode(debug);
+  }, [debug]);
 
   // Инициализируем менеджер только один раз
   if (!managerRef.current) {

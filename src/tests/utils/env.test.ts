@@ -2,85 +2,69 @@
  * Unit тесты для utils/env.ts
  */
 
-// Настраиваем глобальный window для тестов
-const mockWindow = {};
-
-// Проверяем и настраиваем window только если не существует
-if (typeof window === 'undefined') {
-  Object.defineProperty(global, 'window', {
-    writable: true,
-    value: mockWindow
-  });
-} else {
-  // Если window уже существует, обновляем его свойства
-  Object.assign(window, mockWindow);
-}
-
-// Теперь импортируем модуль
-import { ENV, envLog, browserSupport, isDev, isProd, isTest, isBrowser, isServer } from '../../utils/env';
+import { ENV, envLog, browserSupport, isDebugMode, isBrowser, isServer, setGlobalDebugMode, getGlobalDebugMode } from '../../utils/env';
 
 describe('ENV', () => {
-  describe('статические значения в test среде', () => {
-    test('должен правильно определять test environment', () => {
-      // В браузерном окружении (jsdom) наша новая логика возвращает production по умолчанию для безопасности
-      // Это корректное поведение для предотвращения ошибок с process.env в браузере
-      expect(ENV.isProduction).toBe(true);
-      expect(ENV.isDevelopment).toBe(false);
-      expect(ENV.isTest).toBe(false);
-    });
+  beforeEach(() => {
+    // Сбрасываем debug режим перед каждым тестом
+    setGlobalDebugMode(false);
+  });
 
+  describe('platform detection', () => {
     test('должен правильно определять браузерную среду', () => {
       // В тестах window определен через jsdom
       expect(ENV.isBrowser).toBe(true);
       expect(ENV.isServer).toBe(false);
     });
 
-    test('должен правильно настраивать debug в test среде', () => {
-      // В браузерном окружении с production по умолчанию debug отключен
-      expect(ENV.enableDebug).toBe(false);
-    });
-
-    test('должен правильно настраивать performance tracking', () => {
-      // В production режиме performance tracking отключен
-      expect(ENV.enablePerformanceTracking).toBe(false);
+    test('type guards должны работать корректно', () => {
+      expect(isBrowser()).toBe(true);
+      expect(isServer()).toBe(false);
     });
   });
 
-  describe('динамические проверки', () => {
-    test('должен проверять NODE_ENV корректно', () => {
-      expect(process?.env?.['NODE_ENV']).toBe('test');
+  describe('debug mode control', () => {
+    test('должен управлять debug режимом через global state', () => {
+      // По умолчанию debug отключен
+      expect(getGlobalDebugMode()).toBe(false);
+      expect(ENV.enableDebug).toBe(false);
+
+      // Включаем debug
+      setGlobalDebugMode(true);
+      expect(getGlobalDebugMode()).toBe(true);
+      expect(ENV.enableDebug).toBe(true);
+
+      // Выключаем debug
+      setGlobalDebugMode(false);
+      expect(getGlobalDebugMode()).toBe(false);
+      expect(ENV.enableDebug).toBe(false);
     });
 
-    test('все ENV свойства должны быть boolean', () => {
-      expect(typeof ENV.isDevelopment).toBe('boolean');
-      expect(typeof ENV.isProduction).toBe('boolean');
-      expect(typeof ENV.isTest).toBe('boolean');
+    test('performance tracking должен следовать за debug режимом', () => {
+      setGlobalDebugMode(false);
+      expect(ENV.enablePerformanceTracking).toBe(false);
+
+      setGlobalDebugMode(true);
+      expect(ENV.enablePerformanceTracking).toBe(true);
+    });
+
+    test('isDebugMode type guard должен работать корректно', () => {
+      setGlobalDebugMode(false);
+      expect(isDebugMode()).toBe(false);
+
+      setGlobalDebugMode(true);
+      expect(isDebugMode()).toBe(true);
+    });
+  });
+
+  describe('static properties', () => {
+    test('все свойства должны иметь правильные типы', () => {
       expect(typeof ENV.isBrowser).toBe('boolean');
       expect(typeof ENV.isServer).toBe('boolean');
       expect(typeof ENV.enableDebug).toBe('boolean');
       expect(typeof ENV.enablePerformanceTracking).toBe('boolean');
-    });
-  });
-
-  describe('type guards', () => {
-    test('isDev должен работать корректно', () => {
-      expect(typeof isDev()).toBe('boolean');
-    });
-
-    test('isProd должен работать корректно', () => {
-      expect(typeof isProd()).toBe('boolean');
-    });
-
-    test('isTest должен работать корректно', () => {
-      expect(typeof isTest()).toBe('boolean');
-    });
-
-    test('isBrowser должен работать корректно', () => {
-      expect(typeof isBrowser()).toBe('boolean');
-    });
-
-    test('isServer должен работать корректно', () => {
-      expect(typeof isServer()).toBe('boolean');
+      expect(ENV.buildMode).toBe('library');
+      expect(typeof ENV.analyzeBundle).toBe('boolean');
     });
   });
 
@@ -97,24 +81,44 @@ describe('ENV', () => {
       Object.assign(console, originalConsole);
     });
 
-    test('dev должен логировать в development mode', () => {
-      envLog.dev('test message');
-      expect(typeof envLog.dev).toBe('function');
+    test('debug должен логировать только в debug режиме', () => {
+      setGlobalDebugMode(false);
+      envLog.debug('test message');
+      expect(console.log).not.toHaveBeenCalled();
+
+      setGlobalDebugMode(true);
+      envLog.debug('test message');
+      expect(console.log).toHaveBeenCalledWith('[DEBUG]', 'test message');
     });
 
-    test('warn должен предупреждать', () => {
+    test('warn должен логировать только в debug режиме', () => {
+      setGlobalDebugMode(false);
       envLog.warn('warning message');
-      expect(typeof envLog.warn).toBe('function');
+      expect(console.warn).not.toHaveBeenCalled();
+
+      setGlobalDebugMode(true);
+      envLog.warn('warning message');
+      expect(console.warn).toHaveBeenCalledWith('[WARN]', 'warning message');
     });
 
-    test('error должен выводить ошибки', () => {
+    test('error должен всегда выводить ошибки', () => {
+      setGlobalDebugMode(false);
+      envLog.error('error message');
+      expect(console.error).toHaveBeenCalledWith('[ERROR]', 'error message');
+
+      setGlobalDebugMode(true);
       envLog.error('error message');
       expect(console.error).toHaveBeenCalledWith('[ERROR]', 'error message');
     });
 
-    test('performance должен логировать', () => {
+    test('performance должен логировать только в debug режиме', () => {
+      setGlobalDebugMode(false);
       envLog.performance('perf message');
-      expect(typeof envLog.performance).toBe('function');
+      expect(console.log).not.toHaveBeenCalled();
+
+      setGlobalDebugMode(true);
+      envLog.performance('perf message');
+      expect(console.log).toHaveBeenCalledWith('[PERF]', 'perf message');
     });
   });
 

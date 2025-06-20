@@ -40,10 +40,10 @@ class PerformanceMonitor {
   }
 
   /**
-   * Включение мониторинга (только в development/test)
+   * Включение мониторинга (только если debug включен)
    */
   enable(): void {
-    if (ENV.isDevelopment || ENV.isTest) {
+    if (ENV.enableDebug) {
       this.isEnabled = true;
       debugLogger.info('performance-monitor', 'Performance monitoring enabled');
       this.startMemoryMonitoring();

@@ -84,8 +84,8 @@ export const DebugPanel: React.FC<DebugPanelProps> = observer(({
     stickyDebugger.captureSnapshot('manual');
   }, []);
 
-  // Не показываем в production (принцип: безопасность)
-  if (ENV.isProduction) {
+  // Показываем только если включен debug режим
+  if (!ENV.enableDebug) {
     return null;
   }
 

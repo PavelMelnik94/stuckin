@@ -3,22 +3,24 @@
  */
 
 import { stickyDebugger } from '../../debug/StickyDebugger';
+import { setGlobalDebugMode } from '../../utils/env';
 
 // Mock environment для тестирования
 jest.mock('../../utils/env', () => ({
   ENV: {
-    isDevelopment: true,
-    isProd: false,
-    isTest: true,
     isBrowser: true,
-    isServer: false
+    isServer: false,
+    enableDebug: true,
+    enablePerformanceTracking: true
   },
   envLog: {
-    dev: jest.fn(),
+    debug: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
     performance: jest.fn()
-  }
+  },
+  setGlobalDebugMode: jest.fn(),
+  getGlobalDebugMode: jest.fn(() => true)
 }));
 
 // Mock performance monitor
@@ -41,9 +43,17 @@ jest.mock('../../utils/performance', () => ({
 
 describe('StickyDebugger', () => {
   beforeEach(() => {
+    // Включаем debug режим для тестов
+    setGlobalDebugMode(true);
+
     // Очищаем состояние debugger между тестами
     stickyDebugger.clearHistory();
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // Выключаем debug режим после тестов
+    setGlobalDebugMode(false);
   });
 
   describe('базовая функциональность', () => {
