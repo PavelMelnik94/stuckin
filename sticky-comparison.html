@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Исправленная Sticky Logic</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+
+    .container {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .test-container {
+      width: 350px;
+      height: 500px;
+      background: white;
+      border: 3px solid #007acc;
+      border-radius: 8px;
+      overflow: auto;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .test-content {
+      height: 1200px;
+      padding: 30px;
+    }
+
+    .content-block {
+      background: #e9ecef;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      text-align: center;
+      color: #495057;
+    }
+
+    .sticky-element {
+      background: #ff6b6b;
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+      margin: 20px 0;
+      transition: all 0.3s ease;
+    }
+
+    .sticky-element.sticky-old {
+      background: #ffc107;
+      color: #000;
+    }
+
+    .sticky-element.sticky-new {
+      background: #28a745;
+      color: white;
+    }
+
+    .debug-panel {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 300px;
+      max-height: 80vh;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 15px;
+      font-size: 12px;
+      z-index: 10000;
+      font-family: monospace;
+    }
+
+    .comparison-title {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .test-title {
+      background: #007acc;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      margin: -3px -3px 0 -3px;
+      border-radius: 5px 5px 0 0;
+    }
+
+    .controls {
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    button {
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #005a9e;
+    }
+
+    .log-entry {
+      margin: 3px 0;
+      padding: 3px;
+      font-size: 11px;
+      border-left: 2px solid #ddd;
+      background: #f9f9f9;
+    }
+
+    .log-old {
+      border-left-color: #ffc107;
+    }
+
+    .log-new {
+      border-left-color: #28a745;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 class="comparison-title">🔧 Сравнение старой и новой sticky логики</h1>
+
+  <div class="controls">
+    <button onclick="clearLogs()">Очистить логи</button>
+    <button onclick="scrollBothToTop()">К началу</button>
+    <button onclick="scrollBothToMiddle()">К середине</button>
+  </div>
+
+  <div class="container">
+    <!-- Старый подход: position: sticky -->
+    <div class="test-container" id="containerOld">
+      <div class="test-title">❌ Старый подход (position: sticky)</div>
+      <div class="test-content">
+        <div class="content-block">Контент до sticky</div>
+        <div class="sticky-element" id="stickyOld">
+          Старая логика
+          <br><small>position: sticky</small>
+        </div>
+        <div class="content-block">Контент после</div>
+        <div class="content-block">Еще контент</div>
+        <div class="content-block">Больше контента</div>
+      </div>
+    </div>
+
+    <!-- Новый подход: position: absolute -->
+    <div class="test-container" id="containerNew">
+      <div class="test-title">✅ Новый подход (position: absolute)</div>
+      <div class="test-content">
+        <div class="content-block">Контент до sticky</div>
+        <div class="sticky-element" id="stickyNew">
+          Новая логика
+          <br><small>position: absolute</small>
+        </div>
+        <div class="content-block">Контент после</div>
+        <div class="content-block">Еще контент</div>
+        <div class="content-block">Больше контента</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="debug-panel" id="debugPanel">
+    <h3>🔧 Debug Log</h3>
+    <div id="debugLog"></div>
+  </div>
+
+  <script>
+    class StickyTester {
+      constructor(element, container, approach = 'old') {
+        this.element = element;
+        this.container = container;
+        this.approach = approach;
+        this.isSticky = false;
+        this.originalStyles = this.saveOriginalStyles();
+        this.offset = 10;
+
+        this.init();
+      }
+
+      saveOriginalStyles() {
+        const computed = getComputedStyle(this.element);
+        return {
+          position: computed.position,
+          top: computed.top,
+          left: computed.left,
+          zIndex: computed.zIndex
+        };
+      }
+
+      init() {
+        // Убеждаемся что контейнер имеет relative позиционирование
+        if (getComputedStyle(this.container).position === 'static') {
+          this.container.style.position = 'relative';
+        }
+
+        this.container.addEventListener('scroll', () => this.handleScroll());
+        this.handleScroll(); // Начальная проверка
+      }
+
+      handleScroll() {
+        const containerRect = this.container.getBoundingClientRect();
+        const elementRect = this.element.getBoundingClientRect();
+
+        // Позиция элемента относительно контейнера
+        const relativeTop = elementRect.top - containerRect.top;
+        const shouldBeSticky = relativeTop <= this.offset;
+
+        this.log(`Scroll: relTop=${Math.round(relativeTop)}, threshold=${this.offset}, shouldStick=${shouldBeSticky}`);
+
+        if (shouldBeSticky && !this.isSticky) {
+          this.makeSticky();
+        } else if (!shouldBeSticky && this.isSticky) {
+          this.makeNormal();
+        }
+      }
+
+      makeSticky() {
+        this.isSticky = true;
+
+        if (this.approach === 'old') {
+          // Старый подход: position: sticky (не работает в кастомном контейнере)
+          this.element.style.position = 'sticky';
+          this.element.style.top = this.offset + 'px';
+          this.element.classList.add('sticky-old');
+          this.log('❌ Made sticky with position: sticky (не работает)');
+        } else {
+          // Новый подход: position: absolute с пересчетом позиции
+          this.element.style.position = 'absolute';
+          this.updateAbsolutePosition();
+          this.element.classList.add('sticky-new');
+          this.log('✅ Made sticky with position: absolute');
+        }
+
+        this.element.style.zIndex = '1000';
+      }
+
+      makeNormal() {
+        this.isSticky = false;
+        this.element.style.position = this.originalStyles.position;
+        this.element.style.top = this.originalStyles.top;
+        this.element.style.left = this.originalStyles.left;
+        this.element.style.zIndex = this.originalStyles.zIndex;
+        this.element.classList.remove('sticky-old', 'sticky-new');
+
+        this.log(`Made normal (${this.approach})`);
+      }
+
+      updateAbsolutePosition() {
+        if (this.approach === 'new' && this.isSticky) {
+          const scrollTop = this.container.scrollTop;
+          const scrollLeft = this.container.scrollLeft;
+
+          this.element.style.top = (scrollTop + this.offset) + 'px';
+          this.element.style.left = scrollLeft + 'px';
+          this.element.style.right = 'auto';
+          this.element.style.width = (this.container.clientWidth - 60) + 'px'; // Учитываем padding
+
+          this.log(`Updated absolute position: top=${scrollTop + this.offset}, left=${scrollLeft}`);
+        }
+      }
+
+      log(message) {
+        const debugLog = document.getElementById('debugLog');
+        const entry = document.createElement('div');
+        entry.className = `log-entry log-${this.approach}`;
+        entry.innerHTML = `[${this.approach.toUpperCase()}] ${message}`;
+        debugLog.appendChild(entry);
+        debugLog.scrollTop = debugLog.scrollHeight;
+
+        // Ограничиваем количество сообщений
+        while (debugLog.children.length > 50) {
+          debugLog.removeChild(debugLog.firstChild);
+        }
+      }
+    }
+
+    let oldTester, newTester;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Инициализируем тестеры
+      oldTester = new StickyTester(
+        document.getElementById('stickyOld'),
+        document.getElementById('containerOld'),
+        'old'
+      );
+
+      newTester = new StickyTester(
+        document.getElementById('stickyNew'),
+        document.getElementById('containerNew'),
+        'new'
+      );
+
+      // Для нового подхода добавляем обновление позиции при скролле
+      document.getElementById('containerNew').addEventListener('scroll', () => {
+        if (newTester) {
+          newTester.updateAbsolutePosition();
+        }
+      });
+    });
+
+    function clearLogs() {
+      document.getElementById('debugLog').innerHTML = '';
+    }
+
+    function scrollBothToTop() {
+      document.getElementById('containerOld').scrollTop = 0;
+      document.getElementById('containerNew').scrollTop = 0;
+    }
+
+    function scrollBothToMiddle() {
+      const containers = [
+        document.getElementById('containerOld'),
+        document.getElementById('containerNew')
+      ];
+
+      containers.forEach(container => {
+        container.scrollTop = container.scrollHeight / 2;
+      });
+    }
+  </script>
+</body>
+
+</html>
