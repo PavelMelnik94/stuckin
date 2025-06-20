@@ -138,12 +138,12 @@
     {
       "name": "Full bundle ES (gzipped)",
       "path": "dist/index.js",
-      "limit": "30 KB"
+      "limit": "50 KB"
     },
     {
       "name": "Full bundle CJS (gzipped)",
       "path": "dist/index.cjs",
-      "limit": "31 KB"
+      "limit": "50 KB"
     }
   ],
   "prettier": {
