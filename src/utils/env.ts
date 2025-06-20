@@ -70,13 +70,13 @@ const getEnvVar = (key: string, defaultValue: string = ''): string => {
  * Принцип Information Expert: централизованная информация об окружении
  */
 export const ENV = {
-  // Основные флаги окружения
-  isDevelopment: getNodeEnv() === 'development',
-  isProduction: getNodeEnv() === 'production',
-  isTest: getNodeEnv() === 'test',
+  // Основные флаги окружения (динамические)
+  get isDevelopment() { return getNodeEnv() === 'development'; },
+  get isProduction() { return getNodeEnv() === 'production'; },
+  get isTest() { return getNodeEnv() === 'test'; },
 
-  // Исходное значение
-  nodeEnv: getNodeEnv(),
+  // Исходное значение (динамическое)
+  get nodeEnv() { return getNodeEnv(); },
 
   // Флаги платформы
   isBrowser: isBrowserEnv(),

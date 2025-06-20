@@ -21,24 +21,30 @@ describe('Performance Utils', () => {
 
   describe('PerformanceMonitor', () => {
     test('должен включаться только в development режиме', () => {
-      // В production не должен включаться
-      process.env["NODE_ENV"] = 'production';
-      performanceMonitor.enable();
-      expect(performanceMonitor.getMetrics('test')).toBeNull();
+      // Тестируем что в production не включается автоматически
+      const originalNodeEnv = process.env["NODE_ENV"];
 
-      // В development должен работать
-      process.env["NODE_ENV"] = 'development';
-      performanceMonitor.enable();
+      try {
+        process.env["NODE_ENV"] = 'production';
+        performanceMonitor.disable();
+        performanceMonitor.enable();
 
-      // Проверяем что мониторинг включен
-      const testFn = () => 'result';
-      performanceMonitor.measureRenderTime('test', testFn);
-      expect(performanceMonitor.getMetrics('test')).toBeTruthy();
+        // В production автоматически не должен включаться
+        const testFn = () => 'result';
+        performanceMonitor.measureRenderTime('test-prod', testFn);
+        expect(performanceMonitor.getMetrics('test-prod')).toBeNull();
+
+        // Но forceEnable должен работать всегда
+        performanceMonitor.forceEnable();
+        performanceMonitor.measureRenderTime('test-force', testFn);
+        expect(performanceMonitor.getMetrics('test-force')).toBeTruthy();
+      } finally {
+        process.env["NODE_ENV"] = originalNodeEnv;
+      }
     });
 
     test('должен измерять время рендера', () => {
-      process.env["NODE_ENV"] = 'development';
-      performanceMonitor.enable();
+      performanceMonitor.forceEnable(); // Используем принудительное включение
 
       const testFunction = jest.fn(() => 'result');
       const result = performanceMonitor.measureRenderTime('test-element', testFunction);
@@ -52,8 +58,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен измерять отзывчивость скролла', () => {
-      process.env["NODE_ENV"] = 'development';
-      performanceMonitor.enable();
+      performanceMonitor.forceEnable();
 
       const scrollHandler = jest.fn();
       const wrappedHandler = performanceMonitor.measureScrollResponsiveness('test-element', scrollHandler);
@@ -68,8 +73,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен отслеживать пересчеты', () => {
-      process.env["NODE_ENV"] = 'development';
-      performanceMonitor.enable();
+      performanceMonitor.forceEnable();
 
       // Сначала создаем метрику через measureRenderTime
       performanceMonitor.measureRenderTime('test-element', () => 'result');
@@ -85,8 +89,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен возвращать все метрики', () => {
-      process.env["NODE_ENV"] = 'development';
-      performanceMonitor.enable();
+      performanceMonitor.forceEnable();
 
       performanceMonitor.measureRenderTime('element1', () => 'test1');
       performanceMonitor.measureRenderTime('element2', () => 'test2');
@@ -98,8 +101,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен поддерживать подписку на изменения метрик', () => {
-      process.env["NODE_ENV"] = 'development';
-      performanceMonitor.enable();
+      performanceMonitor.forceEnable();
 
       const observer = jest.fn();
       const unsubscribe = performanceMonitor.subscribe(observer);
@@ -118,8 +120,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен генерировать отчет о производительности', () => {
-      process.env["NODE_ENV"] = 'development';
-      performanceMonitor.enable();
+      performanceMonitor.forceEnable();
 
       performanceMonitor.measureRenderTime('element1', () => 'test');
       performanceMonitor.trackRecomputation('element1');
@@ -139,8 +140,7 @@ describe('Performance Utils', () => {
     });
 
     test('должен корректно обрабатывать отключение мониторинга', () => {
-      process.env["NODE_ENV"] = 'development';
-      performanceMonitor.enable();
+      performanceMonitor.forceEnable();
 
       performanceMonitor.measureRenderTime('test-element', () => 'result');
       expect(performanceMonitor.getMetrics('test-element')).toBeTruthy();

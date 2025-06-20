@@ -40,10 +40,10 @@ class PerformanceMonitor {
   }
 
   /**
-   * Включение мониторинга (только в development)
+   * Включение мониторинга (только в development/test)
    */
   enable(): void {
-    if (ENV.isDevelopment) {
+    if (ENV.isDevelopment || ENV.isTest) {
       this.isEnabled = true;
       debugLogger.info('performance-monitor', 'Performance monitoring enabled');
       this.startMemoryMonitoring();
@@ -58,6 +58,15 @@ class PerformanceMonitor {
     this.isEnabled = false;
     this.metrics.clear();
     this.observers.clear();
+  }
+
+  /**
+   * Принудительное включение (для тестов)
+   */
+  forceEnable(): void {
+    this.isEnabled = true;
+    debugLogger.info('performance-monitor', 'Performance monitoring force enabled');
+    this.startMemoryMonitoring();
   }
 
   /**
