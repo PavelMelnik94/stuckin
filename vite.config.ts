@@ -116,12 +116,6 @@ export default defineConfig(({ mode }) => {
       minifyWhitespace: isProduction,
       // Более агрессивная оптимизация
       treeShaking: true
-    },
-
-    // Дополнительные оптимизации
-    define: {
-      __DEV__: !isProduction,
-      'process.env.NODE_ENV': JSON.stringify(mode)
     }
   };
 });
