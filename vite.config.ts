@@ -1,10 +1,10 @@
 /**
- * Vite конфигурация с SWC для максимальной производительности
- * SWC обеспечивает значительно более быструю сборку чем Rollup
+ * Vite конфигурация как альтернатива Webpack
+ * Более быстрая сборка для современных проектов
  */
 
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import dts from 'vite-plugin-dts';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -14,21 +14,14 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      // SWC React plugin для максимальной производительности
       react({
-        // SWC конфигурация
-        jsxRuntime: 'automatic',
-        tsDecorators: true,
-        plugins: [
-          // Дополнительные SWC плагины при необходимости
-        ]
+        jsxRuntime: 'automatic'
       }),
 
       // Генерация TypeScript деклараций
       dts({
         insertTypesEntry: true,
-        exclude: ['**/*.test.*', '**/*.spec.*'],
-        rollupTypes: true
+        exclude: ['**/*.test.*', '**/*.spec.*']
       }),
 
       // Анализ bundle размера
@@ -36,8 +29,7 @@ export default defineConfig(({ mode }) => {
         filename: 'dist/bundle-analysis.html',
         open: false,
         gzipSize: true,
-        brotliSize: true,
-        template: 'treemap' // более информативный вид
+        brotliSize: true
       })
     ],
 
@@ -45,6 +37,12 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': resolve(__dirname, 'src')
       }
+    },
+
+    define: {
+      // Для совместимости с браузерами, которые не поддерживают process.env
+      'process.env.NODE_ENV': JSON.stringify(mode),
+      'process.env': {}
     },
 
     build: {
@@ -76,44 +74,27 @@ export default defineConfig(({ mode }) => {
             'mobx-react-lite': 'mobxReactLite'
           },
           // Собираем всё в один файл без chunks
-          inlineDynamicImports: true,
-          // Дополнительные оптимизации
-          compact: true,
-          minifyInternalExports: true
-        },
-
-        // Дополнительные плагины для оптимизации
-        plugins: isProduction ? [
-          // Дополнительная tree shaking оптимизация
-        ] : []
+          inlineDynamicImports: true
+        }
       },
 
-      // Оптимизация минификации через SWC (быстрее чем terser)
-      minify: isProduction ? 'esbuild' : false,
-
-      // SWC оптимизации
-      target: 'es2020',
+      // Оптимизация минификации
+      minify: isProduction ? 'terser' : false,
+      terserOptions: {
+        compress: {
+          drop_console: isProduction,
+          drop_debugger: true,
+          pure_funcs: ['console.log', 'console.debug']
+        }
+      },
 
       // Source maps
       sourcemap: !isProduction
     },
 
-    // Дополнительные esbuild оптимизации (работает совместно с SWC)
+    // Оптимизация для development
     esbuild: {
-      target: 'es2020',
-      drop: isProduction ? ['console', 'debugger'] : [],
-      legalComments: 'none',
-      minifyIdentifiers: isProduction,
-      minifySyntax: isProduction,
-      minifyWhitespace: isProduction,
-      // Более агрессивная оптимизация
-      treeShaking: true
-    },
-
-    // Дополнительные оптимизации
-    define: {
-      __DEV__: !isProduction,
-      'process.env.NODE_ENV': JSON.stringify(mode)
+      drop: isProduction ? ['console', 'debugger'] : []
     }
   };
 });

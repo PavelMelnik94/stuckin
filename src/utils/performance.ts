@@ -3,6 +3,8 @@
  * Принцип SRP: отвечает только за сбор и анализ метрик производительности
  */
 
+import { ENV } from './env';
+
 import { debugLogger } from '@/debug/debugLogger';
 
 export interface PerformanceMetrics {
@@ -41,7 +43,7 @@ class PerformanceMonitor {
    * Включение мониторинга (только в development)
    */
   enable(): void {
-    if (process?.env?.['NODE_ENV'] === 'development') {
+    if (ENV.isDevelopment) {
       this.isEnabled = true;
       debugLogger.info('performance-monitor', 'Performance monitoring enabled');
       this.startMemoryMonitoring();
