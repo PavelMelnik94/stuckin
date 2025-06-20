@@ -50,8 +50,8 @@ export default defineConfig(({ mode }) => {
     define: {
       // Безопасная замена process.env для браузера
       'process.env.NODE_ENV': JSON.stringify(mode),
-      // Предотвращаем ошибки с process в браузере
       'process.env': '{}',
+      '__NODE_ENV__': JSON.stringify(mode),
       global: 'globalThis',
     },
 

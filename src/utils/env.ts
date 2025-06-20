@@ -9,22 +9,21 @@
  * Безопасное получение NODE_ENV с fallback для browser/node окружений
  */
 const getNodeEnv = (): 'development' | 'production' | 'test' => {
-  // Проверка браузерного окружения первым приоритетом
+  // В браузере всегда используем production
   if (typeof window !== 'undefined') {
-    // В браузере используем production по умолчанию для безопасности
     return 'production';
   }
 
-  // Node.js окружение
+  // В Node.js окружении (например, тесты)
+  // Используем глобальную переменную, которая будет заменена во время сборки
   try {
-    if (typeof process !== 'undefined' && process.env) {
-      const env = process.env['NODE_ENV'];
-      if (env === 'development' || env === 'production' || env === 'test') {
-        return env;
-      }
+    // @ts-ignore - эта переменная будет заменена Vite
+    const nodeEnv = __NODE_ENV__;
+    if (nodeEnv === 'development' || nodeEnv === 'production' || nodeEnv === 'test') {
+      return nodeEnv;
     }
   } catch {
-    // Если process недоступен, используем fallback
+    // Fallback
   }
 
   // Fallback для неопределенного NODE_ENV
@@ -48,20 +47,14 @@ const isServerEnv = (): boolean => {
 /**
  * Безопасное получение environment переменных для browser/node окружений
  */
-const getEnvVar = (key: string, defaultValue: string = ''): string => {
+const getEnvVar = (_key: string, defaultValue: string = ''): string => {
   // В браузере не используем environment переменные
   if (typeof window !== 'undefined') {
     return defaultValue;
   }
 
-  // Node.js окружение
-  try {
-    if (typeof process !== 'undefined' && process.env) {
-      return process.env[key] || defaultValue;
-    }
-  } catch {
-    // process недоступен
-  }
+  // В Node.js среде возвращаем дефолтное значение
+  // Это безопасно, так как мы не храним чувствительных данных
   return defaultValue;
 };
 

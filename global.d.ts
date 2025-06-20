@@ -3,6 +3,9 @@
  * Принцип Interface Segregation: отдельные интерфейсы для разных нужд
  */
 
+// === BUILD-TIME CONSTANTS ===
+declare const __NODE_ENV__: 'development' | 'production' | 'test';
+
 // === WINDOW EXTENSIONS ===
 declare global {
   interface Window {
